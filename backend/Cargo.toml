@@ -1,0 +1,16 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dotenvy="0.15"
+env_logger = "0.11"
+actix-web="4.8"
+diesel={version="2", features = ["postgres", "r2d2", "uuid"]}
+serde ={ version = "1.0", features = ["derive"] }
+uuid = {version = "1.0", features = ["v4",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+    ]}
+#r2d2="0.8"
