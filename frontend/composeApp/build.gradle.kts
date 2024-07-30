@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.org.jetbrains.kotlin.plugin.serialization)
 }
 
 kotlin {
@@ -60,6 +61,9 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+
+            implementation(libs.compose.navigation)
+            implementation(libs.kotlin.serialization)
 
             implementation(libs.coil)
             implementation(libs.coil.compose)
