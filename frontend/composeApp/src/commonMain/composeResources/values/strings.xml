@@ -5,4 +5,7 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="clear">Clear</string>
+    <string name="settings_description_with_value">%1$s — %2$s</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
 </resources>

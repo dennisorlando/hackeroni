@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import ui.home.HomeScreen
+import ui.settings.SettingsScreen
 
 @Composable
 fun Navigation() {
@@ -41,10 +42,14 @@ fun Navigation() {
     NavHost(navController = navController, startDestination = Home) {
         composable<Home> {
             ScreenWithDrawer(
-                onSettingsClick = { /* TODO */ },
+                onSettingsClick = { navController.navigate(Settings) },
             ) {
                 HomeScreen(it)
             }
+        }
+
+        composable<Settings> {
+            SettingsScreen(backIcon)
         }
     }
 }
