@@ -1,14 +1,20 @@
 package ui.nav
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavArgument
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -35,7 +41,11 @@ fun Navigation() {
         }
     }
 
-    NavHost(navController = navController, startDestination = Route.Home.name) {
+    NavHost(
+        navController = navController,
+        startDestination = Route.Home.name,
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+    ) {
         composable(Route.Home.name) {
             ScreenWithDrawer(
                 onSettingsClick = { navController.navigate(Route.Settings.name) },
