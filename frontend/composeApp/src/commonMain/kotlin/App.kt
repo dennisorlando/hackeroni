@@ -15,6 +15,7 @@ import coil3.util.DebugLogger
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ui.home.HomeScreen
 import ui.nav.Home
+import ui.nav.Navigation
 import ui.theme.AppTheme
 
 @OptIn(ExperimentalCoilApi::class, ExperimentalMaterial3Api::class)
@@ -31,17 +32,6 @@ fun App() {
     val navController = rememberNavController()
 
     AppTheme {
-        NavHost(navController = navController, startDestination = Home) {
-            composable<Home> {
-                HomeScreen {
-                    IconButton(onClick = { }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "TODO"
-                        )
-                    }
-                }
-            }
-        }
+        Navigation()
     }
 }

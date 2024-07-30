@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">HackathonSchenna</string>
+    <string name="settings">Settings</string>
+    <string name="back">Back</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="clear">Clear</string>
 </resources>
