@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import ui.dummy.DummyScreen
 import ui.home.HomeScreen
 import ui.settings.SettingsScreen
 
@@ -43,6 +44,7 @@ fun Navigation() {
         composable<Home> {
             ScreenWithDrawer(
                 onSettingsClick = { navController.navigate(Settings) },
+                onDummyClick = { navController.navigate(Dummy) },
             ) {
                 HomeScreen(it)
             }
@@ -51,12 +53,17 @@ fun Navigation() {
         composable<Settings> {
             SettingsScreen(backIcon)
         }
+
+        composable<Dummy> {
+            DummyScreen(backIcon)
+        }
     }
 }
 
 @Composable
 fun ScreenWithDrawer(
     onSettingsClick: () -> Unit,
+    onDummyClick: () -> Unit,
     screen: @Composable (navigationIcon: @Composable () -> Unit) -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -67,6 +74,7 @@ fun ScreenWithDrawer(
         drawerContent = {
             DrawerContent(
                 onSettingsClick = onSettingsClick,
+                onDummyClick = onDummyClick,
                 closeDrawer = {
                     scope.launch {
                         drawerState.close()

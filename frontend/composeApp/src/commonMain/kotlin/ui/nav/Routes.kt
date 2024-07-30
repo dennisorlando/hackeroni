@@ -7,3 +7,6 @@ object Home
 
 @Serializable
 object Settings
+
+@Serializable
+object Dummy

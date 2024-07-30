@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import hackathonschenna.composeapp.generated.resources.Res
 import hackathonschenna.composeapp.generated.resources.app_name
 import hackathonschenna.composeapp.generated.resources.compose_multiplatform
+import hackathonschenna.composeapp.generated.resources.dummy
 import hackathonschenna.composeapp.generated.resources.settings
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -35,6 +37,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun DrawerContent(
     onSettingsClick: () -> Unit,
+    onDummyClick: () -> Unit,
     closeDrawer: () -> Unit,
 ) {
     ModalDrawerSheet(
@@ -58,6 +61,16 @@ fun DrawerContent(
                 .testTag("settings_drawer_item"),
         )
 
+        DrawerItem(
+            icon = Icons.Default.Warning,
+            label = Res.string.dummy,
+            onClick = {
+                onDummyClick()
+                closeDrawer()
+            },
+            modifier = Modifier.padding(horizontal = 12.dp),
+        )
+
 //        DrawerItem(
 //            icon = Icons.Default.RecordVoiceOver,
 //            label = R.string.stt_popup,
@@ -73,7 +86,7 @@ fun DrawerContent(
 @Preview
 @Composable
 private fun DrawerContentPreview() {
-    DrawerContent(onSettingsClick = {}, closeDrawer = {})
+    DrawerContent(onSettingsClick = {}, onDummyClick = {}, closeDrawer = {})
 }
 
 @Preview

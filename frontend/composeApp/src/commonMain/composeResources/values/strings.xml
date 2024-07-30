@@ -8,4 +8,5 @@
     <string name="settings_description_with_value">%1$s — %2$s</string>
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
+    <string name="dummy">Dummy</string>
 </resources>
