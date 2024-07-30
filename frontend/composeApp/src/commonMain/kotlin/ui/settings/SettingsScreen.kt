@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BookmarkAdded
+import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material.icons.filled.Percent
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,11 +39,23 @@ fun SettingsScreen(navigationIcon: @Composable () -> Unit) {
             item {
                 var settingValue by rememberSaveable { mutableStateOf(false) }
                 BooleanSetting(
-                    "Test setting",
-                    Icons.Default.Percent,
+                    title = "Test setting",
+                    icon = Icons.Default.Percent,
                     descriptionOn = "Enabled, tap to disable",
                     descriptionOff = "Disabled, tap to enable"
-                ).Render(settingValue) { settingValue = !settingValue }
+                ).Render(settingValue) { settingValue = it }
+            }
+
+            item {
+                var settingValue by rememberSaveable { mutableStateOf(true) }
+                ListSetting(
+                    title = "List of things",
+                    icon = Icons.Default.WaterDrop,
+                    possibleValues = listOf(
+                        ListSetting.Value(true, "True!", icon = Icons.Default.BookmarkAdded),
+                        ListSetting.Value(false, "False :-( ".repeat(20), icon = Icons.Default.BookmarkRemove),
+                    )
+                ).Render(settingValue) { settingValue = it }
             }
         }
     }
