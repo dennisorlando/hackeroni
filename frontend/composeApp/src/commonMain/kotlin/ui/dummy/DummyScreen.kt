@@ -11,9 +11,10 @@ import androidx.compose.ui.Modifier
 import hackathonschenna.composeapp.generated.resources.Res
 import hackathonschenna.composeapp.generated.resources.dummy
 import org.jetbrains.compose.resources.stringResource
+import ui.nav.Route
 
 @Composable
-fun DummyScreen(navigationIcon: @Composable () -> Unit) {
+fun DummyScreen(number: Int, navigationIcon: @Composable () -> Unit) {
     Scaffold(
         topBar = {
             @OptIn(ExperimentalMaterial3Api::class)
@@ -25,6 +26,8 @@ fun DummyScreen(navigationIcon: @Composable () -> Unit) {
     ) { paddingValues ->
         Column(
             modifier = Modifier.padding(paddingValues)
-        ) {  }
+        ) {
+            Text("Number is $number")
+        }
     }
 }

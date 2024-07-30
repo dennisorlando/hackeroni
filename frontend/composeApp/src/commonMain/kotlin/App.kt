@@ -14,7 +14,6 @@ import coil3.request.crossfade
 import coil3.util.DebugLogger
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ui.home.HomeScreen
-import ui.nav.Home
 import ui.nav.Navigation
 import ui.theme.AppTheme
 

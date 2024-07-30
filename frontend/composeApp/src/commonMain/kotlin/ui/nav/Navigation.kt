@@ -9,10 +9,14 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.NavArgument
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonDecoder
 import ui.dummy.DummyScreen
 import ui.home.HomeScreen
 import ui.settings.SettingsScreen
@@ -31,31 +35,27 @@ fun Navigation() {
         }
     }
 
-    // TODO this causes a crash when resuming a process from disk, the stacktrace is:
-    //
-    // java.lang.IllegalStateException: Restoring the Navigation back stack failed: destination
-    //         186859275 cannot be found from the current destination ComposeNavGraph(0x0)
-    //         startDestination={Destination(0x19acea6) route=org.stypox.dicio.ui.nav.Home}
-    //     at androidx.navigation.NavController.onGraphCreated(NavController.kt:1365)
-    //
-    // this is caused by a bug in the type-safe Compose Navigation library:
-    // https://issuetracker.google.com/issues/341801005
-    NavHost(navController = navController, startDestination = "Home") {
-        composable("Home") {
+    NavHost(navController = navController, startDestination = Route.Home.name) {
+        composable(Route.Home.name) {
             ScreenWithDrawer(
-                onSettingsClick = { navController.navigate("Settings") },
-                onDummyClick = { navController.navigate("Dummy") },
+                onSettingsClick = { navController.navigate(Route.Settings.name) },
+                onDummyClick = { navController.navigate(Route.Dummy.name + "/42") },
             ) {
                 HomeScreen(it)
             }
         }
 
-        composable("Settings") {
+        composable(Route.Settings.name) {
             SettingsScreen(backIcon)
         }
 
-        composable("Dummy") {
-            DummyScreen(backIcon)
+        composable(
+            route = Route.Dummy.name + "/{number}",
+            arguments = listOf(
+                navArgument("number") { type = NavType.IntType }
+            )
+        ) {
+            DummyScreen(it.arguments?.getInt("number") ?: -1, backIcon)
         }
     }
 }
