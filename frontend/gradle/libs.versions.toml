@@ -10,13 +10,13 @@ androidx-core-ktx = "1.13.1"
 androidx-espresso-core = "3.6.1"
 androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
-compose-plugin = "1.6.11"
+compose-plugin = "1.6.11" # incereasing this causes "illegal cast" crashes on wasm
 junit = "4.13.2"
 kotlin = "2.0.0"
 coil = "3.0.0-alpha08"
 ktor = "3.0.0-wasm2"
-compose-navigation = "2.8.0-dev1750"
-kotlinSerialization = "1.6.3"
+compose-navigation = "2.7.0-alpha07" # increasing this to get type-safe navigation would require increasing compose-plugin
+kotlinSerialization = "1.7.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

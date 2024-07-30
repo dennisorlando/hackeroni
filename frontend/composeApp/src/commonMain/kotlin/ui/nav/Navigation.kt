@@ -40,21 +40,21 @@ fun Navigation() {
     //
     // this is caused by a bug in the type-safe Compose Navigation library:
     // https://issuetracker.google.com/issues/341801005
-    NavHost(navController = navController, startDestination = Home) {
-        composable<Home> {
+    NavHost(navController = navController, startDestination = "Home") {
+        composable("Home") {
             ScreenWithDrawer(
-                onSettingsClick = { navController.navigate(Settings) },
-                onDummyClick = { navController.navigate(Dummy) },
+                onSettingsClick = { navController.navigate("Settings") },
+                onDummyClick = { navController.navigate("Dummy") },
             ) {
                 HomeScreen(it)
             }
         }
 
-        composable<Settings> {
+        composable("Settings") {
             SettingsScreen(backIcon)
         }
 
-        composable<Dummy> {
+        composable("Dummy") {
             DummyScreen(backIcon)
         }
     }
