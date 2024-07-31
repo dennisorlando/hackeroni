@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkAdded
 import androidx.compose.material.icons.filled.BookmarkRemove
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,9 +19,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.russhwolf.settings.get
+import com.russhwolf.settings.set
 import hackathonschenna.composeapp.generated.resources.Res
+import hackathonschenna.composeapp.generated.resources.setting_server_url_description
+import hackathonschenna.composeapp.generated.resources.setting_server_url_title
 import hackathonschenna.composeapp.generated.resources.settings
 import org.jetbrains.compose.resources.stringResource
+import settings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +42,20 @@ fun SettingsScreen(navigationIcon: @Composable () -> Unit) {
         LazyColumn(
             modifier = Modifier.padding(paddingValues)
         ) {
+            item {
+                var settingValue by rememberSaveable { mutableStateOf(settings.getString(
+                    SettingsKeys.SERVER_URL, SettingsKeys.SERVER_URL_DEFAULT)) }
+                StringSetting(
+                    title = stringResource(Res.string.setting_server_url_title),
+                    icon = Icons.Default.Dns,
+                    description = stringResource(Res.string.setting_server_url_description),
+                    descriptionWhenEmpty = stringResource(Res.string.setting_server_url_description),
+                ).Render(settingValue) {
+                    settingValue = it
+                    settings.putString(SettingsKeys.SERVER_URL, it)
+                }
+            }
+
             item {
                 var settingValue by rememberSaveable { mutableStateOf(false) }
                 BooleanSetting(

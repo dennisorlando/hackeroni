@@ -9,4 +9,6 @@
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
     <string name="dummy">Dummy</string>
+    <string name="setting_server_url_title">Backend server to which to connect</string>
+    <string name="setting_server_url_description">You can choose to connect to other instances of the backend service</string>
 </resources>
