@@ -1,35 +1,43 @@
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.Composable
+import coil3.ImageLoader
+import coil3.annotation.ExperimentalCoilApi
+import coil3.compose.setSingletonImageLoaderFactory
+import coil3.request.crossfade
+import coil3.util.DebugLogger
+import com.russhwolf.settings.Settings
+import di.koinModule
+import org.koin.compose.KoinApplication
+import org.koin.core.logger.KOIN_TAG
+import org.koin.core.logger.Level
+import org.koin.core.logger.Logger
+import org.koin.core.logger.MESSAGE
+import ui.nav.Navigation
+import ui.theme.AppTheme
 
-import hackathonschenna.composeapp.generated.resources.Res
-import hackathonschenna.composeapp.generated.resources.compose_multiplatform
+val settings: Settings = Settings()
 
+class PrintLogger(level: Level = Level.INFO) : Logger(level) {
+    override fun display(level: Level, msg: MESSAGE) {
+        println("[$level] $KOIN_TAG $msg")
+    }
+}
+
+@OptIn(ExperimentalCoilApi::class)
 @Composable
-@Preview
 fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
+    setSingletonImageLoaderFactory { context ->
+        ImageLoader.Builder(context)
+            .crossfade(true)
+            .logger(DebugLogger())
+            .build()
+    }
+
+    KoinApplication(application = {
+        logger(PrintLogger(level = Level.DEBUG))
+        modules(koinModule)
+    }) {
+        AppTheme {
+            Navigation()
         }
     }
 }
