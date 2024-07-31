@@ -4,13 +4,41 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+# load .env files
 dotenvy="0.15"
-env_logger = "0.11"
-actix-web="4.8"
+
+#log what appens inside
+#env_logger = "0.11"
+simplelog="0.12"
+log="0.4"
+#actix
+actix-web={version="4.8", features = ["secure-cookies"]}
+actix-identity="0.7"
+actix-session={version="0.9", features = ["cookie-session"] }
+
+#encryption
+base64="0.22"
+argon2="0.5"
+
+#DB related
 diesel={version="2", features = ["postgres", "r2d2", "uuid"]}
+diesel_migrations = {version="2.2.0", features = ["postgres"]}
 serde ={ version = "1.0", features = ["derive"] }
-uuid = {version = "1.0", features = ["v4",                # Lets you generate random UUIDs
-    "fast-rng",          # Use a faster (but still sufficiently random) RNG
-    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
-    ]}
-#r2d2="0.8"
+r2d2 = "0.8"
+
+#error management
+thiserror = "1.0"
+
+#maybe optional?
+#uuid = {version = "1.0", features = ["v4",                # Lets you generate random UUIDs
+#    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+#    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+#    ]}
+
+
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
