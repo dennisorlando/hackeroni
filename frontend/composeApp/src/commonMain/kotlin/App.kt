@@ -4,6 +4,7 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import coil3.util.DebugLogger
+import com.russhwolf.settings.Settings
 import di.koinModule
 import org.koin.compose.KoinApplication
 import org.koin.core.logger.KOIN_TAG
@@ -12,6 +13,8 @@ import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import ui.nav.Navigation
 import ui.theme.AppTheme
+
+val settings: Settings = Settings()
 
 class PrintLogger(level: Level = Level.INFO) : Logger(level) {
     override fun display(level: Level, msg: MESSAGE) {

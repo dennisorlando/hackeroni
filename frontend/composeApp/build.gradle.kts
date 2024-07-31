@@ -77,6 +77,10 @@ kotlin {
             implementation(libs.ktor.serialization.json)
             implementation(libs.ktor.content.negotiation)
             implementation(libs.kotlinx.coroutines.core)
+
+            implementation(libs.multiplatform.settings)
+            implementation(libs.multiplatform.settings.coroutines)
+            implementation(libs.multiplatform.settings.no.arg)
         }
         androidMain.dependencies {
             implementation(compose.preview)

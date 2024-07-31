@@ -33,6 +33,11 @@ dependencyResolutionManagement {
         maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
         maven("https://androidx.dev/storage/compose-compiler/repository")
         maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+        maven(url = "https://pkgs.dev.azure.com/burnoo/maven/_packaging/public/maven/v1") {
+            content {
+                includeVersionByRegex(".*", ".*", ".*-beap[0-9]+")
+            }
+        }
     }
 }
 
