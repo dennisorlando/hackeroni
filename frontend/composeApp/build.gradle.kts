@@ -65,6 +65,8 @@ kotlin {
 
             implementation(libs.compose.navigation)
             implementation(libs.kotlin.serialization)
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
 
             implementation(libs.coil)
             implementation(libs.coil.compose)
@@ -76,6 +78,7 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.okhttp)
+            // implementation(libs.koin.android)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
