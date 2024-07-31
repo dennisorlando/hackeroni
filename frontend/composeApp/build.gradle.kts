@@ -83,6 +83,7 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.ktor.java)
+            implementation(libs.androidx.ui.tooling.preview.desktop)
         }
         iosMain.dependencies {
             implementation(libs.ktor.ios)

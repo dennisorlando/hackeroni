@@ -18,6 +18,7 @@ ktor = "3.0.0-wasm2"
 compose-navigation = "2.7.0-alpha07" # increasing this to get type-safe navigation would require increasing compose-plugin
 kotlinSerialization = "1.7.1"
 koin = "4.0.0-RC1"
+uiToolingPreviewDesktop = "1.6.8"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -43,6 +44,7 @@ kotlin-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-j
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 # koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+androidx-ui-tooling-preview-desktop = { group = "androidx.compose.ui", name = "ui-tooling-preview-desktop", version.ref = "uiToolingPreviewDesktop" }
 # koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 
 [plugins]
