@@ -8,9 +8,9 @@ use log::{error, info};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::db::{user::{get_user_by_name, UserMem}, DbPool};
-trait UserState{}
-struct Admin;
+use crate::db::{user::{get_user_by_name, insert_new_user, NewUser, UserMem}, DbPool};
+pub trait UserState{}
+pub struct Admin;
 impl UserState for Admin{}
 pub struct Authenticated;
 impl UserState for Authenticated{}
@@ -131,17 +131,32 @@ async fn login(request: HttpRequest, login: Form<Login>, pool: Data<DbPool>) -> 
     //TODO check for correct error type
     
     //if all ok
-    // Some kind of authentication should happen here
-    // e.g. password-based, biometric, etc.
-    // [...]
-
     // attach a verified user identity to the active session
-    Identity::login(&request.extensions(), user.name.clone()).unwrap();
+    Identity::login(&request.extensions(), user.name.clone())?;
+
+    Ok(HttpResponse::Ok())
+}
+#[post("/register")]
+async fn register(register: Form<Login>, pool: Data<DbPool>) -> actix_web::Result<impl Responder> {
+    //TODO check for password rightness
+    let mut conn= pool.get().map_err(|_| ErrorInternalServerError("can't get pool"))?;
+    web::block(move ||{
+        let password_hash = hash_password(&register.password, "figo")?;
+        insert_new_user(&mut conn , NewUser{ name: register.name.clone(), password_hash})?;
+        
+        Ok::<(), Box<dyn Error + Send + Sync>>(())
+    }).await?.map_err(|_| ErrorInternalServerError("can't get pool"))?;
 
     Ok(HttpResponse::Ok())
 }
 
+#[post("/logout")]
+async fn logout(user: Identity) -> impl Responder {
+    user.logout();
+    HttpResponse::Ok()
+}
 
 pub fn init_auth(cfg: &mut web::ServiceConfig) {
     cfg.service(login);
+    cfg.service(register);
 }

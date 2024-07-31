@@ -2,10 +2,10 @@ use std::{env, error::Error};
 
 use actix_identity::{Identity, IdentityExt, IdentityMiddleware};
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
-use actix_web::{cookie::Key, get, middleware, post, web::{self, Form}, App, HttpMessage, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{cookie::Key, get, middleware, web, App, HttpRequest, HttpServer, Responder};
 use auth::{init_auth, Authenticated, User};
 use base64::{prelude::BASE64_STANDARD, Engine};
-use db::{initialize_db_pool, run_migrations, user::{insert_new_user,}, DbPool};
+use db::{initialize_db_pool, run_migrations,  DbPool};
 use dotenvy::dotenv;
 use log::*;
 pub mod db;
@@ -18,8 +18,8 @@ async fn index() -> impl Responder {
 
 #[get("/add_name/{name}")]
 async fn hello(
-    pool: web::Data<DbPool>,
-    name: web::Path<String>,
+    _pool: web::Data<DbPool>,
+    _name: web::Path<String>,
     user: User<Authenticated>
 ) -> actix_web::Result<impl Responder> {
 

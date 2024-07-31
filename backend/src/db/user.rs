@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Insertable)]
 #[diesel(table_name = super::schema::users)]
-struct NewUser {
-    name: String,
-    password_hash: String,
+pub struct NewUser {
+    pub name: String,
+    pub password_hash: String,
 }
 
 /// User details.
