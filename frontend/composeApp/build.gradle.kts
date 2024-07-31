@@ -67,23 +67,29 @@ kotlin {
             implementation(libs.kotlin.serialization)
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.lifecycle.viewmodel.compose)
 
             implementation(libs.coil)
             implementation(libs.coil.compose)
             implementation(libs.coil.compose.core)
             implementation(libs.coil.network.ktor)
             implementation(libs.ktor)
+            implementation(libs.ktor.serialization.json)
+            implementation(libs.ktor.content.negotiation)
+            implementation(libs.kotlinx.coroutines.core)
         }
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.okhttp)
+            implementation(libs.kotlinx.coroutines.android)
             // implementation(libs.koin.android)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.ktor.java)
             implementation(libs.androidx.ui.tooling.preview.desktop)
+            implementation(libs.kotlinx.coroutines.swing)
         }
         iosMain.dependencies {
             implementation(libs.ktor.ios)

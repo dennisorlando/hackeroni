@@ -50,7 +50,7 @@ fun HomeScreen(navigationIcon: @Composable () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     AsyncImage(
-                        model = "https://wallpapercave.com/wp/wp3724772.jpg",
+                        model = "https://upload.wikimedia.org/wikipedia/commons/1/1a/Donkey_in_Clovelly%2C_North_Devon%2C_England.jpg",
                         contentDescription = null,
                     )
                     Text("Compose: $greeting")
