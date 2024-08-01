@@ -15,12 +15,13 @@ clap={version="4.4", features = ["derive"]}
 hf-hub = { version="0.3", features = ["tokio"] }
 tokenizers="0.19"
 image="0.25"
+candle-flash-attn = { version="0.6", optional = true }
 #tracing-subscriber = "0.3"
 #tracing = "0.1"
 #tracing-chrome="0.7"
 
 [features]
 default =["cuda"]
-cuda = ["candle-core/cuda", "candle-transformers/cuda"]#"candle-nn/cuda", , "dep:bindgen_cuda"
-
+cuda = ["candle-core/cuda", "candle-transformers/cuda", "candle-core/cudnn"]#"candle-nn/cuda", , "dep:bindgen_cuda"
+flash-attn = ["cuda", "dep:candle-flash-attn", "candle-transformers/flash-attn"]
 [dev-dependencies]

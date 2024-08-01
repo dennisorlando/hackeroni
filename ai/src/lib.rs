@@ -650,8 +650,3 @@ pub fn run(args: Args) -> Result<()> {
     }
     Ok(())
 }
-/*
-fn main() -> Result<()> {
-    let args = Args::parse();
-    run(args)
-}*/
