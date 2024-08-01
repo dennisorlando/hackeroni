@@ -48,8 +48,13 @@ pub enum PasswordError {
     NotAdmin,
     #[error("Blocking error: {0}")]
     BlockingError(#[from] BlockingError),
-    #[error("Generic Error")]
-    GenericError,
+    #[error("Error with actix {0}")]
+    ActixError(String)
+}
+impl From<actix_web::Error> for PasswordError{
+    fn from(value: actix_web::Error) -> Self {
+        Self::ActixError(value.to_string())
+    }
 }
 impl From<PasswordError> for actix_web::Error{
     fn from(value: PasswordError) -> Self {
@@ -102,8 +107,8 @@ impl FromRequest for User<Authenticated>{
     fn from_request(req: &actix_web::HttpRequest, _payload: &mut actix_web::dev::Payload) -> Self::Future {
         let req = req.clone();
         Box::pin(async move {
-            let data = Data::<DbPool>::extract(&req).await.map_err(|_|PasswordError::GenericError)?;
-            let identity = Identity::extract(&req).await.map_err(|_|PasswordError::GenericError)?.id()?;
+            let data = Data::<DbPool>::extract(&req).await?;
+            let identity = Identity::extract(&req).await?.id()?;
             let user = web::block(move ||-> Result<UserMem, PasswordError>{
         
                 let mut conn  = data.get()?;

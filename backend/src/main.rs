@@ -12,6 +12,7 @@ pub mod db;
 pub mod log;
 pub mod auth;
 pub mod config;
+pub mod stable_diffusion;
 
 #[get("/")]
 async fn index() -> impl Responder {
@@ -37,38 +38,18 @@ async fn whoami(request: HttpRequest) -> actix_web::Result<impl Responder> {
 }
 #[get("/onlyadmin")]
 async fn onlyadmin(_: User<Admin>) -> impl Responder {
-    "you reeealy have power"
+    "you reaaaaly have power"
 }
 
-fn get_secret_key() -> Key {
-    let key = (|| {
-        let key = env::var("SECRET")?;
-        let key = BASE64_STANDARD.decode(key.as_bytes())?;
-        let key = Key::try_from(key.as_slice())?;
-        Ok(key)
-    })();
-    #[cfg(debug_assertions)]
-    let ret = key
-        .map_err(|e: Box<dyn Error>| {
-            error!(
-                "Impossible to obtain secret key, on release this will became an hard error: {e}"
-            );
-        })
-        .unwrap_or(Key::generate());
-    #[cfg(not(debug_assertions))]
-    let ret = key
-        .unwrap_or_else(|e: Box<dyn Error>| panic!("Impossible to obtain secret key. Reason: {e}"));
-    ret
-}
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
     init_log();
-    let pool = initialize_db_pool();
+    let conf = config::load_config();
+    let pool = initialize_db_pool(conf.database_url.clone());
     run_migrations(&mut pool.get().unwrap())?;
 
-    let secret_key = get_secret_key();
 
     HttpServer::new(move || {
         App::new()
@@ -79,8 +60,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .wrap(IdentityMiddleware::default())
             .wrap(SessionMiddleware::new(
                 CookieSessionStore::default(),
-                secret_key.clone(),
+                conf.cookie_secret.clone(),
             ))
+            .app_data(web::Data::new(conf.clone()))
             .app_data(web::Data::new(pool.clone()))
             .wrap(middleware::Logger::default())
             .configure(init_auth)

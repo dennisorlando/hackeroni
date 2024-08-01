@@ -17,9 +17,8 @@ pub enum DBError {
     MigrationError(#[from] Box<dyn Error + Send + Sync + 'static>),
 }
 
-pub fn initialize_db_pool() -> DbPool {
-    let conn_spec = std::env::var("DATABASE_URL").expect("DATABASE_URL should be set");
-    let manager = r2d2::ConnectionManager::<PgConnection>::new(conn_spec);
+pub fn initialize_db_pool(url: String) -> DbPool {
+    let manager = r2d2::ConnectionManager::<PgConnection>::new(url);
     r2d2::Pool::builder()
         .build(manager)
         .expect("database URL should be a valid url to an PGsql instance")

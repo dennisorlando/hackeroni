@@ -2,7 +2,7 @@ use std::env;
 
 use actix_web::cookie::Key;
 use base64::{prelude::BASE64_STANDARD, Engine};
-
+#[derive(Clone)]
 pub struct AppConfig{
     pub cookie_secret: Key,
     pub database_url: String,
