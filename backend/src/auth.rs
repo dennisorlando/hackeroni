@@ -44,6 +44,8 @@ pub enum PasswordError {
     DieselError(#[from] diesel::result::Error),
     #[error("Not logged in: {0}")]
     IdentityError(#[from] GetIdentityError),
+    #[error("You are not allowed to see this page")]
+    NotAdmin,
     #[error("Blocking error: {0}")]
     BlockingError(#[from] BlockingError),
     #[error("Generic Error")]
@@ -59,6 +61,9 @@ impl From<PasswordError> for actix_web::Error{
                 info!("{e}");
                 actix_web::error::ErrorUnauthorized("You have not logged in")
             },
+            PasswordError::NotAdmin=>{
+                actix_web::error::ErrorUnauthorized("You are not allowed to see this page")
+            }
             e => {
                 error!("{e}");
                 actix_web::error::ErrorInternalServerError("Internal server error")
@@ -108,6 +113,26 @@ impl FromRequest for User<Authenticated>{
             Ok(Self{
                 ph: PhantomData,
                 user,
+            })
+        })
+    }
+}
+impl FromRequest for User<Admin>{
+    type Error=PasswordError;
+
+    type Future=Pin<Box<dyn Future<Output = Result<Self, Self::Error>> >>;
+
+    fn from_request(req: &actix_web::HttpRequest, _payload: &mut actix_web::dev::Payload) -> Self::Future {
+        let req = req.clone();
+        
+        Box::pin(async move {
+            let t = User::<Authenticated>::extract(&req).await?;
+            if !t.user.is_admin{
+                return Err(PasswordError::NotAdmin);
+            }
+            Ok(Self {
+                ph: PhantomData,
+                user: t.user
             })
         })
     }

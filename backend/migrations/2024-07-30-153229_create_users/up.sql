@@ -1,6 +1,8 @@
 -- Your SQL goes here
 CREATE TABLE "users"(
 	"id" BIGSERIAL NOT NULL PRIMARY KEY,
-	"name" VARCHAR NOT NULL
+	"name" VARCHAR NOT NULL UNIQUE,
+	"password_hash" VARCHAR NOT NULL,
+	"is_admin" BOOLEAN NOT NULL DEFAULT FALSE
 );
 

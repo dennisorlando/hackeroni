@@ -3,7 +3,7 @@ use std::{env, error::Error};
 use actix_identity::{Identity, IdentityExt, IdentityMiddleware};
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{cookie::Key, get, middleware, web, App, HttpRequest, HttpServer, Responder};
-use auth::{init_auth, Authenticated, User};
+use auth::{init_auth, Admin, Authenticated, User};
 use base64::{prelude::BASE64_STANDARD, Engine};
 use db::{initialize_db_pool, run_migrations,  DbPool};
 use dotenvy::dotenv;
@@ -11,6 +11,8 @@ use log::*;
 pub mod db;
 pub mod log;
 pub mod auth;
+pub mod config;
+
 #[get("/")]
 async fn index() -> impl Responder {
     "Hello, World!"
@@ -31,7 +33,11 @@ async fn hello(
 #[get("/whoami")]
 async fn whoami(request: HttpRequest) -> actix_web::Result<impl Responder> {
     let x: Identity = request.get_identity().map_err(actix_web::error::ErrorUnauthorized)?;
-    Ok(x.id()?)
+    Ok(format!{"you are \"{}\", motherfucker", x.id()?})
+}
+#[get("/onlyadmin")]
+async fn onlyadmin(_: User<Admin>) -> impl Responder {
+    "you reeealy have power"
 }
 
 fn get_secret_key() -> Key {
@@ -69,6 +75,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .service(index)
             .service(hello)
             .service(whoami)
+            .service(onlyadmin)
             .wrap(IdentityMiddleware::default())
             .wrap(SessionMiddleware::new(
                 CookieSessionStore::default(),
