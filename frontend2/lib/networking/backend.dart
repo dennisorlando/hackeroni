@@ -4,6 +4,7 @@ import "package:http_parser/http_parser.dart";
 import "package:injectable/injectable.dart";
 import "package:insigno_frontend/networking/authentication.dart";
 import "package:insigno_frontend/networking/data/authenticated_user.dart";
+import "package:insigno_frontend/networking/data/charging_station.dart";
 import "package:insigno_frontend/networking/data/image_verification.dart";
 import "package:insigno_frontend/networking/data/marker.dart";
 import "package:insigno_frontend/networking/data/marker_image.dart";
@@ -119,6 +120,13 @@ class Backend {
   Future<List<OsmNominatimEntry>> loadNominatimEntries(String phrase, [int limit = 10]){
     return _getJsonWithPath("https://nominatim.openstreetmap.org/search?q=%22$phrase%22&format=jsonv2&limit=$limit")
         .map((entries) => entries.map<OsmNominatimEntry>(nominEntryFromJson).toList());
+  }
+
+  Future<List<ChargingStation>> loadChargingStations(double latitude, double longitude) async {
+    return _getJson("/get_all_stations", params: {
+      "lat": latitude.toString(),
+      "lon": longitude.toString(),
+    }).map((stations) => stations.map<ChargingStation>(chargingStationFromJson).toList());
   }
 
   Future<List<MapMarker>> loadMapMarkers(

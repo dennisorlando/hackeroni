@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:collection/collection.dart';
 import 'package:insigno_frontend/networking/data/authenticated_user.dart';
+import 'package:insigno_frontend/networking/data/charging_station.dart';
 import 'package:insigno_frontend/networking/data/image_verification.dart';
 import 'package:insigno_frontend/networking/data/map_marker.dart';
 import 'package:insigno_frontend/networking/data/marker.dart';
@@ -74,6 +75,10 @@ Pill pillFromJson(dynamic p) {
 
 OsmNominatimEntry nominEntryFromJson(dynamic e) {
   return OsmNominatimEntry(e["place_id"], double.parse(e["lat"]), double.parse(e["lon"]), e["name"], e["display_name"]);
+}
+
+ChargingStation chargingStationFromJson(dynamic e) {
+  return ChargingStation(e["id"], e["coordinate"][1], e["coordinate"][0]);
 }
 
 MarkerUpdate markerUpdateFromJson(dynamic u) {

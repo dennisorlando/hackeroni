@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:insigno_frontend/networking/data/map_marker.dart';
+import 'package:insigno_frontend/networking/data/charging_station.dart';
 import 'package:insigno_frontend/networking/data/marker_type.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -15,7 +15,7 @@ double markerScaleFromMapZoom(double mapZoom) {
 }
 
 class FastMarkersLayer extends StatefulWidget {
-  final Iterable<MapMarker> markers;
+  final Iterable<ChargingStation> markers;
 
   const FastMarkersLayer(this.markers, {super.key});
 
@@ -40,7 +40,7 @@ class _FastMarkersLayerState extends State<FastMarkersLayer> {
       final markerType = MarkerType.values[i];
       TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr);
       textPainter.text = TextSpan(
-        text: String.fromCharCode(markerType.icon.codePoint),
+        text: String.fromCharCode(Icons.ev_station.codePoint),
         style: TextStyle(
           fontSize: atlasImageSizeDouble * 0.8,
           fontFamily: markerType.icon.fontFamily,
@@ -104,7 +104,7 @@ class _FastMarkersLayerState extends State<FastMarkersLayer> {
 class _FastMarkerPainter extends CustomPainter {
   final ui.Image atlasImage;
   final MapCamera mapState;
-  final Iterable<MapMarker> markers;
+  final Iterable<ChargingStation> markers;
   final double scale;
 
   const _FastMarkerPainter(this.atlasImage, this.mapState, this.markers, this.scale);
@@ -126,8 +126,8 @@ class _FastMarkerPainter extends CustomPainter {
         );
       }).toList(),
       markers.map((marker) {
-        return Rect.fromLTWH(
-          atlasImageSizeDouble * marker.type.index,
+        return const Rect.fromLTWH(
+          atlasImageSizeDouble,
           0,
           atlasImageSizeDouble,
           atlasImageSizeDouble,

@@ -133,7 +133,8 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
               final dx = (tapPosition.global.dx - screenPoint.x).abs();
               final dy = (tapPosition.global.dy - screenPoint.y).abs();
               if (max(dx, dy) < markerScale * 0.7) {
-                openMarkerPage(minMarker);
+                // TODO open charging station
+                //openMarkerPage(minMarker);
               }
             },
             onLongPress: (tapPosition, tapLatLng) {

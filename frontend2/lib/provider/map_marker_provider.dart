@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:insigno_frontend/networking/backend.dart';
+import 'package:insigno_frontend/networking/data/charging_station.dart';
 import 'package:insigno_frontend/networking/data/map_marker.dart';
 import 'package:insigno_frontend/networking/data/marker_type.dart';
 import 'package:insigno_frontend/page/map/marker_filters_dialog.dart';
@@ -17,7 +18,7 @@ class MapMarkerProvider {
   LatLng? _lastLoadMarkersPos;
   bool _lastLoadMarkersIncludeResolved = false;
   var _markerFilters = MarkerFilters(Set.unmodifiable(MarkerType.values), false);
-  List<MapMarker> _markers = [];
+  List<ChargingStation> _markers = [];
 
   MapMarkerProvider(this._backend, this._onStateChanged);
 
@@ -32,9 +33,8 @@ class MapMarkerProvider {
 
   void loadMarkers(final LatLng latLng) async {
     _lastLoadMarkersPos = latLng;
-    _lastLoadMarkersIncludeResolved = _markerFilters.includeResolved;
     _backend
-        .loadMapMarkers(latLng.latitude, latLng.longitude, _lastLoadMarkersIncludeResolved)
+        .loadChargingStations(latLng.latitude, latLng.longitude)
         .then((value) {
       if (latLng == _lastLoadMarkersPos) {
         debugPrint("Loaded markers at $latLng");
@@ -47,22 +47,20 @@ class MapMarkerProvider {
     // ignore errors when loading map markers (TODO maybe show a button to view errors somewhere?)
   }
 
-  MapMarker? getClosestMarker(final LatLng latLng) {
-    return minBy(getVisibleMarkers(), (MapMarker marker) => _distance(latLng, marker.getLatLng()));
+  ChargingStation? getClosestMarker(final LatLng latLng) {
+    return minBy(getVisibleMarkers(), (ChargingStation marker) => _distance(latLng, marker.getLatLng()));
   }
 
-  Iterable<MapMarker> getVisibleMarkers() {
-    return _markers.where((e) =>
-    (_markerFilters.includeResolved || !e.isResolved()) &&
-        _markerFilters.shownMarkers.contains(e.type));
+  Iterable<ChargingStation> getVisibleMarkers() {
+    return _markers;
   }
 
   void addOrReplace(final MapMarker marker) {
-    _markers.removeWhere((element) => element.id == marker.id);
-    if (marker.resolutionDate == null || _lastLoadMarkersIncludeResolved) {
-      // only add it back if it is not resolved or if the user wants to see resolved markers
-      _markers.add(marker);
-    }
+    // _markers.removeWhere((element) => element.id == marker.id);
+    // if (marker.resolutionDate == null || _lastLoadMarkersIncludeResolved) {
+    //   // only add it back if it is not resolved or if the user wants to see resolved markers
+    //   _markers.add(marker);
+    // }
   }
 
   void openMarkerFiltersDialog(BuildContext context, LatLng currentMapCenter) {
