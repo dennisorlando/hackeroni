@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:insigno_frontend/di/setup.dart';
 import 'package:insigno_frontend/networking/data/map_marker.dart';
 import 'package:insigno_frontend/networking/data/pill.dart';
 import 'package:insigno_frontend/page/error_page.dart';
@@ -18,9 +17,7 @@ import 'package:insigno_frontend/page/user/profile_page.dart';
 import 'package:insigno_frontend/page/user/user_page.dart';
 import 'package:insigno_frontend/page/verification/image_review_page.dart';
 import 'package:insigno_frontend/page/verification/image_verification_page.dart';
-import 'package:insigno_frontend/pref/preferences_keys.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class InsignoApp extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
@@ -33,8 +30,6 @@ class InsignoApp extends StatefulWidget {
 }
 
 class _InsignoAppState extends State<InsignoApp> {
-  var introductionViewed = getIt<SharedPreferences>().getBool(introductionDone) ?? false;
-
   @override
   Widget build(BuildContext context) {
     final lightYellowTheme = ColorScheme.fromSeed(
@@ -69,16 +64,7 @@ class _InsignoAppState extends State<InsignoApp> {
           onTertiaryContainer: darkYellowTheme.onPrimaryContainer,
         ),
       ),
-      home: introductionViewed
-          ? MapPage()
-          : IntroductionPage(
-              onDone: (_) {
-                getIt<SharedPreferences>().setBool(introductionDone, true);
-                setState(() {
-                  introductionViewed = true;
-                });
-              },
-            ),
+      home: MapPage(),
       onGenerateRoute: (RouteSettings settings) {
         var routes = <String, WidgetBuilder>{
           ReportPage.routeName: (ctx) => ReportPage(),
