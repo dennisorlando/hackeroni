@@ -19,8 +19,10 @@ class RouteData {
   Duration walkingDistance;
   Duration drivingDistance;
   int cost = -1;
+
   List<LatLng> walkingPath;
   List<LatLng> drivingPath;
+
 }
 
 class BottomChipState extends State<BottomChip>
@@ -28,11 +30,12 @@ class BottomChipState extends State<BottomChip>
 
   void loadDataAndRefresh(Map<SelectedAlgorithm, RouteData> newData) {
     setState(() {
+      visible = true;
       data = newData;
     });
   }
 
-  bool visible = true;
+  bool visible = false;
 
   Map<SelectedAlgorithm, RouteData> data = {};
 
