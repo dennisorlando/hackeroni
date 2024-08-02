@@ -7,6 +7,7 @@ import "package:insigno_frontend/networking/data/authenticated_user.dart";
 import "package:insigno_frontend/networking/data/image_verification.dart";
 import "package:insigno_frontend/networking/data/marker.dart";
 import "package:insigno_frontend/networking/data/marker_image.dart";
+import "package:insigno_frontend/networking/data/osm_nominatim_entry.dart";
 import "package:insigno_frontend/networking/data/pill.dart";
 import "package:insigno_frontend/networking/data/review_verdict.dart";
 import "package:insigno_frontend/networking/data/user.dart";
@@ -39,6 +40,18 @@ class Backend {
           // when logged in
           headers: _auth.maybeCookie().map((cookie) => {"Cookie": cookie}),
         )
+        .throwErrors()
+        .mapParseJson();
+  }
+
+  Future<dynamic> _getJsonWithPath(String path, {Map<String, dynamic>? params}) {
+    return _client //
+        .get(
+      Uri.parse(path),
+      // still send the authentication cookie so that the backend can send specialized responses
+      // when logged in
+      headers: _auth.maybeCookie().map((cookie) => {"Cookie": cookie}),
+    )
         .throwErrors()
         .mapParseJson();
   }
@@ -101,6 +114,11 @@ class Backend {
 
   Future<Pill> loadRandomPill() async {
     return _getJson("/pills/random").map(pillFromJson);
+  }
+
+  Future<List<OsmNominatimEntry>> loadNominatimEntries(String phrase){
+    return _getJsonWithPath("https://nominatim.openstreetmap.org/search?q=%22$phrase%22&format=jsonv2&limit=2")
+        .map((entries) => entries.map<OsmNominatimEntry>(nominEntryFromJson).toList());
   }
 
   Future<List<MapMarker>> loadMapMarkers(
