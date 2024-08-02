@@ -181,7 +181,7 @@ class _ServerHostWidgetState extends State<ServerHostWidget>
       return;
     }
 
-    final packageInfo = await PackageInfo.fromPlatform();
+    /*final packageInfo = await PackageInfo.fromPlatform();
     try {
       await get<http.Client>() //
           .head(Uri(
@@ -207,7 +207,7 @@ class _ServerHostWidgetState extends State<ServerHostWidget>
         loading = false;
       });
       return;
-    }
+    }*/
 
     get<ServerHostHandler>().setSchemeHost(uri.scheme, uri.host, uri.hasPort ? uri.port : null);
     _controller?.text = get<ServerHostHandler>().getUri("").toString();
