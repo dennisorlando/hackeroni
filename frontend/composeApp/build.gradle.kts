@@ -77,10 +77,13 @@ kotlin {
             implementation(libs.ktor.serialization.json)
             implementation(libs.ktor.content.negotiation)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.runblocking)
 
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.coroutines)
             implementation(libs.multiplatform.settings.no.arg)
+
+            implementation(libs.mapcomposemp)
         }
         androidMain.dependencies {
             implementation(compose.preview)

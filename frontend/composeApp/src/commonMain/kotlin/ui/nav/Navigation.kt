@@ -23,6 +23,7 @@ import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
 import ui.dummy.DummyScreen
 import ui.home.HomeScreen
+import ui.map.MapScreen
 import ui.settings.SettingsScreen
 
 @Composable
@@ -46,7 +47,7 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Route.Home.name,
+        startDestination = Route.Map.name,
         enterTransition = { fadeIn(animationSpec = tween(400)) },
         exitTransition = { fadeOut(animationSpec = tween(400)) },
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
@@ -55,6 +56,7 @@ fun Navigation() {
             ScreenWithDrawer(
                 onSettingsClick = { navController.navigate(Route.Settings.name) },
                 onDummyClick = { navController.navigate(Route.Dummy.name + "/42") },
+                onMapClick = { navController.navigate(Route.Map.name) }
             ) {
                 HomeScreen(it)
             }
@@ -72,6 +74,12 @@ fun Navigation() {
         ) {
             DummyScreen(it.arguments?.getInt("number") ?: -1, backIcon)
         }
+
+        composable(
+            route = Route.Map.name
+        ) {
+            MapScreen(backIcon)
+        }
     }
 }
 
@@ -79,6 +87,7 @@ fun Navigation() {
 fun ScreenWithDrawer(
     onSettingsClick: () -> Unit,
     onDummyClick: () -> Unit,
+    onMapClick: () -> Unit,
     screen: @Composable (navigationIcon: @Composable () -> Unit) -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -90,6 +99,7 @@ fun ScreenWithDrawer(
             DrawerContent(
                 onSettingsClick = onSettingsClick,
                 onDummyClick = onDummyClick,
+                onMapClick = onMapClick,
                 closeDrawer = {
                     scope.launch {
                         drawerState.close()
