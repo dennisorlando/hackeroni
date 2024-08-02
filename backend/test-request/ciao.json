@@ -1,0 +1,84 @@
+{
+  "name": "ciao",
+  "requests": [
+    {
+      "name": "login",
+      "url": "http://localhost:8080/login",
+      "method": "POST",
+      "params": [
+        {
+          "data": [
+            "name",
+            "value"
+          ],
+          "enabled": true
+        },
+        {
+          "data": [
+            "password",
+            "value"
+          ],
+          "enabled": true
+        }
+      ],
+      "headers": [
+        {
+          "data": [
+            "cache-control",
+            "no-cache"
+          ],
+          "enabled": true
+        },
+        {
+          "data": [
+            "user-agent",
+            "ATAC/v0.15.1"
+          ],
+          "enabled": true
+        },
+        {
+          "data": [
+            "accept",
+            "*/*"
+          ],
+          "enabled": true
+        },
+        {
+          "data": [
+            "accept-encoding",
+            "gzip, deflate, br"
+          ],
+          "enabled": true
+        },
+        {
+          "data": [
+            "connection",
+            "keep-alive"
+          ],
+          "enabled": true
+        },
+        {
+          "data": [
+            "content-type",
+            "application/x-www-form-urlencoded"
+          ],
+          "enabled": true
+        }
+      ],
+      "body": {
+        "form": []
+      },
+      "auth": "no_auth",
+      "scripts": {
+        "pre_request_script": null,
+        "post_request_script": null
+      },
+      "settings": {
+        "use_config_proxy": true,
+        "allow_redirects": true,
+        "store_received_cookies": true,
+        "pretty_print_response_content": true
+      }
+    }
+  ]
+}

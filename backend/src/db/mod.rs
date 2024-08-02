@@ -24,7 +24,6 @@ pub fn initialize_db_pool(url: String) -> DbPool {
         .expect("database URL should be a valid url to an PGsql instance")
 }
 
-
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 pub fn run_migrations(connection: &mut impl MigrationHarness<Pg>) -> Result<(), DBError> {
