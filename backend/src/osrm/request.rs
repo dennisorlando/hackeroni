@@ -98,11 +98,11 @@ impl OSRMRequest {
         let mut req = String::from("table/v1/foot/");
 
         for (lat, lon) in self.stations.iter() {
-            req.push_str(&format!("{},{};", lon, lat));
+            req.push_str(&format!("{},{};", lat, lon));
         }
-        req.push_str(&format!("{},{}", self.destination.1, self.destination.0));
+        req.push_str(&format!("{},{}", self.destination.0, self.destination.1));
 
-        req.push_str("?source=");
+        req.push_str("?sources=");
         for i in 0..self.stations.len() {
             req.push_str(&format!("{}", i));
             if i < self.stations.len() - 1 {
@@ -110,7 +110,7 @@ impl OSRMRequest {
             }
         }
 
-        req.push_str(&format!("&destination={}", self.stations.len()));
+        req.push_str(&format!("&destinations={}", self.stations.len()));
 
         Ok(req)
     }

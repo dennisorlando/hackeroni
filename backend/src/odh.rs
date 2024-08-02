@@ -4,6 +4,8 @@ use serde::{de::{DeserializeOwned, Error}, Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
 use geo::{point, prelude::*};
+
+use crate::osrm::StationInfo;
 pub struct ODHBuilder{
     url: String,
 
@@ -32,15 +34,15 @@ impl From<ODHError> for actix_web::Error {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-struct Coordinate{x: f64, y: f64, srid: u32}
+pub struct Coordinate{pub x: f64, pub y: f64, srid: u32}
 #[derive(Deserialize, Serialize, Debug)]
-struct EChargingStation{
+pub struct EChargingStation{
     sactive: bool,
     savailable: bool,
-    scode: String,
-    scoordinate: Coordinate,
+    pub scode: String,
+    pub scoordinate: Coordinate,
     smetadata: Value,
-    sname: String,
+    pub sname: String,
     sorigin: String,
     stype: String,
 }
@@ -144,13 +146,17 @@ fn distance_in_meters(p1: (f64, f64), p2: (f64, f64))->f64{
     p1.haversine_distance(&p2)
 }
 
-pub async fn get_near_stations(p: (f64, f64), dist: f64)->Result<Vec<(f64, f64)>, ODHError>{
+pub async fn get_near_stations(p: (f64, f64), dist: f64)->Result<Vec<StationInfo>, ODHError>{
     let result: Vec<EChargingStation> = ODHBuilder{
         ..Default::default()
     }.run().await?;
     let res = result.into_iter().filter_map(|x|{
         if distance_in_meters((x.scoordinate.x, x.scoordinate.y), p)<dist{
-            Some((x.scoordinate.x, x.scoordinate.y))
+            Some(StationInfo{
+                coordinate: (x.scoordinate.x, x.scoordinate.y),
+                id: x.scode,
+                name: x.sname,
+            })
         }else{
             None
         }
