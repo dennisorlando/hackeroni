@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Deserialize, Serialize, Debug)]
-enum ResponseStatus {
+pub enum ResponseStatus {
     ///Request could be processed as expected.
     Ok,
     ///URL string is invalid.
