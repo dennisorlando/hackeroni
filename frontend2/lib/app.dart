@@ -9,6 +9,7 @@ import 'package:insigno_frontend/page/marker/marker_page.dart';
 import 'package:insigno_frontend/page/marker/report_page.dart';
 import 'package:insigno_frontend/page/marker/resolve_page.dart';
 import 'package:insigno_frontend/page/pill_page.dart';
+import 'package:insigno_frontend/page/route_parameters/route_parameters_page.dart';
 import 'package:insigno_frontend/page/scoreboard/scoreboard_page.dart';
 import 'package:insigno_frontend/page/settings/settings_page.dart';
 import 'package:insigno_frontend/page/user/change_password_page.dart';
@@ -82,6 +83,7 @@ class _InsignoAppState extends State<InsignoApp> {
           ImageVerificationPage.routeName: (ctx) => ImageVerificationPage(),
           IntroductionPage.routeName: (ctx) =>
               IntroductionPage(onDone: (context) => Navigator.pop(context)),
+          RouteParametersPage.routeName: (ctx) => RouteParametersPage(settings.arguments as RouteParametersPageArgs)
         };
         WidgetBuilder builder = routes[settings.name]!;
         return MaterialPageRoute(builder: (ctx) => builder(ctx));

@@ -14,7 +14,7 @@ class SettingsControlsWidget extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(
         left: 8 + MediaQuery.of(context).padding.left,
-        top: MediaQuery.of(context).padding.top,
+        top: 64 + MediaQuery.of(context).padding.top,
       ),
       child: Column(
         children: [
