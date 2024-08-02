@@ -14,6 +14,7 @@ class SearchBarApp extends StatefulWidget with GetItStatefulWidgetMixin {
 
 class _SearchBarAppState extends State<SearchBarApp> with GetItStateMixin<SearchBarApp> {
   bool isDark = false;
+  List<ListTile> lastSuggestions = List.empty();
 
   @override
   Widget build(BuildContext context) {
@@ -54,19 +55,41 @@ class _SearchBarAppState extends State<SearchBarApp> with GetItStateMixin<Search
           // ],
         );
       }, suggestionsBuilder: (BuildContext context, SearchController controller) async {
-        List<OsmNominatimEntry> entries =
-            await get<Backend>().loadNominatimEntries(controller.text);
-        return List<ListTile>.generate(entries.length, (int index) {
-          final String item = entries[index].displayName;
-          return ListTile(
-            title: Text(item),
-            onTap: () {
-              setState(() {
-                controller.closeView(item);
-              });
-            },
-          );
-        });
+        final initialText = controller.text;
+        await Future.delayed(const Duration(seconds: 1));
+
+        //print("controller=${controller.text} initial=$initialText");
+        if (initialText != controller.text) {
+          return lastSuggestions;
+        }
+
+        //print("Faccio la richiesta");
+        final newSuggestions = await get<Backend>().loadNominatimEntries(controller.text);
+        if (initialText != controller.text) {
+          return lastSuggestions;
+        }
+        
+        lastSuggestions = newSuggestions.map<ListTile>((item) => ListTile(
+              title: Text(item.displayName),
+              onTap: () {
+                setState(() {
+                  controller.closeView(item.displayName);
+                });
+              },
+            )).toList();
+
+        return lastSuggestions;
+        // return List<ListTile>.generate(entries.length, (int index) {
+        //   final String item = entries[index].displayName;
+        //   return ListTile(
+        //     title: Text(item),
+        //     onTap: () {
+        //       setState(() {
+        //         controller.closeView(item);
+        //       });
+        //     },
+        //   );
+        // });
       }),
     );
   }
