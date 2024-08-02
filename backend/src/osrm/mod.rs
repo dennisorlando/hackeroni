@@ -33,13 +33,11 @@ pub async fn get_route(req: Form<PathRequest>, config: Data<AppConfig>) -> actix
 
 
     let url = config.osrm_url.clone() +"/"+ &query;
-    println!("{}", url);
     let content = reqwest::get(url).await
         .map_err(|x| OSRMError::from(x))?
         .text()
         .await
         .map_err(|x| OSRMError::from(x))?;
-    println!("{}", content);
     Ok(content)
 }
 
