@@ -6,5 +6,5 @@ import androidx.compose.runtime.Composable
 @Preview
 @Composable
 private fun DrawerContentPreview() {
-    DrawerContent(onSettingsClick = {}, onDummyClick = {}, closeDrawer = {})
+    DrawerContent(onSettingsClick = {}, onDummyClick = {}, onMapClick = {}, closeDrawer = {})
 }

@@ -23,6 +23,8 @@ coroutines = "1.8.1"
 lifecycle-viewmodel-compose = "2.8.0"
 multiplatform-settings = "1.2.0-beap1"
 datastore = "1.1.1"
+mapcomposemp = "0.9.3"
+runblocking = "0.1.0-rc.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -61,6 +63,8 @@ multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-sett
 multiplatform-settings-datastore = { module = "com.russhwolf:multiplatform-settings-datastore", version.ref = "multiplatform-settings" }
 multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatform-settings" }
 datastore = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
+mapcomposemp = { module = "ovh.plrapps:mapcompose-mp", version.ref = "mapcomposemp" }
+runblocking = { module = "com.javiersc.kotlinx:coroutines-run-blocking", version.ref = "runblocking" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

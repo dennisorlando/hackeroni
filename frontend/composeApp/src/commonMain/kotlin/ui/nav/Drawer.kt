@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
@@ -28,6 +29,7 @@ import hackathonschenna.composeapp.generated.resources.Res
 import hackathonschenna.composeapp.generated.resources.app_name
 import hackathonschenna.composeapp.generated.resources.compose_multiplatform
 import hackathonschenna.composeapp.generated.resources.dummy
+import hackathonschenna.composeapp.generated.resources.map
 import hackathonschenna.composeapp.generated.resources.settings
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -38,6 +40,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun DrawerContent(
     onSettingsClick: () -> Unit,
     onDummyClick: () -> Unit,
+    onMapClick: () -> Unit,
     closeDrawer: () -> Unit,
 ) {
     ModalDrawerSheet(
@@ -71,22 +74,22 @@ fun DrawerContent(
             modifier = Modifier.padding(horizontal = 12.dp),
         )
 
-//        DrawerItem(
-//            icon = Icons.Default.RecordVoiceOver,
-//            label = R.string.stt_popup,
-//            onClick = {
-//                onSpeechToTextPopupClick()
-//                closeDrawer()
-//            },
-//            modifier = Modifier.padding(horizontal = 12.dp),
-//        )
+        DrawerItem(
+            icon = Icons.Default.Map,
+            label = Res.string.map,
+            onClick = {
+                onMapClick()
+                closeDrawer()
+            },
+            modifier = Modifier.padding(horizontal = 12.dp),
+        )
     }
 }
 
 @Preview
 @Composable
 private fun DrawerContentPreview() {
-    DrawerContent(onSettingsClick = {}, onDummyClick = {}, closeDrawer = {})
+    DrawerContent(onSettingsClick = {}, onDummyClick = {}, onMapClick = {}, closeDrawer = {})
 }
 
 @Preview
