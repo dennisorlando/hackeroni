@@ -111,6 +111,7 @@ impl OSRMRequest {
         }
 
         req.push_str(&format!("&destinations={}", self.stations.len()));
+        req.push_str("&annotations=duration,distance");
 
         Ok(req)
     }

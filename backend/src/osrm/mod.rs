@@ -1,4 +1,4 @@
-use actix_web::{get, post, web::{self, Data, Form}, Responder};
+use actix_web::{get, post, web::{self, Data, Form, Json}, Responder};
 use log::error;
 use request::{OSRMRequest, OSRMResponse};
 use serde::Serialize;
@@ -65,24 +65,20 @@ pub async fn get_route(req: Form<PathRequest>, config: Data<AppConfig>) -> actix
         .text()
         .await
         .map_err(|x| OSRMError::from(x))?;
-    println!("{:?}", content);
     let response: OSRMResponse = serde_json::from_str(&content)?;
     
-    let mut result: Vec<PathResult> = response.distances.into_iter().zip(response.durations).zip(stations_orig)
-        .map(|((a, b), c)|{
-            PathResult{
-                duration: b[0], distance: a[0], station: c 
-
-            }
+    let mut result: Vec<PathResult> = response.durations.into_iter().zip(response.distances).zip(stations_orig)
+        .map(|((durations, distances), station)|{
+            PathResult{ duration: durations[0], distance: distances[0], station }
         }).collect();
     result.sort_by(|x, y |{
         x.duration.partial_cmp(&y.duration).unwrap()
     });
-    Ok(content)
+
+    Ok(Json(result))
 }
 
 pub fn init_osrm(cfg: &mut web::ServiceConfig) {
     cfg.service(get_route);
     cfg.service(get_all_stations);
-
 }
