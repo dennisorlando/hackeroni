@@ -159,3 +159,14 @@ async fn test_request(){
 
         
 }
+#[tokio::test]
+async fn test_station(){
+    let result: Vec<EChargingStation> = ODHBuilder{
+        ..Default::default()
+    }.run().await.unwrap();
+    //println!("{:?}", result);
+    
+    println!("{:?}", result[0]);
+
+        
+}

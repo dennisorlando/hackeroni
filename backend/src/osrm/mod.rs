@@ -1,9 +1,17 @@
 use actix_web::{post, web::{self, Form}, Responder};
 
+use crate::odh::get_near_stations;
+
 use self::request::{OSRMRequest, PathRequest};
 
 pub mod hardcoded;
 pub mod request;
+
+struct StationInfo{
+    coordinate: (f32, f32),
+    id: String,
+    
+}
 
 async fn sd_routes(osrm_req: OSRMRequest) -> String {
     let mut req = String::from("table/v1/foot/");
@@ -29,8 +37,9 @@ async fn sd_routes(osrm_req: OSRMRequest) -> String {
 }
 
 #[post("/stocazzo")]
-pub async fn get_route(req: Form<PathRequest>) -> impl Responder {
-    format!("{:?}", req)
+pub async fn get_route(req: Form<PathRequest>) -> actix_web::Result<impl Responder> {
+    get_near_stations(req, 5000.0).await?;
+    Ok(format!("{:?}", req))
 }
 
 pub fn init_osrm(cfg: &mut web::ServiceConfig) {

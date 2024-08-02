@@ -47,8 +47,8 @@ impl Preferences {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PathRequest {
-    coordinates: Vec<(f64, f64)>,
-    preferences: Preferences,
+    pub coordinates: Vec<(f64, f64)>,
+    pub preferences: Preferences,
 }
 
 impl PathRequest {
