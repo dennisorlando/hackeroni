@@ -45,3 +45,6 @@ class DummyViewModel(
 
 @Serializable
 data class Post(val id: Int, val title: String, val body: String, val userId: Int)
+
+@Serializable
+data class NominatimEntry(val place_id: Int, val lat: String, val lon: String, var name: String, var display_name: String)

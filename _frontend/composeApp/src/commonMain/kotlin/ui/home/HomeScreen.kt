@@ -21,6 +21,7 @@ import getPlatform
 import hackathonschenna.composeapp.generated.resources.Res
 import hackathonschenna.composeapp.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
+import ui.nav.SearchTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +41,7 @@ fun HomeScreen(navigationIcon: @Composable () -> Unit) {
             Modifier.padding(paddingValues).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            SearchTopAppBar(hint = "Search Destination...", title = { Text("Destination") }, searchIcon = { Text("icona bellissima") }, searchString = null, onSearch = {}, navigationIcon = { Text("iiiicona")}, setSearchString = {})
             Button(onClick = { showContent = !showContent }) {
                 Text("Click me!")
             }
