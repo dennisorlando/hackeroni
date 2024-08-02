@@ -210,7 +210,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
       if (location.isEmpty) {
         return Pair(null, l10n.noNominatimMatch(str));
       } else {
-        return Pair(LatLng(location.first.lat, location.first.lon), "");
+        return Pair(location.first.toLatLng(), "");
       }
     }
   }

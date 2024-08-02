@@ -179,7 +179,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
           ),
           Align(
             alignment: Alignment.topCenter,
-            child: SearchBarApp(),
+            child: SearchBarApp((item) => openRouteParametersPage(item.toLatLng(), item.displayName)),
           ),
         ],
       ),
@@ -199,11 +199,11 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
     });
   }
 
-  void openRouteParametersPage(LatLng destination) {
+  void openRouteParametersPage(LatLng destination, [String? destinationName]) {
     Navigator.pushNamed(
       context,
       RouteParametersPage.routeName,
-      arguments: RouteParametersPageArgs(destination, null),
+      arguments: RouteParametersPageArgs(destination, destinationName),
     ).then((value) {
       // TODO open bottom sheet
     });
