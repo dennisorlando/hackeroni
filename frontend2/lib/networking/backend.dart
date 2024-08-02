@@ -1,3 +1,4 @@
+import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 import "package:http/http.dart" as http;
 import "package:http_parser/http_parser.dart";
@@ -15,9 +16,11 @@ import "package:insigno_frontend/networking/data/user.dart";
 import "package:insigno_frontend/networking/error.dart";
 import "package:insigno_frontend/networking/parsers.dart";
 import "package:insigno_frontend/networking/server_host_handler.dart";
+import "package:insigno_frontend/page/map/bottom_chip.dart";
 import "package:insigno_frontend/util/future.dart";
 import "package:insigno_frontend/util/nullable.dart";
 import "package:insigno_frontend/util/pair.dart";
+import "package:latlong2/latlong.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import 'package:path/path.dart' as path;
 
@@ -127,6 +130,26 @@ class Backend {
       "lat": latitude.toString(),
       "lon": longitude.toString(),
     }).map((stations) => stations.map<ChargingStation>(chargingStationFromJson).toList());
+  }
+
+  Future<Map<SelectedAlgorithm, RouteData>> loadRoutes(LatLng source, LatLng destination,
+      Duration duration, int chargeLeft, int chargeRequested, Duration maxWalkingTime) async {
+    return _getJson("/get_routes", params: {
+      "source_lat": source.latitude,
+      "source_long": source.longitude,
+      "destination_lat": destination.latitude,
+      "destination_long": destination.longitude,
+      "duration": duration.inSeconds,
+      "charge_left": chargeLeft,
+      "charge_requested": chargeRequested,
+      "max_walking_time": maxWalkingTime.inSeconds,
+    }).map((routes) {
+      Map<SelectedAlgorithm, RouteData> routemap = {};
+      (routes.map<RouteData>(routeDataFromJson).toList() as List<RouteData>).forEachIndexed((i, route) {
+        routemap[SelectedAlgorithm.values[i % SelectedAlgorithm.values.length]] = route;
+      });
+      return routemap;
+    });
   }
 
   Future<List<MapMarker>> loadMapMarkers(

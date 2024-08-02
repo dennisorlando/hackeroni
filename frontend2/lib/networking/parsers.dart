@@ -8,7 +8,9 @@ import 'package:insigno_frontend/networking/data/map_marker.dart';
 import 'package:insigno_frontend/networking/data/marker.dart';
 import 'package:insigno_frontend/networking/data/marker_image.dart';
 import 'package:insigno_frontend/networking/data/osm_nominatim_entry.dart';
+import 'package:insigno_frontend/page/map/bottom_chip.dart';
 import "package:insigno_frontend/util/nullable.dart";
+import 'package:latlong2/latlong.dart';
 
 import 'data/marker_type.dart';
 import 'data/marker_update.dart';
@@ -79,6 +81,18 @@ OsmNominatimEntry nominEntryFromJson(dynamic e) {
 
 ChargingStation chargingStationFromJson(dynamic e) {
   return ChargingStation(e["id"], e["coordinate"][1], e["coordinate"][0]);
+}
+
+List<LatLng> pathFromJson(List<dynamic> e) {
+  return e.map((u) {
+    return LatLng(e[1], e[0]);
+  }).toList();
+}
+
+RouteData routeDataFromJson(dynamic e) {
+  return RouteData(0, Duration(seconds: e["walking_duration"].toInt()),
+      Duration(seconds: e["driving_duration"].toInt()), pathFromJson(e["walking_nodes"]),
+      pathFromJson(e["driving_nodes"]));
 }
 
 MarkerUpdate markerUpdateFromJson(dynamic u) {
