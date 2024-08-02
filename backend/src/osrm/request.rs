@@ -31,7 +31,7 @@ pub enum Profile {
 pub struct Preferences {
     pub charge_left: Option<u32>,
     pub charge_requested: Option<u32>,
-    pub max_walking_distance: Option<u32>,
+    pub max_walking_time: Option<u32>,
     // other future preferences
 }
 
@@ -40,77 +40,27 @@ impl Preferences {
         Preferences {
             charge_left,
             charge_requested,
-            max_walking_distance,
+            max_walking_time: max_walking_distance,
         }
     }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PathRequest {
-    pub coordinates: Vec<(f64, f64)>,
+    pub source: (f64, f64),
+    pub destination: (f64, f64),
+    pub duration: u32,
     pub preferences: Preferences,
 }
 
 impl PathRequest {
-    pub fn new(coordinates: Vec<(f64, f64)>, preferences: Preferences) -> Self {
+    pub fn new(source: (f64, f64), destination: (f64, f64), duration: u32, preferences: Preferences) -> Self {
         PathRequest {
-            coordinates,
+            source,
+            destination,
+            duration,
             preferences,
         }
-    }
-
-    pub fn to_osrm_string(&self) -> String {
-        let mut request = String::new();
-        // match &self.service {
-        //     Service::Route { .. } => request.push_str("route/v1/"),
-        //     Service::Table { .. } => request.push_str("table/v1/"),
-        // }
-
-        request.push_str("driving/");
-
-        for (i, (lat, lon)) in self.coordinates.iter().enumerate() {
-            request.push_str(&format!("{},{}", lon, lat));
-            if i < self.coordinates.len() - 1 {
-                request.push(';');
-            }
-        }
-
-        request.push('?');
-
-        let query_string = String::new();
-        // match &self.service {
-        //     Service::Route { alternatives, steps } => {
-        //         if let Some(alternatives) = alternatives {
-        //             query_string.push_str(&format!("&alternatives={}", alternatives));
-        //         }
-        //         if *steps {
-        //             query_string.push_str("&steps=true");
-        //         }
-        //     }
-        //     Service::Table { sources, destinations, fallback_speed } => {
-        //         if let Some(sources) = sources {
-        //             query_string.push_str("&sources=");
-        //             for source in sources {
-        //                 query_string.push_str(&format!("{};", source));
-        //             }
-        //         }
-        //
-        //         if let Some(destinations) = destinations {
-        //             query_string.push_str("&destinations=");
-        //             for destination in destinations {
-        //                 query_string.push_str(&format!("{};", destination));
-        //             }
-        //         }
-        //
-        //         if let Some(fallback_speed) = fallback_speed {
-        //             query_string.push_str(&format!("&fallback_speed={}", fallback_speed));
-        //         }
-        //     }
-        // }
-        // query_string.remove(0);
-    
-        request.push_str(&query_string);
-        request
     }
 }
 
@@ -118,7 +68,7 @@ impl PathRequest {
 pub struct OSRMRequest {
     pub stations: Vec<(f64, f64)>,
     pub destination: Vec<(f64, f64)>,
-    pub max_time: u32,
+    pub max_walking_time: u32,
 }
 
 
@@ -127,7 +77,7 @@ impl OSRMRequest {
         OSRMRequest {
             stations,
             destination,
-            max_time,
+            max_walking_time: max_time,
         }
     }
 }
