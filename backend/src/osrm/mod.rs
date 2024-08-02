@@ -44,7 +44,7 @@ pub async fn get_all_stations(config: Data<AppConfig>) -> actix_web::Result<impl
     Ok(stations)
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 struct PathResult{
     duration: f64,
     distance: f64,
@@ -56,7 +56,7 @@ pub async fn get_route(req: Form<PathRequest>, config: Data<AppConfig>) -> actix
     let destination = (req.destination_long, req.destination_lat);
     let stations_orig = get_near_stations(destination, config.max_walking_meters).await?;
     let stations = stations_orig.clone().into_iter().map(|x| x.coordinate).collect();
-    let query = OSRMRequest::new(stations, destination, req.preferences.max_walking_time.unwrap_or(10)).build()?;
+    let query = OSRMRequest::new(stations, destination, req.preferences.max_walking_time.unwrap_or(600)).build()?;
 
 
     let url = config.osrm_url.clone() +"/"+ &query;
@@ -74,6 +74,8 @@ pub async fn get_route(req: Form<PathRequest>, config: Data<AppConfig>) -> actix
     result.sort_by(|x, y |{
         x.duration.partial_cmp(&y.duration).unwrap()
     });
+
+    let result = result.iter().filter(|&x| x.duration < req.preferences.max_walking_time.unwrap_or(600) as f64).take(4).cloned().collect::<Vec<_>>();
 
     Ok(Json(result))
 }
