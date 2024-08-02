@@ -148,6 +148,17 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                       ))
                   .toList()),
           FastMarkersLayer(mapMarkerProvider.getVisibleMarkers()),
+          PolylineLayer(polylines: [
+            Polyline(
+              points: const [
+                LatLng(45.75548, 11.00323),
+                LatLng(45.75560, 11.00323),
+                LatLng(45.75548, 11.00310)
+              ],
+              color: Colors.pink,
+              strokeWidth: 3.0,
+            )
+          ]),
           const Align(
             alignment: Alignment.bottomLeft,
             child: Text(
