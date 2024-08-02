@@ -134,6 +134,14 @@
   "deleteAccount": "Elimina l'account",
   "usePpe": "Usa sempre guanti o dispositivi di protezione individuale appropriati per raccogliere i rifiuti",
   "planYourRoute": "Pianifica il percorso",
-  "routeSource": "Source",
-  "routeDestination": "Destination"
+  "routeSource": "Partenza",
+  "routeDestination": "Arrivo",
+  "yourLocation": "La tua posizione",
+  "insertLocation": "Inserisci una posizione",
+  "currentBatteryCharge": "Livello di carica corrente della batteria",
+  "wantedBatteryCharge": "Livello della batteria dopo il viaggio",
+  "appointmentDuration": "Durata dell'appuntamento",
+  "calculateRoutes": "Calcola i percorsi",
+  "locationNotAvailable": "La posizione non è disponibile, attiva il GPS e aspetta che finisca di caricare",
+  "noNominatimMatch": "Impossibile risolvere l'indirizzo \"{address}\" in delle coordinate"
 }

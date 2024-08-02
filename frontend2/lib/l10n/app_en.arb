@@ -267,6 +267,21 @@
   "deleteAccount": "Delete account",
   "usePpe": "Make sure to use gloves or appropriate personal protective equipment to pick up trash",
   "planYourRoute": "Plan your route",
-  "routeSource": "Partenza",
-  "routeDestination": "Arrivo"
+  "routeSource": "Source",
+  "routeDestination": "Destination",
+  "yourLocation": "Your location",
+  "insertLocation": "Insert a location",
+  "currentBatteryCharge": "Current battery charge",
+  "wantedBatteryCharge": "Preferred battery charge after the route",
+  "appointmentDuration": "Appointment duration",
+  "calculateRoutes": "Calculate routes",
+  "locationNotAvailable": "Location is not available, activate GPS and wait for it to load",
+  "noNominatimMatch": "Cannot resolve address \"{address}\" to some coordinates",
+  "@noNominatimMatch": {
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  }
 }
