@@ -22,7 +22,7 @@ pub enum ODHError {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-struct Coordinate{x: f32, y: f32, srid: u32}
+struct Coordinate{x: f64, y: f64, srid: u32}
 #[derive(Deserialize, Serialize, Debug)]
 struct EChargingStation{
     sactive: bool,
@@ -127,14 +127,14 @@ impl ODHBuilder{
     }
 }
 
-fn distance_in_meters(p1: (f32, f32), p2: (f32, f32))->f32{
+fn distance_in_meters(p1: (f64, f64), p2: (f64, f64))->f64{
     let p1 = point!(x: p1.0, y: p1.1);
     let p2 = point!(x: p2.0, y: p2.1);
 
     p1.haversine_distance(&p2)
 }
 
-pub async fn get_near_stations(p: (f32, f32), dist: f32)->Result<Vec<(f32, f32)>, ODHError>{
+pub async fn get_near_stations(p: (f64, f64), dist: f64)->Result<Vec<(f64, f64)>, ODHError>{
     let result: Vec<EChargingStation> = ODHBuilder{
         ..Default::default()
     }.run().await?;

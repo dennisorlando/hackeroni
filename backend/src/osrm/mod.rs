@@ -1,6 +1,6 @@
-use actix_web::{post, web::{self, Form}, Responder};
+use actix_web::{post, web::{self, Data, Form}, Responder};
 
-use crate::odh::get_near_stations;
+use crate::{config::AppConfig, odh::get_near_stations};
 
 use self::request::{OSRMRequest, PathRequest};
 
@@ -37,9 +37,19 @@ async fn sd_routes(osrm_req: OSRMRequest) -> String {
 }
 
 #[post("/stocazzo")]
-pub async fn get_route(req: Form<PathRequest>) -> actix_web::Result<impl Responder> {
-    get_near_stations(req, 5000.0).await?;
-    Ok(format!("{:?}", req))
+pub async fn get_route(req: Form<PathRequest>, config: Data<AppConfig>) -> actix_web::Result<impl Responder> {
+    let destination = (req.destination_long, req.destination_lat);
+    let stations = get_near_stations(destination, config.max_walking_meters).await.unwrap();
+    println!("{:?}", stations);
+    let r = OSRMRequest::new(stations, destination, req.preferences.max_walking_time.unwrap_or(10));
+    let r = sd_routes(r).await;
+
+    //todo take from config
+    let url = config.osrm_url.clone() +"/"+ &r;
+    println!("{}", url);
+    let content = reqwest::get(url).await.unwrap().text().await.unwrap();
+    println!("{}", content);
+    Ok(content)
 }
 
 pub fn init_osrm(cfg: &mut web::ServiceConfig) {

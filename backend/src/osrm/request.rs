@@ -47,17 +47,22 @@ impl Preferences {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PathRequest {
-    pub source: (f64, f64),
-    pub destination: (f64, f64),
+    pub source_lat: f64,
+    pub source_long: f64,
+    pub destination_lat: f64,
+    pub destination_long: f64,
     pub duration: u32,
+    #[serde(flatten)]
     pub preferences: Preferences,
 }
 
 impl PathRequest {
     pub fn new(source: (f64, f64), destination: (f64, f64), duration: u32, preferences: Preferences) -> Self {
         PathRequest {
-            source,
-            destination,
+            source_lat: source.0,
+            source_long: source.1,
+            destination_lat: destination.0,
+            destination_long: destination.1,
             duration,
             preferences,
         }
@@ -67,13 +72,13 @@ impl PathRequest {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct OSRMRequest {
     pub stations: Vec<(f64, f64)>,
-    pub destination: Vec<(f64, f64)>,
+    pub destination: (f64, f64),
     pub max_walking_time: u32,
 }
 
 
 impl OSRMRequest {
-    pub fn new(stations: Vec<(f64, f64)>, destination: Vec<(f64, f64)>, max_time: u32) -> Self {
+    pub fn new(stations: Vec<(f64, f64)>, destination: (f64, f64), max_time: u32) -> Self {
         OSRMRequest {
             stations,
             destination,
