@@ -6,7 +6,9 @@ import 'package:insigno_frontend/networking/data/osm_nominatim_entry.dart';
 /// Flutter code sample for [SearchBar].
 
 class SearchBarApp extends StatefulWidget with GetItStatefulWidgetMixin {
-  SearchBarApp({super.key});
+  final Function(OsmNominatimEntry) onSuggestionClicked;
+
+  SearchBarApp(this.onSuggestionClicked, {super.key});
 
   @override
   State<SearchBarApp> createState() => _SearchBarAppState();
@@ -74,6 +76,7 @@ class _SearchBarAppState extends State<SearchBarApp> with GetItStateMixin<Search
               onTap: () {
                 setState(() {
                   controller.closeView(item.displayName);
+                  widget.onSuggestionClicked(item);
                 });
               },
             )).toList();

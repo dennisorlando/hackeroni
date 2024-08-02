@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
 import 'package:insigno_frontend/networking/backend.dart';
 import 'package:insigno_frontend/networking/data/map_marker.dart';
+import 'package:insigno_frontend/page/map/bottom_chip.dart';
 import 'package:insigno_frontend/page/map/fast_markers_layer.dart';
 import 'package:insigno_frontend/page/map/map_controls_widget.dart';
 import 'package:insigno_frontend/page/map/search_bar.dart';
@@ -33,6 +34,8 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
   late final SharedPreferences prefs;
   late final MapMarkerProvider mapMarkerProvider;
   final MapController mapController = MapController();
+
+
 
   late LatLng initialCoordinates;
   late double initialZoom;
@@ -179,8 +182,12 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
           ),
           Align(
             alignment: Alignment.topCenter,
-            child: SearchBarApp(),
+            child: SearchBarApp((item) => openRouteParametersPage(item.toLatLng(), item.displayName)),
           ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: BottomChip(),
+          )
         ],
       ),
     );
@@ -199,11 +206,11 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
     });
   }
 
-  void openRouteParametersPage(LatLng destination) {
+  void openRouteParametersPage(LatLng destination, [String? destinationName]) {
     Navigator.pushNamed(
       context,
       RouteParametersPage.routeName,
-      arguments: RouteParametersPageArgs(destination, null),
+      arguments: RouteParametersPageArgs(destination, destinationName),
     ).then((value) {
       // TODO open bottom sheet
     });

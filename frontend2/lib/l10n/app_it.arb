@@ -81,7 +81,7 @@
   "copy": "Copia",
   "settings": "Impostazioni",
   "insignoDescription": "Con Insigno puoi segnalare e raccogliere immondizie, e nel farlo guadagnerai punti! Insigno è software libero, clicca per vedere il codice e segnalare problemi.",
-  "mindshubDescription": "Insigno è sviluppato da MindsHub, un'associazione no-profit trentina che mette a disposizione degli appassionati uno spazio per collaborare su informatica, meccanica, elettronica e stampa 3D.",
+  "evplannerDescription": "Insigno è sviluppato da MindsHub, un'associazione no-profit trentina che mette a disposizione degli appassionati uno spazio per collaborare su informatica, meccanica, elettronica e stampa 3D.",
   "hostServer": "Server Insigno a cui connettersi",
   "invalidHostServer": "Non è un server Insigno",
   "hostServerDescription": "Dato che Insigno è software libero, puoi scegliere di connetterti ad altre istanze del servizio di backend",
@@ -134,6 +134,14 @@
   "deleteAccount": "Elimina l'account",
   "usePpe": "Usa sempre guanti o dispositivi di protezione individuale appropriati per raccogliere i rifiuti",
   "planYourRoute": "Pianifica il percorso",
-  "routeSource": "Source",
-  "routeDestination": "Destination"
+  "routeSource": "Partenza",
+  "routeDestination": "Arrivo",
+  "yourLocation": "La tua posizione",
+  "insertLocation": "Inserisci una posizione",
+  "currentBatteryCharge": "Livello di carica corrente della batteria",
+  "wantedBatteryCharge": "Livello della batteria dopo il viaggio",
+  "appointmentDuration": "Durata dell'appuntamento",
+  "calculateRoutes": "Calcola i percorsi",
+  "locationNotAvailable": "La posizione non è disponibile, attiva il GPS e aspetta che finisca di caricare",
+  "noNominatimMatch": "Impossibile risolvere l'indirizzo \"{address}\" in delle coordinate"
 }

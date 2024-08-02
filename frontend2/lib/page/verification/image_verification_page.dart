@@ -56,7 +56,7 @@ class _ImageVerificationPageState extends State<ImageVerificationPage>
         ),
         body: Center(
           child: theVerifications != null //
-              ? Text(l10n.mindshubDescription)
+              ? Text(l10n.evplannerDescription)
               : theLoadError == null
                   ? const CircularProgressIndicator()
                   : Text(
