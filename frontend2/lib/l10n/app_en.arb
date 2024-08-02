@@ -1,0 +1,269 @@
+{
+  "map": "Map",
+  "user": "User",
+  "loginToInsigno": "Login to Insigno!",
+  "name": "Nickname",
+  "password": "Password",
+  "wrongUserOrPassword": "Wrong user or password: {error}",
+  "@wrongUserOrPassword": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "logout": "Logout",
+  "close": "Close",
+  "loginToResolve": "Login to resolve",
+  "getCloserToResolve": "Get closer to resolve",
+  "resolve": "Resolve",
+  "alreadyResolved": "Already resolved",
+  "report": "Report",
+  "markerType": "Marker type",
+  "loginRequired": "Login required",
+  "grantLocationPermission": "Grant permission to access location",
+  "enableLocationServices": "Enable location services",
+  "addImage": "Add an image",
+  "selectMarkerType": "Select a marker type",
+  "locationIsLoading": "Location is loading, please wait…",
+  "send": "Send",
+  "tooFarToResolve": "You are too far to resolve",
+  "markerTypeUnknown": "Unknown type",
+  "markerTypePlastic": "Plastic",
+  "markerTypePaper": "Paper",
+  "markerTypeUndifferentiated": "Undifferentiated",
+  "markerTypeGlass": "Glass",
+  "markerTypeCompost": "Compost",
+  "markerTypeElectronics": "Electronic material",
+  "errorReporting": "Error when reporting: {error}",
+  "@errorReporting": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorUploadingReportImages": "Error when uploading report images: {error}",
+  "@errorUploadingReportImages": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorResolving": "Error when resolving: {error}",
+  "@errorResolving": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorUploadingResolveImages": "Error when uploading resolve images: {error}",
+  "@errorUploadingResolveImages": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pill": "Pill",
+  "notHaveAccount": "Don't have an account?",
+  "alreadyHaveAccount": "Already have an account?",
+  "login": "Login",
+  "signup": "Signup",
+  "goToPosition": "Go to your position",
+  "repeatPassword": "Repeat password",
+  "insertName": "Insert a name",
+  "insertPassword": "Insert a password",
+  "passwordsNotMatch": "Passwords don't match",
+  "signupFailed": "Failed to signup: {error}",
+  "@signupFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "points": "{points} points",
+  "@points": {
+    "placeholders": {
+      "points": {
+        "type": "double",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "refresh": "Refresh",
+  "cancel": "Cancel",
+  "ok": "OK",
+  "filterMarkers": "Filter markers",
+  "includeResolved": "Include resolved",
+  "reportAsInappropriate": "Report as inappropriate",
+  "insertEcologyPill": "Insert an ecology pill",
+  "insertPill": "Insert a pill",
+  "source": "Source (optional, web address)",
+  "infoText": "Informational text",
+  "insertPossiblySource": "Insert the source, if applicable",
+  "insertValidUrl": "Insert a valid web address",
+  "suggestPill": "Suggest pill",
+  "thanks": "Thanks!",
+  "confirmReportAsInappropriate": "Are you sure you want to report this marker as inappropriate?",
+  "yourProfile": "Your profile",
+  "reportedBy": "Reported by {user}",
+  "@reportedBy": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "resolvedBy": "Resolved by {user}",
+  "@resolvedBy": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "errorReportingAsInappropriate": "Error reporting as inappropriate: {error}",
+  "@errorReportingAsInappropriate": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorSendingPill": "Error sending pill: {error}",
+  "@errorSendingPill": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoading": "Error loading: {error}",
+  "@errorLoading": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingImages": "Error loading images: {error}",
+  "@errorLoadingImages": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidNameLength": "Use 3 to 20 characters",
+  "invalidNameCharacters": "You may only use letters, numbers, spaces and _",
+  "invalidPasswordLength": "Use at least 8 characters",
+  "invalidPasswordCharacters": "Must contain uppercase, lowercase, number, special",
+  "oldVersion": "You are using an old unsupported version of Insigno, please update to the latest",
+  "email": "Email",
+  "insertEmail": "Insert an email",
+  "insertValidEmail": "Insert a valid email",
+  "confirmEmail": "Before being able to use Insigno, you need to confirm your account by clicking on the link we just sent to the email you provided, then login from here. If you didn't receive it, check inside spam.",
+  "ohNoError": "Oh no, error!",
+  "errorOccurred": "An error occurred",
+  "reportError": "Report",
+  "copy": "Copy",
+  "settings": "Settings",
+  "insignoDescription": "Insigno lets you report and collect garbage, earning points while doing so! Insigno is free software, click to view code and report problems.",
+  "mindshubDescription": "Insigno is developed by MindsHub, an Italian no-profit association providing a space for enthusiasts to collaborate on informatics, mechanics, electronics and 3D printing.",
+  "hostServer": "Insigno server to which to connect",
+  "hostServerDescription": "Since Insigno is free software, you can choose to connect to other instances of the backend service",
+  "invalidHostServer": "Not an Insigno server",
+  "reset": "Reset",
+  "use": "Use",
+  "edit": "Edit",
+  "onlyHttpsAccepted": "Only HTTPS URLs are accepted",
+  "reviewImagesAsAdmin": "Review images as admin",
+  "verdictOk": "Ok!",
+  "verdictBad": "Bad",
+  "verdictDelete": "Delete",
+  "verdictDeleteReport": "Report and delete",
+  "verdictSkip": "Skip",
+  "noImageToReview": "No remaining image to review",
+  "errorReviewing": "Error reviewing: {error}",
+  "@errorReviewing": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "forgotPassword": "Forgot password?",
+  "changePassword": "Change password",
+  "passwordChangeFailed": "Changing the password failed: {error}",
+  "@passwordChangeFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "confirmPasswordChange": "To make the password change effective, click on the link that was just sent to your email, then login from here. If you didn't receive it, check inside spam.",
+  "newPassword": "New password",
+  "weWillSendEmail": "We will send you an email with the instructions to proceed",
+  "verifyImages": "Review images",
+  "verifyImagesIn": "Come back to review in {time}!",
+  "@verifyImagesIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreboard": "Scoreboard",
+  "global": "Global",
+  "km1": "1km",
+  "km10": "10km",
+  "km100": "100km",
+  "additional_points": "+{points}",
+  "@additional_points": {
+    "placeholders": {
+      "points": {
+        "type": "double",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "yes": "Yes",
+  "no": "No",
+  "acceptToReviewDialogTitle": "Do you want to participate in reviewing images?",
+  "acceptToReviewDialogText": "Reviewing images posted by other users allows you to earn some points periodically. However you might be exposed to unmoderated images with sensitive content. Therefore by tapping on \"{yes}\" you declare that YOU ARE ADULT and that YOU ARE AWARE OF THE RISKS.",
+  "@acceptToReviewDialogText": {
+    "placeholders": {
+      "yes": {
+        "type": "String"
+      }
+    }
+  },
+  "acceptToReviewSwitchTitle": "Participate in reviewing images",
+  "acceptToReviewSwitchDescription": "Reviewing images posted by other users allows you to earn some points periodically, however you might be exposed to unmoderated images with sensitive content",
+  "partialOutOfTotal": "{partial}/{total}",
+  "@partialOutOfTotal": {
+    "placeholders": {
+      "partial": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "noActiveSpecialScoreboard": "There is no special scoreboard active at the moment. Follow MindsHub on social media to find out about Insigno events!",
+  "replayIntroduction": "Replay introduction screens",
+  "introSkip": "Skip",
+  "confirmAccountDeletion": "To finish deleting the account, click on the link that was just sent to your email. If you didn't receive it, check inside spam.",
+  "accountDeletionDialogTitle": "Are you sure you want to delete your account?",
+  "accountDeletionDialogText": "To confirm deleting your account, click on the link we will send to your email. We will miss you!",
+  "deleteAccount": "Delete account",
+  "usePpe": "Make sure to use gloves or appropriate personal protective equipment to pick up trash"
+}
