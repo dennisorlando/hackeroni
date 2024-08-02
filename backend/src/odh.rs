@@ -1,5 +1,6 @@
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use log::error;
+use serde::{de::{DeserializeOwned, Error}, Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
 use geo::{point, prelude::*};
@@ -19,6 +20,15 @@ pub enum ODHError {
     Reqwest(#[from] reqwest::Error),
     #[error("Build failed. Field {0} not provided")]
     Build(&'static str ),
+    #[error("Error while parsing json: {0}")]
+    JsonError(#[from] serde_json::Error)
+}
+
+impl From<ODHError> for actix_web::Error {
+    fn from(value: ODHError) -> Self {
+        error!("{value}");
+        actix_web::error::ErrorInternalServerError("Internal server error")
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -112,15 +122,15 @@ impl Station for EChargingPlug{
 }
 
 impl ODHBuilder{
-    pub async fn run<T: Station + DeserializeOwned>(self)->Result<Vec<T>,ODHError> {
+    pub async fn run<T: Station + DeserializeOwned>(self)->Result<Vec<T>, ODHError> {
         let url = self.url + "/v2/flat/" + T::get_uri();
         let content = reqwest::get(url)
         .await?
         .text()
         .await?;
-        let x: Value = serde_json::from_str(&content).unwrap();
-        let t = x.get("data").unwrap();
-        let t: Vec<T> = serde_json::from_value(t.clone()).unwrap();
+        let x: Value = serde_json::from_str(&content)?;
+        let t = x.get("data").ok_or(serde_json::Error::missing_field("can not find data field"))?;
+        let t: Vec<T> = serde_json::from_value(t.clone())?;
 
         Ok(t)
         
