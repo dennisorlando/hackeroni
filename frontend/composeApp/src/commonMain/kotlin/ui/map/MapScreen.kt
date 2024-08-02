@@ -29,6 +29,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import ovh.plrapps.mapcompose.api.addLayer
 import ovh.plrapps.mapcompose.api.enableRotation
+import ovh.plrapps.mapcompose.api.maxScale
 import ovh.plrapps.mapcompose.core.TileStreamProvider
 import ovh.plrapps.mapcompose.ui.MapUI
 import ovh.plrapps.mapcompose.ui.state.MapState
@@ -74,9 +75,6 @@ private fun ByteReadChannel.toRawSource(): RawSource {
                     sink.writeByte(b)
                 }
 
-                if (byteCount.toInt() > 0) {
-                    println("readAtMostTo, byteCount=${byteCount.toInt()}, actual=${ba.size.toLong()}")
-                }
                 return ba.size.toLong()
             } catch (e: AssertionError) {
                 throw e
@@ -93,11 +91,12 @@ fun MapScreen(
     val state = remember { MapState(4, 4096, 4096).apply {
         addLayer({ row, col, zoomLvl ->
             println("Request to $row $col $zoomLvl https://tile.openstreetmap.org/$zoomLvl/$row/$col.png")
-            httpClient.get("https://tile.openstreetmap.org/18/148342/101158.png")//"https://tile.openstreetmap.org/$zoomLvl/$row/$col.png")
+            httpClient.get("https://tile.openstreetmap.org/$zoomLvl/$col/$row.png")
                 .bodyAsChannel()
                 .toRawSource()
         })
         enableRotation()
+        maxScale = 10f
     } }
     MapUI(modifier = modifier.fillMaxSize(), state = state)
 }
