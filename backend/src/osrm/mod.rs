@@ -1,4 +1,4 @@
-use actix_web::{post, web::Form, Responder};
+use actix_web::{post, web::{self, Form}, Responder};
 
 use self::request::{OSRMRequest, PathRequest};
 
@@ -34,5 +34,6 @@ pub async fn get_route(req: Form<PathRequest>) -> impl Responder {
 }
 
 pub fn init_osrm(cfg: &mut web::ServiceConfig) {
-    cfg.service(get_path);
+    cfg.service(get_route);
+    //cfg.service(sd_routes);
 }
