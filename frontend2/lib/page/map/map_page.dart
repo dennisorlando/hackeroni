@@ -6,15 +6,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
 import 'package:insigno_frontend/networking/backend.dart';
 import 'package:insigno_frontend/networking/data/map_marker.dart';
-import 'package:insigno_frontend/page/map/additional_points_widget.dart';
-import 'package:insigno_frontend/page/map/bottom_controls_widget.dart';
 import 'package:insigno_frontend/page/map/fast_markers_layer.dart';
 import 'package:insigno_frontend/page/map/map_controls_widget.dart';
-import 'package:insigno_frontend/page/map/pill_widget.dart';
 import 'package:insigno_frontend/page/map/search_bar.dart';
 import 'package:insigno_frontend/page/map/settings_controls_widget.dart';
 import 'package:insigno_frontend/page/marker/marker_page.dart';
 import 'package:insigno_frontend/page/marker/report_page.dart';
+import 'package:insigno_frontend/page/route_parameters/route_parameters_page.dart';
 import 'package:insigno_frontend/pref/preferences_keys.dart';
 import 'package:insigno_frontend/provider/location_provider.dart';
 import 'package:insigno_frontend/provider/map_marker_provider.dart';
@@ -134,6 +132,9 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
               if (max(dx, dy) < markerScale * 0.7) {
                 openMarkerPage(minMarker);
               }
+            },
+            onLongPress: (tapPosition, tapLatLng) {
+              openRouteParametersPage(tapLatLng);
             }),
         children: [
           TileLayer(
@@ -195,6 +196,16 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
         // the marker may have been resolved, or its data might have changed, so update it
         setState(() => mapMarkerProvider.addOrReplace(value));
       }
+    });
+  }
+
+  void openRouteParametersPage(LatLng destination) {
+    Navigator.pushNamed(
+      context,
+      RouteParametersPage.routeName,
+      arguments: RouteParametersPageArgs(destination, null),
+    ).then((value) {
+      // TODO open bottom sheet
     });
   }
 
