@@ -44,7 +44,7 @@ class _SettingsPageState extends State<SettingsPage> with GetItStateMixin<Settin
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Padding(
+            /*Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: AboutCardWidget(
                 description: l10n.insignoDescription,
@@ -88,7 +88,7 @@ class _SettingsPageState extends State<SettingsPage> with GetItStateMixin<Settin
                 padding: const EdgeInsets.all(16),
                 child: Text(l10n.replayIntroduction),
               ),
-            ),
+            ),*/
             const Divider(height: 1),
             const SizedBox(height: 8),
             Padding(
