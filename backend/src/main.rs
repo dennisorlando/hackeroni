@@ -1,18 +1,19 @@
-use std::{env, error::Error};
+use std::error::Error;
 
 use actix_identity::{Identity, IdentityExt, IdentityMiddleware};
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
-use actix_web::{cookie::Key, get, middleware, web, App, HttpRequest, HttpServer, Responder};
+use actix_web::{get, middleware, web, App, HttpRequest, HttpServer, Responder};
 use auth::{init_auth, Admin, Authenticated, User};
-use base64::{prelude::BASE64_STANDARD, Engine};
 use db::{initialize_db_pool, run_migrations,  DbPool};
 use dotenvy::dotenv;
 use log::*;
+use osrm::hardcoded::get_info;
 pub mod db;
 pub mod log;
 pub mod auth;
 pub mod config;
 pub mod stable_diffusion;
+pub mod osrm;
 
 #[get("/")]
 async fn index() -> impl Responder {
@@ -44,6 +45,7 @@ async fn onlyadmin(_: User<Admin>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    get_info().await;
     dotenv().ok();
     init_log();
     let conf = config::load_config();
