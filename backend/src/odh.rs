@@ -1,5 +1,5 @@
 
-use log::error;
+use log::{error, log};
 use serde::{de::{DeserializeOwned, Error}, Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
@@ -43,7 +43,7 @@ pub struct EChargingStation{
     pub scoordinate: Coordinate,
     smetadata: Value,
     pub sname: String,
-    sorigin: String,
+    sorigin: Option<String>,
     stype: String,
 }
 /*
@@ -125,7 +125,8 @@ impl Station for EChargingPlug{
 
 impl ODHBuilder{
     pub async fn run<T: Station + DeserializeOwned>(self)->Result<Vec<T>, ODHError> {
-        let url = self.url + "/v2/flat/" + T::get_uri();
+        let url = self.url + "/v2/flat/" + T::get_uri() + "?limit=-1";
+        print!("{}", url);
         let content = reqwest::get(url)
         .await?
         .text()
@@ -143,7 +144,9 @@ fn distance_in_meters(p1: (f64, f64), p2: (f64, f64))->f64{
     let p1 = point!(x: p1.0, y: p1.1);
     let p2 = point!(x: p2.0, y: p2.1);
 
-    p1.haversine_distance(&p2)
+    let d = p1.haversine_distance(&p2);
+    d
+
 }
 
 pub async fn get_near_stations(p: (f64, f64), dist: f64)->Result<Vec<StationInfo>, ODHError>{
@@ -169,7 +172,6 @@ async fn test_request(){
     let result: Vec<EChargingPlug> = ODHBuilder{
         ..Default::default()
     }.run().await.unwrap();
-    //println!("{:?}", result);
     
     println!("{:?}", result[0]);
 
@@ -180,7 +182,6 @@ async fn test_station(){
     let result: Vec<EChargingStation> = ODHBuilder{
         ..Default::default()
     }.run().await.unwrap();
-    //println!("{:?}", result);
     
     println!("{:?}", result[0]);
 
