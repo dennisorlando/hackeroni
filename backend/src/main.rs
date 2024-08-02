@@ -12,8 +12,10 @@ pub mod db;
 pub mod log;
 pub mod auth;
 pub mod config;
-pub mod stable_diffusion;
 pub mod osrm;
+
+#[cfg(test)]
+pub mod tests;
 
 #[get("/")]
 async fn index() -> impl Responder {
