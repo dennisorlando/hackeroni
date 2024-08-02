@@ -7,14 +7,14 @@ use auth::{init_auth, Admin, Authenticated, User};
 use db::{initialize_db_pool, run_migrations,  DbPool};
 use dotenvy::dotenv;
 use log::*;
-use osrm::hardcoded::get_info;
+use osrm::init_osrm;
 pub mod db;
 pub mod log;
 pub mod auth;
 pub mod config;
 pub mod stable_diffusion;
 pub mod osrm;
-
+pub mod odh;
 #[get("/")]
 async fn index() -> impl Responder {
     "Hello, World!"
@@ -45,7 +45,7 @@ async fn onlyadmin(_: User<Admin>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    get_info().await;
+    //get_info().await;
     dotenv().ok();
     init_log();
     let conf = config::load_config();
@@ -68,6 +68,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .app_data(web::Data::new(pool.clone()))
             .wrap(middleware::Logger::default())
             .configure(init_auth)
+            .configure(init_osrm)
     })
     .bind(("127.0.0.1", 8080))?
     .run()
