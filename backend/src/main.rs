@@ -15,6 +15,9 @@ pub mod log;
 pub mod odh;
 pub mod osrm;
 
+#[cfg(test)]
+pub mod tests;
+
 #[get("/")]
 async fn index() -> impl Responder {
     "Hello, World!"
