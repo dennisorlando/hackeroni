@@ -175,18 +175,6 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
             child: SettingsControlsWidget(() =>
                 mapMarkerProvider.openMarkerFiltersDialog(context, mapController.camera.center)),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: BottomControlsWidget(openReportPage),
-          ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: PillWidget(),
-          ),
-          const Align(
-            alignment: Alignment.bottomLeft,
-            child: AdditionalPointsWidget(),
-          ),
         ],
       ),
     );
