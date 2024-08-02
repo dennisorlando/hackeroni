@@ -11,6 +11,7 @@ import 'package:insigno_frontend/page/map/bottom_controls_widget.dart';
 import 'package:insigno_frontend/page/map/fast_markers_layer.dart';
 import 'package:insigno_frontend/page/map/map_controls_widget.dart';
 import 'package:insigno_frontend/page/map/pill_widget.dart';
+import 'package:insigno_frontend/page/map/search_bar.dart';
 import 'package:insigno_frontend/page/map/settings_controls_widget.dart';
 import 'package:insigno_frontend/page/marker/marker_page.dart';
 import 'package:insigno_frontend/page/marker/report_page.dart';
@@ -170,7 +171,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
           ),
           Align(
             alignment: Alignment.topCenter,
-            child: PillWidget(),
+            child: SearchBarApp(),
           ),
           const Align(
             alignment: Alignment.bottomLeft,

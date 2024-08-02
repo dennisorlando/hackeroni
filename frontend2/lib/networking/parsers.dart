@@ -1,9 +1,12 @@
+import 'dart:ffi';
+
 import 'package:collection/collection.dart';
 import 'package:insigno_frontend/networking/data/authenticated_user.dart';
 import 'package:insigno_frontend/networking/data/image_verification.dart';
 import 'package:insigno_frontend/networking/data/map_marker.dart';
 import 'package:insigno_frontend/networking/data/marker.dart';
 import 'package:insigno_frontend/networking/data/marker_image.dart';
+import 'package:insigno_frontend/networking/data/osm_nominatim_entry.dart';
 import "package:insigno_frontend/util/nullable.dart";
 
 import 'data/marker_type.dart';
@@ -67,6 +70,10 @@ Marker markerFromJson(dynamic m) {
 
 Pill pillFromJson(dynamic p) {
   return Pill(p["id"], p["text"], p["author"], p["source"], p["accepted"]);
+}
+
+OsmNominatimEntry nominEntryFromJson(dynamic e) {
+  return OsmNominatimEntry(e["place_id"], double.parse(e["lat"]), double.parse(e["lon"]), e["name"], e["display_name"]);
 }
 
 MarkerUpdate markerUpdateFromJson(dynamic u) {
