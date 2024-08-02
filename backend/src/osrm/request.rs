@@ -47,14 +47,16 @@ impl Preferences {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PathRequest {
-    coordinates: Vec<(f64, f64)>,
+    source: (f64, f64),
+    destination: (f64, f64),
     preferences: Preferences,
 }
 
 impl PathRequest {
-    pub fn new(coordinates: Vec<(f64, f64)>, preferences: Preferences) -> Self {
+    pub fn new(source: (f64, f64), destination: (f64, f64), preferences: Preferences) -> Self {
         PathRequest {
-            coordinates,
+            source,
+            destination,
             preferences,
         }
     }
