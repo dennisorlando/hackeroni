@@ -1,6 +1,7 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
+#[allow(unused)]
 pub enum Service {
     /// Finds the fastest route between coordinates in the supplied order.
     Route {
@@ -19,83 +20,65 @@ pub enum Service {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub enum Profile {
     Car,
     Bike,
     Foot
 }
 
-#[derive(Debug, Deserialize)]
-pub struct Request {
-    service: Service,
-    coordinates: Vec<(f64, f64)>,
-    profile: Profile,
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Preferences {
+    pub charge_left: Option<u32>,
+    pub charge_requested: Option<u32>,
+    pub max_walking_time: Option<u32>,
+    // other future preferences
 }
 
-impl Request {
-    pub fn new(service: Service, coordinates: Vec<(f64, f64)>, profile: Profile) -> Self {
-        Request {
-            service,
-            coordinates,
-            profile,
+impl Preferences {
+    pub fn new(charge_left: Option<u32>, charge_requested: Option<u32>, max_walking_distance: Option<u32>) -> Self {
+        Preferences {
+            charge_left,
+            charge_requested,
+            max_walking_time: max_walking_distance,
         }
-    }
-    pub fn to_osrm_string(&self) -> String {
-        let mut request = String::new();
-        match &self.service {
-            Service::Route { .. } => request.push_str("route/v1/"),
-            Service::Table { .. } => request.push_str("table/v1/"),
-        }
-
-        match &self.profile {
-            Profile::Car => request.push_str("car/"),
-            Profile::Bike => request.push_str("bike/"),
-            Profile::Foot => request.push_str("foot/"),
-        }
-
-        for (i, (lat, lon)) in self.coordinates.iter().enumerate() {
-            request.push_str(&format!("{},{}", lon, lat));
-            if i < self.coordinates.len() - 1 {
-                request.push(';');
-            }
-        }
-
-        request.push('?');
-
-        let mut query_string = String::new();
-        match &self.service {
-            Service::Route { alternatives, steps } => {
-                if let Some(alternatives) = alternatives {
-                    query_string.push_str(&format!("&alternatives={}", alternatives));
-                }
-                if *steps {
-                    query_string.push_str("&steps=true");
-                }
-            }
-            Service::Table { sources, destinations, fallback_speed } => {
-                if let Some(sources) = sources {
-                    query_string.push_str("&sources=");
-                    for source in sources {
-                        query_string.push_str(&format!("{};", source));
-                    }
-                }
-
-                if let Some(destinations) = destinations {
-                    query_string.push_str("&destinations=");
-                    for destination in destinations {
-                        query_string.push_str(&format!("{};", destination));
-                    }
-                }
-
-                if let Some(fallback_speed) = fallback_speed {
-                    query_string.push_str(&format!("&fallback_speed={}", fallback_speed));
-                }
-            }
-        }
-        query_string.remove(0);
-    
-        request.push_str(&query_string);
-        request
     }
 }
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct PathRequest {
+    pub source: (f64, f64),
+    pub destination: (f64, f64),
+    pub duration: u32,
+    pub preferences: Preferences,
+}
+
+impl PathRequest {
+    pub fn new(source: (f64, f64), destination: (f64, f64), duration: u32, preferences: Preferences) -> Self {
+        PathRequest {
+            source,
+            destination,
+            duration,
+            preferences,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct OSRMRequest {
+    pub stations: Vec<(f64, f64)>,
+    pub destination: Vec<(f64, f64)>,
+    pub max_walking_time: u32,
+}
+
+
+impl OSRMRequest {
+    pub fn new(stations: Vec<(f64, f64)>, destination: Vec<(f64, f64)>, max_time: u32) -> Self {
+        OSRMRequest {
+            stations,
+            destination,
+            max_walking_time: max_time,
+        }
+    }
+}
+
