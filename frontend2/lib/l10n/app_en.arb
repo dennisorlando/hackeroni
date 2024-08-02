@@ -266,5 +266,7 @@
   "accountDeletionDialogText": "To confirm deleting your account, click on the link we will send to your email. We will miss you!",
   "deleteAccount": "Delete account",
   "usePpe": "Make sure to use gloves or appropriate personal protective equipment to pick up trash",
-  "planYourRoute": "Plan your route"
+  "planYourRoute": "Plan your route",
+  "routeSource": "Partenza",
+  "routeDestination": "Arrivo"
 }
