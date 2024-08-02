@@ -1,4 +1,4 @@
-use actix_web::{get, web::block, Responder};
+/*use actix_web::{get, web::block, Responder};
 use ai::{run, Args, Parser};
 #[get("/image/{prompt}")]
 async fn index(prompt: String) -> impl Responder {
@@ -9,4 +9,4 @@ async fn index(prompt: String) -> impl Responder {
         run(a).unwrap();
     }).await.unwrap();
     "Hello, World!"
-}
+}*/
