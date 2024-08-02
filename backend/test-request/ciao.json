@@ -79,6 +79,99 @@
         "store_received_cookies": true,
         "pretty_print_response_content": true
       }
+    },
+    {
+      "name": "stocazzo",
+      "url": "http://localhost:8080/stocazzo",
+      "method": "POST",
+      "params": [],
+      "headers": [
+        {
+          "data": [
+            "cache-control",
+            "no-cache"
+          ],
+          "enabled": true
+        },
+        {
+          "data": [
+            "user-agent",
+            "ATAC/v0.15.1"
+          ],
+          "enabled": true
+        },
+        {
+          "data": [
+            "accept",
+            "*/*"
+          ],
+          "enabled": true
+        },
+        {
+          "data": [
+            "accept-encoding",
+            "gzip, deflate, br"
+          ],
+          "enabled": true
+        },
+        {
+          "data": [
+            "connection",
+            "keep-alive"
+          ],
+          "enabled": true
+        },
+        {
+          "data": [
+            "content-type",
+            "application/x-www-form-urlencoded"
+          ],
+          "enabled": true
+        }
+      ],
+      "body": {
+        "form": [
+          {
+            "data": [
+              "source",
+              "[45.75548, 11.01]"
+            ],
+            "enabled": true
+          },
+          {
+            "data": [
+              "destination",
+              "[45.75548, 11.003]"
+            ],
+            "enabled": true
+          },
+          {
+            "data": [
+              "duration",
+              "100"
+            ],
+            "enabled": true
+          },
+          {
+            "data": [
+              "preferences",
+              "{}"
+            ],
+            "enabled": true
+          }
+        ]
+      },
+      "auth": "no_auth",
+      "scripts": {
+        "pre_request_script": null,
+        "post_request_script": null
+      },
+      "settings": {
+        "use_config_proxy": true,
+        "allow_redirects": true,
+        "store_received_cookies": true,
+        "pretty_print_response_content": true
+      }
     }
   ]
 }

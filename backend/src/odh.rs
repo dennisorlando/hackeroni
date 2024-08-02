@@ -1,8 +1,11 @@
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use log::error;
+use serde::{de::{DeserializeOwned, Error}, Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
 use geo::{point, prelude::*};
+
+use crate::osrm::StationInfo;
 pub struct ODHBuilder{
     url: String,
 
@@ -19,18 +22,27 @@ pub enum ODHError {
     Reqwest(#[from] reqwest::Error),
     #[error("Build failed. Field {0} not provided")]
     Build(&'static str ),
+    #[error("Error while parsing json: {0}")]
+    JsonError(#[from] serde_json::Error)
+}
+
+impl From<ODHError> for actix_web::Error {
+    fn from(value: ODHError) -> Self {
+        error!("{value}");
+        actix_web::error::ErrorInternalServerError("Internal server error")
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-struct Coordinate{x: f32, y: f32, srid: u32}
+pub struct Coordinate{pub x: f64, pub y: f64, srid: u32}
 #[derive(Deserialize, Serialize, Debug)]
-struct EChargingStation{
+pub struct EChargingStation{
     sactive: bool,
     savailable: bool,
-    scode: String,
-    scoordinate: Coordinate,
+    pub scode: String,
+    pub scoordinate: Coordinate,
     smetadata: Value,
-    sname: String,
+    pub sname: String,
     sorigin: String,
     stype: String,
 }
@@ -112,35 +124,39 @@ impl Station for EChargingPlug{
 }
 
 impl ODHBuilder{
-    pub async fn run<T: Station + DeserializeOwned>(self)->Result<Vec<T>,ODHError> {
+    pub async fn run<T: Station + DeserializeOwned>(self)->Result<Vec<T>, ODHError> {
         let url = self.url + "/v2/flat/" + T::get_uri();
         let content = reqwest::get(url)
         .await?
         .text()
         .await?;
-        let x: Value = serde_json::from_str(&content).unwrap();
-        let t = x.get("data").unwrap();
-        let t: Vec<T> = serde_json::from_value(t.clone()).unwrap();
+        let x: Value = serde_json::from_str(&content)?;
+        let t = x.get("data").ok_or(serde_json::Error::missing_field("can not find data field"))?;
+        let t: Vec<T> = serde_json::from_value(t.clone())?;
 
         Ok(t)
         
     }
 }
 
-fn distance_in_meters(p1: (f32, f32), p2: (f32, f32))->f32{
+fn distance_in_meters(p1: (f64, f64), p2: (f64, f64))->f64{
     let p1 = point!(x: p1.0, y: p1.1);
     let p2 = point!(x: p2.0, y: p2.1);
 
     p1.haversine_distance(&p2)
 }
 
-pub async fn get_near_stations(p: (f32, f32), dist: f32)->Result<Vec<(f32, f32)>, ODHError>{
+pub async fn get_near_stations(p: (f64, f64), dist: f64)->Result<Vec<StationInfo>, ODHError>{
     let result: Vec<EChargingStation> = ODHBuilder{
         ..Default::default()
     }.run().await?;
     let res = result.into_iter().filter_map(|x|{
         if distance_in_meters((x.scoordinate.x, x.scoordinate.y), p)<dist{
-            Some((x.scoordinate.x, x.scoordinate.y))
+            Some(StationInfo{
+                coordinate: (x.scoordinate.x, x.scoordinate.y),
+                id: x.scode,
+                name: x.sname,
+            })
         }else{
             None
         }
@@ -151,6 +167,17 @@ pub async fn get_near_stations(p: (f32, f32), dist: f32)->Result<Vec<(f32, f32)>
 #[tokio::test]
 async fn test_request(){
     let result: Vec<EChargingPlug> = ODHBuilder{
+        ..Default::default()
+    }.run().await.unwrap();
+    //println!("{:?}", result);
+    
+    println!("{:?}", result[0]);
+
+        
+}
+#[tokio::test]
+async fn test_station(){
+    let result: Vec<EChargingStation> = ODHBuilder{
         ..Default::default()
     }.run().await.unwrap();
     //println!("{:?}", result);
