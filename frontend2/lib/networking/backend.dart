@@ -116,8 +116,10 @@ class Backend {
     return _getJson("/pills/random").map(pillFromJson);
   }
 
+
+
   Future<List<OsmNominatimEntry>> loadNominatimEntries(String phrase){
-    return _getJsonWithPath("https://nominatim.openstreetmap.org/search?q=%22$phrase%22&format=jsonv2&limit=2")
+    return _getJsonWithPath("https://nominatim.openstreetmap.org/search?q=%22$phrase%22&format=jsonv2")
         .map((entries) => entries.map<OsmNominatimEntry>(nominEntryFromJson).toList());
   }
 

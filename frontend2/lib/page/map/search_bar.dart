@@ -56,7 +56,7 @@ class _SearchBarAppState extends State<SearchBarApp> with GetItStateMixin<Search
         );
       }, suggestionsBuilder: (BuildContext context, SearchController controller) async {
         final initialText = controller.text;
-        await Future.delayed(const Duration(seconds: 1));
+        await Future.delayed(const Duration(milliseconds: 300));
 
         //print("controller=${controller.text} initial=$initialText");
         if (initialText != controller.text) {
