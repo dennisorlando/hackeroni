@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
 import 'package:insigno_frontend/networking/backend.dart';
 import 'package:insigno_frontend/provider/location_provider.dart';
+import 'package:insigno_frontend/util/error_text.dart';
 import 'package:insigno_frontend/util/nullable.dart';
 import 'package:insigno_frontend/util/position.dart';
 import 'package:latlong2/latlong.dart';
@@ -168,7 +169,9 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                     });
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                ErrorText(lastError == "" ? null : lastError, (s) => s, topPadding: 8),
+                const SizedBox(height: 8),
                 FilledButton(
                     onPressed: () => submitForm(l10n),
                     child: Text(l10n.calculateRoutes),
@@ -213,16 +216,26 @@ class _RouteParametersPageState extends State<RouteParametersPage>
   }
 
   void submitForm(AppLocalizations l10n) async {
+    setState(() {
+      lastError = "";
+    });
+
     if (formKey.currentState?.validate() == true) {
       formKey.currentState?.save();
       final source = await resolveLocationOrError(sourceString, l10n, false);
       if (source.first == null) {
-        lastError = source.second;
+        setState(() {
+          lastError = source.second;
+        });
+        return;
       }
 
       final destination = await resolveLocationOrError(destinationString, l10n, true);
       if (destination.first == null) {
-        lastError = destination.second;
+        setState(() {
+          lastError = destination.second;
+        });
+        return;
       }
 
       print("source=${source.first}, destination=${destination.first}");
