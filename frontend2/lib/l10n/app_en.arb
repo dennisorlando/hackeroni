@@ -172,11 +172,10 @@
   "reportError": "Report",
   "copy": "Copy",
   "settings": "Settings",
-  "insignoDescription": "Insigno lets you report and collect garbage, earning points while doing so! Insigno is free software, click to view code and report problems.",
-  "mindshubDescription": "Insigno is developed by MindsHub, an Italian no-profit association providing a space for enthusiasts to collaborate on informatics, mechanics, electronics and 3D printing.",
-  "hostServer": "Insigno server to which to connect",
-  "hostServerDescription": "Since Insigno is free software, you can choose to connect to other instances of the backend service",
-  "invalidHostServer": "Not an Insigno server",
+  "evplannerDescription": "EVPl lets you plan and organize your EV charging trip and collect garbage, earning points while doing so! EVPlanner is free software, click to view code and report problems.",
+  "hostServer": "EVPlanner.rs server to which to connect",
+  "hostServerDescription": "Since EVPlanner.rs is free software, you can choose to connect to other instances of the backend service",
+  "invalidHostServer": "Not an EVPlanner server",
   "reset": "Reset",
   "use": "Use",
   "edit": "Edit",
@@ -267,6 +266,21 @@
   "deleteAccount": "Delete account",
   "usePpe": "Make sure to use gloves or appropriate personal protective equipment to pick up trash",
   "planYourRoute": "Plan your route",
-  "routeSource": "Partenza",
-  "routeDestination": "Arrivo"
+  "routeSource": "Source",
+  "routeDestination": "Destination",
+  "yourLocation": "Your location",
+  "insertLocation": "Insert a location",
+  "currentBatteryCharge": "Current battery charge",
+  "wantedBatteryCharge": "Preferred battery charge after the route",
+  "appointmentDuration": "Appointment duration",
+  "calculateRoutes": "Calculate routes",
+  "locationNotAvailable": "Location is not available, activate GPS and wait for it to load",
+  "noNominatimMatch": "Cannot resolve address \"{address}\" to some coordinates",
+  "@noNominatimMatch": {
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  }
 }
