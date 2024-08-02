@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
-import 'package:latlong2/latlong.dart';
+
+import '../../networking/data/route.dart';
 
 class BottomChip extends StatefulWidget with GetItStatefulWidgetMixin {
   BottomChip({super.key});
@@ -9,26 +10,10 @@ class BottomChip extends StatefulWidget with GetItStatefulWidgetMixin {
   State<StatefulWidget> createState() => BottomChipState();
 }
 
-enum SelectedAlgorithm { fast, and, furious }
-
-class RouteData {
-  
-  RouteData(this.finalCharge, this.walkingDistance, this.drivingDistance, this.walkingPath, this.drivingPath);
-  
-  int finalCharge;
-  Duration walkingDistance;
-  Duration drivingDistance;
-  int cost = -1;
-
-  List<LatLng> walkingPath;
-  List<LatLng> drivingPath;
-
-}
-
 class BottomChipState extends State<BottomChip>
     with GetItStateMixin<BottomChip> {
 
-  void loadDataAndRefresh(Map<SelectedAlgorithm, RouteData> newData) {
+  void loadDataAndRefresh(Map<RouteAlgorithm, RouteData> newData) {
     setState(() {
       visible = true;
       data = newData;
@@ -37,9 +22,9 @@ class BottomChipState extends State<BottomChip>
 
   bool visible = false;
 
-  Map<SelectedAlgorithm, RouteData> data = {};
+  Map<RouteAlgorithm, RouteData> data = {};
 
-  SelectedAlgorithm selectedAlgorithm = SelectedAlgorithm.fast;
+  RouteAlgorithm selectedAlgorithm = RouteAlgorithm.lessWalking;
 
   @override
   Widget build(BuildContext context) {
@@ -56,28 +41,28 @@ class BottomChipState extends State<BottomChip>
               Row(
                 children: [
                   Expanded(
-                    child: SegmentedButton<SelectedAlgorithm>(
-                        segments: const <ButtonSegment<SelectedAlgorithm>>[
+                    child: SegmentedButton<RouteAlgorithm>(
+                        segments: const <ButtonSegment<RouteAlgorithm>>[
                           ButtonSegment(
-                            value: SelectedAlgorithm.fast,
+                            value: RouteAlgorithm.lessWalking,
                             label: Text("Fast"),
                             icon: Icon(Icons.ice_skating),
                           ),
                           ButtonSegment(
-                              value: SelectedAlgorithm.and,
+                              value: RouteAlgorithm.moreCharging,
                               label: Text("And"),
                               icon: Icon(Icons.run_circle)),
                           ButtonSegment(
-                              value: SelectedAlgorithm.furious,
+                              value: RouteAlgorithm.lessDriving,
                               label: Text("Furious"),
                               icon: Icon(Icons.fire_truck))
                         ],
-                        onSelectionChanged: (Set<SelectedAlgorithm> newSelection) {
+                        onSelectionChanged: (Set<RouteAlgorithm> newSelection) {
                           setState(() {
                             selectedAlgorithm = newSelection.first;
                           });
                         },
-                        selected: <SelectedAlgorithm>{selectedAlgorithm}
+                        selected: <RouteAlgorithm>{selectedAlgorithm}
                     ),
                   ),
                   const Padding(padding: EdgeInsets.all(4)),

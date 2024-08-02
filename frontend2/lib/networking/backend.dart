@@ -12,6 +12,7 @@ import "package:insigno_frontend/networking/data/marker_image.dart";
 import "package:insigno_frontend/networking/data/osm_nominatim_entry.dart";
 import "package:insigno_frontend/networking/data/pill.dart";
 import "package:insigno_frontend/networking/data/review_verdict.dart";
+import "package:insigno_frontend/networking/data/route.dart";
 import "package:insigno_frontend/networking/data/user.dart";
 import "package:insigno_frontend/networking/error.dart";
 import "package:insigno_frontend/networking/parsers.dart";
@@ -132,7 +133,7 @@ class Backend {
     }).map((stations) => stations.map<ChargingStation>(chargingStationFromJson).toList());
   }
 
-  Future<Map<SelectedAlgorithm, RouteData>> loadRoutes(LatLng source, LatLng destination,
+  Future<Map<RouteAlgorithm, RouteData>> loadRoutes(LatLng source, LatLng destination,
       Duration duration, int chargeLeft, int chargeRequested, Duration maxWalkingTime) async {
     return _getJson("/get_routes", params: {
       "source_lat": source.latitude,
@@ -144,9 +145,9 @@ class Backend {
       "charge_requested": chargeRequested,
       "max_walking_time": maxWalkingTime.inSeconds,
     }).map((routes) {
-      Map<SelectedAlgorithm, RouteData> routemap = {};
+      Map<RouteAlgorithm, RouteData> routemap = {};
       (routes.map<RouteData>(routeDataFromJson).toList() as List<RouteData>).forEachIndexed((i, route) {
-        routemap[SelectedAlgorithm.values[i % SelectedAlgorithm.values.length]] = route;
+        routemap[RouteAlgorithm.values[i % RouteAlgorithm.values.length]] = route;
       });
       return routemap;
     });

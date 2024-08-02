@@ -8,6 +8,7 @@ import 'package:insigno_frontend/networking/data/map_marker.dart';
 import 'package:insigno_frontend/networking/data/marker.dart';
 import 'package:insigno_frontend/networking/data/marker_image.dart';
 import 'package:insigno_frontend/networking/data/osm_nominatim_entry.dart';
+import 'package:insigno_frontend/networking/data/route.dart';
 import 'package:insigno_frontend/page/map/bottom_chip.dart';
 import "package:insigno_frontend/util/nullable.dart";
 import 'package:latlong2/latlong.dart';
