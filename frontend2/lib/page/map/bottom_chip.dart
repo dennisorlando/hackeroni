@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
+import 'package:latlong2/latlong.dart';
 
 class BottomChip extends StatefulWidget with GetItStatefulWidgetMixin {
   BottomChip({super.key});
@@ -12,13 +13,14 @@ enum SelectedAlgorithm { fast, and, furious }
 
 class RouteData {
   
-  RouteData(this.finalCharge, this.walkingDistance, this.drivingDistance);
+  RouteData(this.finalCharge, this.walkingDistance, this.drivingDistance, this.walkingPath, this.drivingPath);
   
   int finalCharge;
   Duration walkingDistance;
   Duration drivingDistance;
   int cost = -1;
-  
+  List<LatLng> walkingPath;
+  List<LatLng> drivingPath;
 }
 
 class BottomChipState extends State<BottomChip>
