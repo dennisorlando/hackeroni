@@ -129,8 +129,6 @@ impl ODHBuilder{
 
 fn distance_in_meters(p1: (f32, f32), p2: (f32, f32))->f32{
     let p1 = point!(x: p1.0, y: p1.1);
-
-    // London
     let p2 = point!(x: p2.0, y: p2.1);
 
     p1.haversine_distance(&p2)
