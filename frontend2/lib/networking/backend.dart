@@ -17,7 +17,6 @@ import "package:insigno_frontend/networking/data/user.dart";
 import "package:insigno_frontend/networking/error.dart";
 import "package:insigno_frontend/networking/parsers.dart";
 import "package:insigno_frontend/networking/server_host_handler.dart";
-import "package:insigno_frontend/page/map/bottom_chip.dart";
 import "package:insigno_frontend/util/future.dart";
 import "package:insigno_frontend/util/nullable.dart";
 import "package:insigno_frontend/util/pair.dart";

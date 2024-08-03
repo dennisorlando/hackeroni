@@ -277,5 +277,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "outletType": "Outlet type",
+  "leastWalking": "Least walking",
+  "leastDriving": "Least driving",
+  "leastCost": "Cheaper",
+  "balanced": "Balanced"
 }
