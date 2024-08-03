@@ -62,6 +62,18 @@ pub enum PlugType {
     CHAdeMO,
 }
 
+impl PlugType {
+    pub fn voltage() -> f64 {
+        match self {
+            PlugType::Type1 => 230.0,
+            PlugType::Type2_230 => 230.0,
+            PlugType::Type2_400 => 400.0,
+            PlugType::CCS => 920.0,
+            PlugType::CHAdeMO => 500.0,
+        } 
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ChargeParameters {
     pub capacity: f64,
