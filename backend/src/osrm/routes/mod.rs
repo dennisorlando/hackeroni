@@ -8,7 +8,7 @@ use crate::{config::AppConfig, db::{stations::PlugsInfo, DbConnection, DbPool}};
 
 use self::osmr_route::{OSRMRouteResult, RouteResult};
 
-use super::{hardcoded::ResponseStatus, request::PathRequest, OSRMError, PathResult};
+use super::{request::PathRequest, OSRMError, PathResult};
 
 /* pub async fn get_routes(
     paths: &[PathResult],

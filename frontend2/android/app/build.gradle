@@ -42,7 +42,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "org.mindshub.insigno"
+        applicationId "org.scenna.hackathon"
         minSdkVersion flutter.minSdkVersion // flutter.minSdkVersion
         targetSdkVersion 34 // flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
