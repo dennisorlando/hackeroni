@@ -152,10 +152,9 @@ class Backend {
   Future<Map<RouteAlgorithm, RouteData>> loadRoutes(LatLng source, LatLng destination,
       Duration duration, int chargeLeft, int chargeRequested, Duration maxWalkingTime,
       OutletType plugType, int maxCurrent, int batteryCapacity) async {
-    print("${source.latitude.toString()} - ${"0.0"}");
     return _postJson("/get_routes", fields: {
-      "source_lat": source.latitude.toString(),
-      "source_long": source.longitude.toString(),
+      "source_lat": source.longitude.toString(),
+      "source_long": source.latitude.toString(),
       "destination_lat": destination.latitude.toString(),
       "destination_long": destination.longitude.toString(),
       "duration": duration.inSeconds.toString(),
@@ -165,12 +164,21 @@ class Backend {
       "capacity": batteryCapacity.toString(),
       "max_current": maxCurrent.toString(),
       if (plugType != OutletType.any) "plug_type": plugType.name,
-      // "plug_type"
     }).map((routes) {
+      print("ROUTS $routes");
       Map<RouteAlgorithm, RouteData> routemap = {};
-      (routes.map<RouteData>(routeDataFromJson).toList() as List<RouteData>).forEachIndexed((i, route) {
-        routemap[RouteAlgorithm.values[i % RouteAlgorithm.values.length]] = route;
-      });
+      if (routes["balanced"] != null) {
+        routemap[RouteAlgorithm.balanced] = routeDataFromJson(routes["balanced"]);
+      }
+      if (routes["least_walking_time"] != null) {
+        routemap[RouteAlgorithm.leastWalking] = routeDataFromJson(routes["least_walking_time"]);
+      }
+      if (routes["least_driving_time"] != null) {
+        routemap[RouteAlgorithm.leastDriving] = routeDataFromJson(routes["least_driving_time"]);
+      }
+      if (routes["least_cost"] != null) {
+        routemap[RouteAlgorithm.leastCost] = routeDataFromJson(routes["least_cost"]);
+      }
       return routemap;
     });
   }

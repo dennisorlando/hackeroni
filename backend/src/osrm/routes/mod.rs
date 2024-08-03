@@ -32,8 +32,8 @@ impl RoutesBuilder {
         req: Form<PathRequest>,
         osrm_url: String,
     ) -> Self {
-        let walking_uri = format!("{}/route/v1/foot/", osrm_url);
-        let driving_uri = format!("{}/route/v1/driving/", osrm_url);
+        let walking_uri = format!("{}/route/v1/foot", osrm_url);
+        let driving_uri = format!("{}/route/v1/driving", osrm_url);
         let query_uri = "?overview=full&geometries=geojson".to_string();
         RoutesBuilder {
             paths,
@@ -97,6 +97,7 @@ impl RoutesBuilder {
             "{}/{},{};",
             self.driving_uri, self.req.source_lat, self.req.source_long
         );
+        println!("driving_uri {driving_uri}");
 
         let full_url = driving_uri.clone()
             + &format!(
@@ -104,6 +105,7 @@ impl RoutesBuilder {
                 path.station.coordinate_lat, path.station.coordinate_long
             )
             + self.query_uri.as_str();
+        println!("full_url {full_url}");
         let content = reqwest::get(full_url)
             .await
             .map_err(OSRMError::from)?
@@ -127,8 +129,9 @@ impl RoutesBuilder {
             self.walking_uri, path.station.coordinate_lat, path.station.coordinate_long
         );
         let full_url = walking_uri
-            + &format!("{},{}", self.req.destination_lat, self.req.destination_long)
+            + &format!("{},{}", self.req.destination_long, self.req.destination_lat)
             + self.query_uri.as_str();
+        println!("full_url2 {full_url}");
         let content = reqwest::get(full_url)
             .await
             .map_err(OSRMError::from)?
