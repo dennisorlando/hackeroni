@@ -42,7 +42,7 @@ pub enum PlugType {
 }
 
 impl PlugType {
-    pub fn voltage() -> f64 {
+    pub fn voltage(&self) -> f64 {
         match self {
             PlugType::Type1 => 230.0,
             PlugType::Type2_230 => 230.0,

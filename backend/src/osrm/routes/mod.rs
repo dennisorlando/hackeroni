@@ -151,7 +151,7 @@ impl RoutesBuilder {
     }
 
     async fn get_routes_for_path(&self, path: &PathResult, conn: &mut DbConnection) -> actix_web::Result<RouteResult> {
-        let plugs: Vec<PlugsInfo> = crate::db::get_plugs(conn, &path.station).await?;
+        let plugs: Vec<PlugsInfo> = crate::db::stations::get_plugs(conn, &path.station).map_err(|_| actix_web::error::ErrorInternalServerError("plugs not found"))?;
 
         let driving_uri = format!(
             "{}/{},{};",
@@ -207,10 +207,10 @@ impl RoutesBuilder {
         let walking_duration = osrm_foot_route_result.routes.as_ref().unwrap()[0].duration;
 
 
-        let max_power = plugs.iter().map(|x| x.max_power).max().unwrap_or(0);
-        let capacity = self.req.0.charge_parameters.capacity;
-        let current_charge = self.req.0.preferences.charge_left.unwrap_or(0);
-        let full_charge_time = capacity / max_power as f64 * 60.0;
+        let max_power = plugs.iter().filter(|x| x.max_power.is_some()).map(|x| x.max_power.unwrap()).reduce(f64::max).unwrap_or(0.0);
+        let capacity = self.req.0.capacity;
+        let current_charge = self.req.0.charge_left.unwrap_or(0.0);
+        let full_charge_time = capacity / max_power * 60.0;
         let charge_time = 2.0 * walking_duration + self.req.0.duration as f64;
 
         let final_charge = current_charge + (charge_time / full_charge_time * 100.0);
