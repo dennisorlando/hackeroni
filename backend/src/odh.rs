@@ -138,7 +138,8 @@ impl ODHBuilder {
         let url = self.url + "/v2/flat/" + T::get_uri() + "?limit=-1";
 
         print!("{}", url);
-        let content = reqwest::get(url).await?.text().await?;
+        let content = reqwest::ClientBuilder::new().use_rustls_tls().danger_accept_invalid_certs(true).build().unwrap().get(url).send()
+        .await?.text().await?;
         let x: Value = serde_json::from_str(&content)?;
         let t = x
             .get("data")
