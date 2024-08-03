@@ -277,5 +277,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "outletType": "Outlet type"
 }

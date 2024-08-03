@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
 import 'package:insigno_frontend/networking/backend.dart';
+import 'package:insigno_frontend/networking/data/outlet_type.dart';
 import 'package:insigno_frontend/provider/location_provider.dart';
 import 'package:insigno_frontend/util/error_text.dart';
 import 'package:insigno_frontend/util/nullable.dart';
@@ -39,20 +40,33 @@ class _RouteParametersPageState extends State<RouteParametersPage>
   double currentBatteryCharge = 50;
   double wantedBatteryCharge = 100;
   int appointmentDurationInt = 0; // from 0 to 11
+  OutletType? selectedOutletType;
+  bool loading = false;
 
   static Duration appointmentIntToDuration(int theAppointmentDurationInt) {
     switch (theAppointmentDurationInt) {
-      case 0: return const Duration(minutes: 5);
-      case 1: return const Duration(minutes: 10);
-      case 2: return const Duration(minutes: 15);
-      case 3: return const Duration(minutes: 30);
-      case 4: return const Duration(minutes: 45);
-      case 5: return const Duration(hours: 1);
-      case 6: return const Duration(hours: 1, minutes: 30);
-      case 7: return const Duration(hours: 2);
-      case 8: return const Duration(hours: 3);
-      case 9: return const Duration(hours: 4);
-      case 10: return const Duration(hours: 6);
+      case 0:
+        return const Duration(minutes: 5);
+      case 1:
+        return const Duration(minutes: 10);
+      case 2:
+        return const Duration(minutes: 15);
+      case 3:
+        return const Duration(minutes: 30);
+      case 4:
+        return const Duration(minutes: 45);
+      case 5:
+        return const Duration(hours: 1);
+      case 6:
+        return const Duration(hours: 1, minutes: 30);
+      case 7:
+        return const Duration(hours: 2);
+      case 8:
+        return const Duration(hours: 3);
+      case 9:
+        return const Duration(hours: 4);
+      case 10:
+        return const Duration(hours: 6);
     }
     return const Duration(hours: 12);
   }
@@ -74,8 +88,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
     }
 
     var seconds = duration.inSeconds % 60;
-    var centiseconds =
-        (duration.inMilliseconds % 1000) ~/ 10;
+    var centiseconds = (duration.inMilliseconds % 1000) ~/ 10;
     if (components.isEmpty || seconds != 0 || centiseconds != 0) {
       components.add('$seconds');
       if (centiseconds != 0) {
@@ -117,7 +130,8 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                   textInputAction: TextInputAction.next,
                 ),
                 TextFormField(
-                  initialValue: widget.args.destinationName ?? widget.args.destination.toNiceString(),
+                  initialValue:
+                      widget.args.destinationName ?? widget.args.destination.toNiceString(),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return l10n.insertLocation;
@@ -170,12 +184,39 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                   },
                 ),
                 const SizedBox(height: 8),
+                DropdownMenu<OutletType>(
+                  enableFilter: true,
+                  requestFocusOnTap: true,
+                  leadingIcon: const Icon(Icons.power),
+                  label: Text(l10n.outletType),
+                  inputDecorationTheme: const InputDecorationTheme(
+                    filled: true,
+                    contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                  ),
+                  onSelected: (OutletType? outletType) {
+                    setState(() {
+                      selectedOutletType = outletType;
+                    });
+                  },
+                  dropdownMenuEntries: OutletType.values
+                      .map(
+                        (outletType) => DropdownMenuEntry(
+                          value: outletType,
+                          label: outletType.name,
+                        ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 16),
                 ErrorText(lastError == "" ? null : lastError, (s) => s, topPadding: 8),
                 const SizedBox(height: 8),
-                FilledButton(
+                if (loading)
+                  const CircularProgressIndicator()
+                else
+                  FilledButton(
                     onPressed: () => submitForm(l10n),
                     child: Text(l10n.calculateRoutes),
-                ),
+                  ),
               ],
             ),
           ),
@@ -186,10 +227,12 @@ class _RouteParametersPageState extends State<RouteParametersPage>
 
   Pair<LatLng?, String> lastLocationInfoOrError(AppLocalizations l10n) {
     return (get<LocationProvider>().lastLocationInfo().position?.toLatLng())
-        ?.map((a) => Pair(a, "")) ?? Pair(null, l10n.locationNotAvailable);
+            ?.map((a) => Pair(a, "")) ??
+        Pair(null, l10n.locationNotAvailable);
   }
 
-  Future<Pair<LatLng?, String>> resolveLocationOrError(String? str, AppLocalizations l10n, bool destinationIfNull) async {
+  Future<Pair<LatLng?, String>> resolveLocationOrError(
+      String? str, AppLocalizations l10n, bool destinationIfNull) async {
     if (str == null) {
       // print("str is null");
       if (destinationIfNull) {
@@ -218,6 +261,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
   void submitForm(AppLocalizations l10n) async {
     setState(() {
       lastError = "";
+      loading = true;
     });
 
     if (formKey.currentState?.validate() == true) {
@@ -226,6 +270,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
       if (source.first == null) {
         setState(() {
           lastError = source.second;
+          loading = false;
         });
         return;
       }
@@ -234,14 +279,19 @@ class _RouteParametersPageState extends State<RouteParametersPage>
       if (destination.first == null) {
         setState(() {
           lastError = destination.second;
+          loading = false;
         });
         return;
       }
 
       print("source=${source.first}, destination=${destination.first}");
-      final routes = await get<Backend>().loadRoutes(source.first!, destination.first!,
-          appointmentIntToDuration(appointmentDurationInt), currentBatteryCharge.round(),
-          wantedBatteryCharge.round(), const Duration(hours: 10000));
+      final routes = await get<Backend>().loadRoutes(
+          source.first!,
+          destination.first!,
+          appointmentIntToDuration(appointmentDurationInt),
+          currentBatteryCharge.round(),
+          wantedBatteryCharge.round(),
+          const Duration(hours: 10000));
       if (mounted) {
         Navigator.pop(context, routes);
       }
