@@ -31,27 +31,6 @@ pub enum Profile {
     Foot,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Preferences {
-    pub charge_left: Option<u32>,
-    pub charge_requested: Option<u32>,
-    pub max_walking_time: Option<u32>,
-    // other future preferences
-}
-
-impl Preferences {
-    pub fn new(
-        charge_left: Option<u32>,
-        charge_requested: Option<u32>,
-        max_walking_distance: Option<u32>,
-    ) -> Self {
-        Preferences {
-            charge_left,
-            charge_requested,
-            max_walking_time: max_walking_distance,
-        }
-    }
-}
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum PlugType {
@@ -62,12 +41,6 @@ pub enum PlugType {
     CHAdeMO,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ChargeParameters {
-    pub capacity: f64,
-    pub max_current: f64,
-    pub plug: Option<PlugType>,
-}
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PathRequest {
@@ -77,13 +50,17 @@ pub struct PathRequest {
     pub destination_long: f64,
     pub duration: u32,
 
-    #[serde(flatten)]
-    pub charge_parameters: ChargeParameters,
 
-    #[serde(flatten)]
-    pub preferences: Preferences,
+    pub capacity: f64,
+    pub max_current: f64,
+    pub plug: Option<PlugType>,
+
+
+    pub charge_left: Option<f64>,
+    pub charge_requested: Option<f64>,
+    pub max_walking_time: Option<f64>,
 }
-
+/*
 impl PathRequest {
     pub fn new(
         source: (f64, f64),
@@ -98,21 +75,25 @@ impl PathRequest {
             destination_lat: destination.0,
             destination_long: destination.1,
             duration,
-            charge_parameters,
-            preferences,
+            capacity: todo!(),
+            max_current: todo!(),
+            plug: todo!(),
+            charge_left: todo!(),
+            charge_requested: todo!(),
+            max_walking_time: todo!(),
         }
     }
-}
+}*/
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct OSRMRequest {
     pub stations: Vec<(f64, f64)>,
     pub destination: (f64, f64),
-    pub max_walking_time: u32,
+    pub max_walking_time: f64,
 }
 
 impl OSRMRequest {
-    pub fn new(stations: Vec<(f64, f64)>, destination: (f64, f64), max_time: u32) -> Self {
+    pub fn new(stations: Vec<(f64, f64)>, destination: (f64, f64), max_time: f64) -> Self {
         OSRMRequest {
             stations,
             destination,
