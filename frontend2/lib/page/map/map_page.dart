@@ -7,9 +7,9 @@ import 'package:get_it_mixin/get_it_mixin.dart';
 import 'package:insigno_frontend/networking/backend.dart';
 import 'package:insigno_frontend/networking/data/map_marker.dart';
 import 'package:insigno_frontend/networking/data/route.dart';
-import 'package:insigno_frontend/page/map/bottom_chip.dart';
 import 'package:insigno_frontend/page/map/fast_markers_layer.dart';
 import 'package:insigno_frontend/page/map/map_controls_widget.dart';
+import 'package:insigno_frontend/page/map/route_bottom_sheet.dart';
 import 'package:insigno_frontend/page/map/search_bar.dart';
 import 'package:insigno_frontend/page/map/settings_controls_widget.dart';
 import 'package:insigno_frontend/page/marker/marker_page.dart';
@@ -35,8 +35,6 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
   late final SharedPreferences prefs;
   late final MapMarkerProvider mapMarkerProvider;
   final MapController mapController = MapController();
-
-
 
   late LatLng initialCoordinates;
   late double initialZoom;
@@ -113,84 +111,91 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
     }*/
 
     return Scaffold(
-      body: FlutterMap(
-        mapController: mapController,
-        options: MapOptions(
-            interactionOptions: const InteractionOptions(
-              flags: (InteractiveFlag.all | InteractiveFlag.doubleTapDragZoom) &
-                  ~InteractiveFlag.rotate,
-            ),
-            initialCenter: initialCoordinates,
-            initialZoom: initialZoom,
-            // OSM supports at most the zoom value 19
-            maxZoom: 18.45,
-            onTap: (tapPosition, tapLatLng) {
-              final minMarker = mapMarkerProvider.getClosestMarker(tapLatLng);
-              if (minMarker == null) {
-                return;
-              }
-
-              final markerScale = markerScaleFromMapZoom(mapController.camera.zoom);
-              final screenPoint = mapController.camera.latLngToScreenPoint(minMarker.getLatLng());
-              final dx = (tapPosition.global.dx - screenPoint.x).abs();
-              final dy = (tapPosition.global.dy - screenPoint.y).abs();
-              if (max(dx, dy) < markerScale * 0.7) {
-                // TODO open charging station
-                //openMarkerPage(minMarker);
-              }
-            },
-            onLongPress: (tapPosition, tapLatLng) {
-              openRouteParametersPage(tapLatLng);
-            }),
+      body: Stack(
         children: [
-          TileLayer(
-            urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-          ),
-          MarkerLayer(
-              markers: [position?.toLatLng()]
-                  .whereType<LatLng>()
-                  .map((pos) => Marker(
-                        rotate: true,
-                        point: pos,
-                        child: SvgPicture.asset("assets/icons/current_location.svg"),
-                      ))
-                  .toList()),
-          FastMarkersLayer(mapMarkerProvider.getVisibleMarkers()),
-          PolylineLayer(polylines: [
-            Polyline(
-              points: const [
-                LatLng(45.75548, 11.00323),
-                LatLng(45.75560, 11.00323),
-                LatLng(45.75548, 11.00310)
-              ],
-              color: Colors.pink,
-              strokeWidth: 3.0,
-            )
-          ]),
-          const Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              " © OpenStreetMap contributors",
-              style: TextStyle(color: Color.fromARGB(255, 127, 127, 127)), // theme-independent grey
-            ),
-          ),
-          Align(
-            alignment: Alignment.topRight,
-            child: MapControlsWidget(mapController),
-          ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: SettingsControlsWidget(() =>
-                mapMarkerProvider.openMarkerFiltersDialog(context, mapController.camera.center)),
-          ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: SearchBarApp((item) => openRouteParametersPage(item.toLatLng(), item.displayName)),
+          FlutterMap(
+            mapController: mapController,
+            options: MapOptions(
+                interactionOptions: const InteractionOptions(
+                  flags: (InteractiveFlag.all | InteractiveFlag.doubleTapDragZoom) &
+                      ~InteractiveFlag.rotate,
+                ),
+                initialCenter: initialCoordinates,
+                initialZoom: initialZoom,
+                // OSM supports at most the zoom value 19
+                maxZoom: 18.45,
+                onTap: (tapPosition, tapLatLng) {
+                  final minMarker = mapMarkerProvider.getClosestMarker(tapLatLng);
+                  if (minMarker == null) {
+                    return;
+                  }
+
+                  final markerScale = markerScaleFromMapZoom(mapController.camera.zoom);
+                  final screenPoint =
+                      mapController.camera.latLngToScreenPoint(minMarker.getLatLng());
+                  final dx = (tapPosition.global.dx - screenPoint.x).abs();
+                  final dy = (tapPosition.global.dy - screenPoint.y).abs();
+                  if (max(dx, dy) < markerScale * 0.7) {
+                    // TODO open charging station
+                    //openMarkerPage(minMarker);
+                  }
+                },
+                onLongPress: (tapPosition, tapLatLng) {
+                  openRouteParametersPage(tapLatLng);
+                }),
+            children: [
+              TileLayer(
+                urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+              ),
+              MarkerLayer(
+                  markers: [position?.toLatLng()]
+                      .whereType<LatLng>()
+                      .map((pos) => Marker(
+                            rotate: true,
+                            point: pos,
+                            child: SvgPicture.asset("assets/icons/current_location.svg"),
+                          ))
+                      .toList()),
+              FastMarkersLayer(mapMarkerProvider.getVisibleMarkers()),
+              PolylineLayer(polylines: [
+                Polyline(
+                  points: const [
+                    LatLng(45.75548, 11.00323),
+                    LatLng(45.75560, 11.00323),
+                    LatLng(45.75548, 11.00310)
+                  ],
+                  color: Colors.pink,
+                  strokeWidth: 3.0,
+                )
+              ]),
+              const Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  " © OpenStreetMap contributors",
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 127, 127, 127)), // theme-independent grey
+                ),
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: MapControlsWidget(mapController),
+              ),
+              Align(
+                alignment: Alignment.topLeft,
+                child: SettingsControlsWidget(() => mapMarkerProvider.openMarkerFiltersDialog(
+                    context, mapController.camera.center)),
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: SearchBarApp(
+                    (item) => openRouteParametersPage(item.toLatLng(), item.displayName)),
+              ),
+            ],
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: BottomChip(routeData, () => setState(() => routeData = null)),
-          )
+            child: RouteBottomSheet(routeData, () => setState(() => routeData = null)),
+          ),
         ],
       ),
     );

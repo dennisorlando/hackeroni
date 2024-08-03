@@ -278,5 +278,9 @@
       }
     }
   },
-  "outletType": "Outlet type"
+  "outletType": "Outlet type",
+  "lessWalking": "Least walking",
+  "moreCharging": "Most charging",
+  "lessDriving": "Least driving",
+  "balanced": "Balanced"
 }
