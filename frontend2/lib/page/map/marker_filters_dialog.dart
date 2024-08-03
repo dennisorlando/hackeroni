@@ -67,20 +67,6 @@ class _MarkerFiltersDialogState extends State<MarkerFiltersDialog> {
                 }).toList(),
               ),
             ),
-            const Divider(
-              height: 4,
-              thickness: 1,
-            ),
-            CheckboxListTile(
-              title: Text(l10n.includeResolved),
-              value: includeResolved,
-              visualDensity: VisualDensity.compact,
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => includeResolved = value);
-                }
-              },
-            ),
             Padding(
               padding: const EdgeInsets.only(left: 8, bottom: 8, right: 8),
               child: OverflowBar(

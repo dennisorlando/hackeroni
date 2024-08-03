@@ -29,12 +29,7 @@
   "send": "Send",
   "tooFarToResolve": "You are too far to resolve",
   "markerTypeUnknown": "Unknown type",
-  "markerTypePlastic": "Plastic",
-  "markerTypePaper": "Paper",
-  "markerTypeUndifferentiated": "Undifferentiated",
-  "markerTypeGlass": "Glass",
-  "markerTypeCompost": "Compost",
-  "markerTypeElectronics": "Electronic material",
+  "markerTypeAlperia": "Aperia",
   "errorReporting": "Error when reporting: {error}",
   "@errorReporting": {
     "placeholders": {
