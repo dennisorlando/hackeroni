@@ -68,21 +68,53 @@ class RouteBottomSheetState extends State<RouteBottomSheet> with GetItStateMixin
                 ),
               ],
             ),
+            const Divider(),
             const Padding(
               padding: EdgeInsets.all(8),
             ),
-            Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  " • Final Charge: ${selectedData?.finalCharge}%\n"
-                  " • Walking Distance: ${_prettyDuration(selectedData?.walkingDistance ?? Duration.zero)}\n"
-                  " • Driving Distance: ${_prettyDuration(selectedData?.drivingDistance ?? Duration.zero)}\n"
-                  " • Cost: ${selectedData?.cost}€",
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(
-                    fontSize: 20,
-                  ),
-                ))
+            Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(6),
+                ),
+                Expanded(
+                  child: Column(children: [
+                    Chip(
+                      avatar: Icon(Icons.battery_charging_full),
+                      label: Center(child: Text("Final Charge: ${data[selectedData]?.finalCharge ?? 0}")),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(6),
+                    ),
+                    Chip(
+                      avatar: Icon(Icons.directions_walk),
+                      label: Center(child: Text("Walking Distance: ${data[selectedData]?.walkingDistance ?? 0}")),
+                    ),
+                  ],),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(8),
+                ),
+                Expanded(
+                  child: Column(children: [
+                    Chip(
+                      avatar: Icon(Icons.euro),
+                      label: Center(child: Text("Cost: ${data[selectedData]?.finalCharge ?? 0}€"),),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(6),
+                    ),
+                    Chip(
+                      avatar: Icon(Icons.drive_eta),
+                      label: Center(child: Text("Final Charge: ${data[selectedData]?.drivingDistance ?? 0}")),
+                    ),
+                  ],),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(6),
+                ),
+              ],
+            ),
           ]),
         ),
       ),
