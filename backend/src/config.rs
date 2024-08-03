@@ -9,6 +9,7 @@ pub struct AppConfig {
     pub pepper: String,
     pub max_walking_meters: f64,
     pub osrm_url: String,
+    pub odh_hub_url: String,
 }
 fn mandatory<T: Sized, F: Fn(String) -> T>(name: &str, mapf: F) -> T {
     let tmp = env::var(name)
@@ -26,5 +27,6 @@ pub fn load_config() -> AppConfig {
         database_url: mandatory("DATABASE_URL", |x| x),
         osrm_url: mandatory("OSRM_URL", |x| x),
         max_walking_meters: mandatory("MAX_WALKING_METERS", |x| x.parse::<f64>().unwrap() ),
+        odh_hub_url:  mandatory("ODH_HUB_URL", |x| x ),
     }
 }

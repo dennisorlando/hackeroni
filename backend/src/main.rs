@@ -4,10 +4,11 @@ use actix_identity::{Identity, IdentityExt, IdentityMiddleware};
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{get, middleware, web, App, HttpRequest, HttpServer, Responder};
 use auth::{init_auth, Admin, Authenticated, User};
-use db::{initialize_db_pool, run_migrations, DbPool};
+use db::{initialize_db_pool, run_migrations, stations::{update_station_plugs, update_stations, PlugsInfo, StationInfo}, DbPool};
 use dotenvy::dotenv;
 use log::*;
-use osrm::init_osrm;
+use odh::{EChargingPlug, EChargingStation, ODHBuilder};
+use osrm::{init_osrm};
 pub mod auth;
 pub mod config;
 pub mod db;
@@ -44,13 +45,45 @@ async fn onlyadmin(_: User<Admin>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    
     //get_info().await;
     dotenv().ok();
     init_log();
     let conf = config::load_config();
     let pool = initialize_db_pool(conf.database_url.clone());
-    run_migrations(&mut pool.get().unwrap())?;
+    let conn = &mut pool.get().unwrap();
+    run_migrations(conn)?;
+    
+    info!("add charging stations");
+    // add stations
+    let result: Vec<EChargingStation> = ODHBuilder::new(conf.odh_hub_url.clone()).run().await?;
+    let stations: Vec<StationInfo> = result.into_iter().map(|x|
+        StationInfo{
+        coordinate_lat: x.scoordinate.x,
+        coordinate_long: x.scoordinate.y,
+        id: x.scode, name: x.sname }
 
+    ).collect();
+    
+    update_stations(conn, stations)?;
+
+    info!("adding plugs");
+    // add plugs
+    let result: Vec<EChargingPlug> = ODHBuilder::new(conf.odh_hub_url.clone()).run().await?;
+    let plugs = result.into_iter().map(|x|{
+        PlugsInfo{id:x.pcode,
+            station_id:x.scode,
+            name: x.pname,
+            max_power: x.smetadata.outlets.clone().and_then(|x| x[0].maxPower),
+            max_current: x.smetadata.outlets.clone().and_then(|x| x[0].maxCurrent),
+            min_current: x.smetadata.outlets.clone().and_then(|x| x[0].minCurrent),
+            has_fixed_cable: x.smetadata.outlets.clone().and_then(|x| x[0].hasFixedCable),
+            outlet_type_code: x.smetadata.outlets.clone().and_then(|x| x[0].outletTypeCode.clone()),
+
+        }
+    }).collect();
+    update_station_plugs(conn, plugs)?;
+    info!("updated db");
     HttpServer::new(move || {
         App::new()
             .service(index)

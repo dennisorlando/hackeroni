@@ -5,14 +5,16 @@ use serde_json::Value;
 use thiserror::Error;
 use geo::{point, prelude::*};
 
-use crate::osrm::StationInfo;
+use crate::db::stations::{PlugsInfo, StationInfo};
+
+
 pub struct ODHBuilder{
     url: String,
 
 }
-impl Default for ODHBuilder{
-    fn default() -> Self {
-        Self { url: "https://mobility.api.opendatahub.com".to_string()}
+impl ODHBuilder{
+    pub fn new(url: String) -> Self {
+        Self { url}
     }
 }
 
@@ -75,35 +77,34 @@ pub struct EChargingStation{
     },
  */
 #[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct Outlets{
-    id: String,
-    maxPower: i32,
-    maxCurrent: i32,
-    minCurrent: i32,
-    hasFixedCable: bool,
-    outletTypeCode: String,
+#[derive(Deserialize, Debug, Clone)]
+pub struct Outlets{
+    pub id: String,
+    pub maxPower: Option<f64>,
+    pub maxCurrent: Option<f64>,
+    pub minCurrent: Option<f64>,
+    pub hasFixedCable: Option<bool>,
+    pub outletTypeCode: Option<String>,
 }
-#[derive(Deserialize, Debug)]
-struct PlugMetadata{
-    outlets: Vec<Outlets>
+#[derive(Deserialize, Debug, Clone)]
+pub struct PlugMetadata{
+    pub outlets: Option<Vec<Outlets>>
 }
 
 #[derive(Deserialize, Debug)]
 pub struct EChargingPlug{
     pactive: bool,
     pavailable: bool,
-    pcode: String,
-    pcoordinate: Coordinate,
+    pub pcode: String,
+    pub pcoordinate: Coordinate,
     pmetadata: Value,
-    pname: String,
-    porigin: String,
+    pub pname: String,
+    porigin: Option<String>,
     ptype: String,
     sactive: bool,
     savailable: bool,
-    scode: String,
-    smetadata: PlugMetadata
-
+    pub scode: String,
+    pub smetadata: PlugMetadata
 }
 
 
@@ -126,6 +127,7 @@ impl Station for EChargingPlug{
 impl ODHBuilder{
     pub async fn run<T: Station + DeserializeOwned>(self)->Result<Vec<T>, ODHError> {
         let url = self.url + "/v2/flat/" + T::get_uri() + "?limit=-1";
+
         print!("{}", url);
         let content = reqwest::get(url)
         .await?
@@ -149,14 +151,13 @@ fn distance_in_meters(p1: (f64, f64), p2: (f64, f64))->f64{
 
 }
 
-pub async fn get_near_stations(p: (f64, f64), dist: f64)->Result<Vec<StationInfo>, ODHError>{
-    let result: Vec<EChargingStation> = ODHBuilder{
-        ..Default::default()
-    }.run().await?;
+pub async fn get_near_stations(url: &str, p: (f64, f64), dist: f64)->Result<Vec<StationInfo>, ODHError>{
+    let result: Vec<EChargingStation> = ODHBuilder::new(url.to_string()).run().await?;
     let res = result.into_iter().filter_map(|x|{
         if distance_in_meters((x.scoordinate.x, x.scoordinate.y), p)<dist{
             Some(StationInfo{
-                coordinate: (x.scoordinate.x, x.scoordinate.y),
+                coordinate_lat: x.scoordinate.x,
+                coordinate_long: x.scoordinate.y,
                 id: x.scode,
                 name: x.sname,
             })
@@ -166,24 +167,4 @@ pub async fn get_near_stations(p: (f64, f64), dist: f64)->Result<Vec<StationInfo
     }).collect();
     Ok(res)
 
-}
-#[tokio::test]
-async fn test_request(){
-    let result: Vec<EChargingPlug> = ODHBuilder{
-        ..Default::default()
-    }.run().await.unwrap();
-    
-    println!("{:?}", result[0]);
-
-        
-}
-#[tokio::test]
-async fn test_station(){
-    let result: Vec<EChargingStation> = ODHBuilder{
-        ..Default::default()
-    }.run().await.unwrap();
-    
-    println!("{:?}", result[0]);
-
-        
 }

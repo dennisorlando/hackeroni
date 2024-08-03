@@ -3,8 +3,7 @@ use log::error;
 use request::{OSRMRequest, OSRMResponse};
 use serde::Serialize;
 use thiserror::Error;
-use std::cmp::Ordering;
-use crate::{config::AppConfig, odh::{get_near_stations, EChargingStation, ODHBuilder}};
+use crate::{config::AppConfig, db::{stations::{get_all_stations, StationInfo}, DbPool}, odh::{get_near_stations, EChargingStation, ODHBuilder}};
 
 use self::request::PathRequest;
 
@@ -25,21 +24,14 @@ impl From<OSRMError> for actix_web::Error {
         actix_web::error::ErrorInternalServerError("Internal server error")
     }
 }
-#[derive(Serialize, Debug, Clone)]
-pub struct StationInfo{
-    pub coordinate: (f64, f64),
-    pub id: String,
-    pub name: String,
-}
+
 
 #[get("/get_all_stations")]
-pub async fn get_all_stations(config: Data<AppConfig>) -> actix_web::Result<impl Responder> {
-    let result: Vec<EChargingStation> = ODHBuilder::default().run().await?;
-    let stations: Vec<StationInfo> = result.into_iter().map(|x|
-        StationInfo{
-        coordinate: (x.scoordinate.x, x.scoordinate.y), id: x.scode, name: x.sname }
-
-    ).collect();
+pub async fn fuck_all_stations(config: Data<AppConfig>,  pool: Data<DbPool>) -> actix_web::Result<impl Responder> {
+    let stations = web::block(move || {
+        let mut conn = pool.get().unwrap();
+        get_all_stations(&mut conn)
+    }).await?.unwrap();
     let stations = serde_json::to_string(&stations)?;
     Ok(stations)
 }
@@ -51,11 +43,13 @@ struct PathResult{
     station: StationInfo,
 }
 
+
 #[post("/stocazzo")]
-pub async fn get_route(req: Form<PathRequest>, config: Data<AppConfig>) -> actix_web::Result<impl Responder> {
+pub async fn get_route(req: Form<PathRequest>, config: Data<AppConfig>, pool: Data<DbPool>) -> actix_web::Result<impl Responder> {
+    
     let destination = (req.destination_long, req.destination_lat);
-    let stations_orig = get_near_stations(destination, config.max_walking_meters).await?;
-    let stations = stations_orig.clone().into_iter().map(|x| x.coordinate).collect();
+    let stations_orig = get_near_stations(&config.odh_hub_url, destination, config.max_walking_meters).await?;
+    let stations = stations_orig.clone().into_iter().map(|x| (x.coordinate_lat as f64, x.coordinate_long as f64)).collect();
     let query = OSRMRequest::new(stations, destination, req.preferences.max_walking_time.unwrap_or(10)).build()?;
 
 
@@ -83,6 +77,6 @@ pub async fn get_route(req: Form<PathRequest>, config: Data<AppConfig>) -> actix
 
 pub fn init_osrm(cfg: &mut web::ServiceConfig) {
     cfg.service(get_route);
-    cfg.service(get_all_stations);
+    cfg.service(fuck_all_stations);
 
 }
