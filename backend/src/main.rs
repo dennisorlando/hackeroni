@@ -56,7 +56,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let conn = &mut pool.get().unwrap();
     run_migrations(conn)?;
 
-    info!("add charging stations");
+    /*info!("add charging stations");
     // add stations
     let result: Vec<EChargingStation> = ODHBuilder::new(conf.odh_hub_url.clone()).run().await?;
     let stations: Vec<StationInfo> = result
@@ -91,7 +91,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .and_then(|x| x[0].outletTypeCode.clone()),
         })
         .collect();
-    update_station_plugs(conn, plugs)?;
+    update_station_plugs(conn, plugs)?;*/
     info!("updated db");
     HttpServer::new(move || {
         App::new()
