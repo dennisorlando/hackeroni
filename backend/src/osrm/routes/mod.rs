@@ -129,7 +129,7 @@ impl RoutesBuilder {
             results.push(route);
         }
 
-        let max_walking_time = self.req.preferences.max_walking_time.unwrap_or(600) as f64;
+        let max_walking_time = self.req.max_walking_time.unwrap_or(600.0) as f64;
         let results = results
             .iter()
             .filter(|x| x.walking_duration < max_walking_time)
@@ -139,7 +139,7 @@ impl RoutesBuilder {
         for result in results.iter() {
             let walking_score = 1.0 - result.walking_duration as f64 / max_walking_time;
             let chargin_score = result.final_charge as f64
-                / self.req.preferences.charge_requested.unwrap_or(90) as f64;
+                / self.req.charge_requested.unwrap_or(90.0) as f64;
 
             let total_score = walking_score;
             scores.push(total_score);
