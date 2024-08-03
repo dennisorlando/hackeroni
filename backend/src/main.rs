@@ -10,11 +10,9 @@ use db::{
     DbPool,
 };
 use dotenvy::dotenv;
-use futures::future::join;
 use log::*;
 use odh::{EChargingPlug, EChargingStation, ODHBuilder};
 use osrm::init_osrm;
-use tokio::task::JoinHandle;
 pub mod auth;
 pub mod config;
 pub mod db;
@@ -55,71 +53,45 @@ async fn main() -> Result<(), Box<dyn Error>> {
     init_log();
     let conf = config::load_config();
     let pool = initialize_db_pool(conf.database_url.clone());
-    {
-        
-        let conn = &mut pool.get().unwrap();
-        run_migrations(conn)?;
-    }
-    
+    let conn = &mut pool.get().unwrap();
+    run_migrations(conn)?;
 
-    let pool1=pool.clone();
-    let url = conf.odh_hub_url.clone();
-    let f1: JoinHandle<Result<(), Box<dyn Error + Send + Sync>>> = tokio::spawn(async move{
-        info!("add charging stations");
-        let result: Vec<EChargingStation> = ODHBuilder::new(url).run().await?;
+    info!("add charging stations");
+    // add stations
+    let result: Vec<EChargingStation> = ODHBuilder::new(conf.odh_hub_url.clone()).run().await?;
+    let stations: Vec<StationInfo> = result
+        .into_iter()
+        .map(|x| StationInfo {
+            coordinate_lat: x.scoordinate.x,
+            coordinate_long: x.scoordinate.y,
+            id: x.scode,
+            name: x.sname,
+        })
+        .collect();
 
-        web::block(move ||{
-            let mut conn = pool1.get()?;
-            let stations: Vec<StationInfo> = result
-            .into_iter()
-            .map(|x| StationInfo {
-                coordinate_lat: x.scoordinate.x,
-                coordinate_long: x.scoordinate.y,
-                id: x.scode,
-                name: x.sname,
-            })
-            .collect();
+    update_stations(conn, stations)?;
 
-            update_stations(&mut conn, stations)?;
-            Ok::<(), Box<dyn Error + Send + Sync>>(())
-        }).await??;
-        Ok(())
-    });
-    let pool1=pool.clone();
-    let url = conf.odh_hub_url.clone();
-    let f2: JoinHandle<Result<(), Box<dyn Error + Send + Sync>>> = tokio::spawn(async move{
-        info!("adding plugs");
-        // add plugs
-        let result: Vec<EChargingPlug> = ODHBuilder::new(url).run().await?;
-        web::block(move ||{
-            let conn = &mut pool1.get().unwrap();
-            let plugs = result
-                .into_iter()
-                .map(|x| PlugsInfo {
-                    id: x.pcode,
-                    station_id: x.scode,
-                    name: x.pname,
-                    max_power: x.smetadata.outlets.clone().and_then(|x| x[0].maxPower),
-                    max_current: x.smetadata.outlets.clone().and_then(|x| x[0].maxCurrent),
-                    min_current: x.smetadata.outlets.clone().and_then(|x| x[0].minCurrent),
-                    has_fixed_cable: x.smetadata.outlets.clone().and_then(|x| x[0].hasFixedCable),
-                    outlet_type_code: x
-                        .smetadata
-                        .outlets
-                        .clone()
-                        .and_then(|x| x[0].outletTypeCode.clone()),
-                })
-                .collect();
-            update_station_plugs(conn, plugs)?;
-            Ok::<(), Box<dyn Error + Send + Sync>>(())
-        }).await??;
-        
-        Ok(())
-    });
-    let (f1, f2)= join(f1, f2).await;
-    f1?.unwrap();
-    f2?.unwrap();
-    
+    info!("adding plugs");
+    // add plugs
+    let result: Vec<EChargingPlug> = ODHBuilder::new(conf.odh_hub_url.clone()).run().await?;
+    let plugs = result
+        .into_iter()
+        .map(|x| PlugsInfo {
+            id: x.pcode,
+            station_id: x.scode,
+            name: x.pname,
+            max_power: x.smetadata.outlets.clone().and_then(|x| x[0].maxPower),
+            max_current: x.smetadata.outlets.clone().and_then(|x| x[0].maxCurrent),
+            min_current: x.smetadata.outlets.clone().and_then(|x| x[0].minCurrent),
+            has_fixed_cable: x.smetadata.outlets.clone().and_then(|x| x[0].hasFixedCable),
+            outlet_type_code: x
+                .smetadata
+                .outlets
+                .clone()
+                .and_then(|x| x[0].outletTypeCode.clone()),
+        })
+        .collect();
+    update_station_plugs(conn, plugs)?;
     info!("updated db");
     HttpServer::new(move || {
         App::new()

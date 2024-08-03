@@ -112,10 +112,14 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                       return null;
                     }
                   },
-                  decoration: InputDecoration(labelText: l10n.routeSource),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.gps_fixed),
+                    labelText: l10n.routeSource,
+                  ),
                   onSaved: (value) => sourceString = value,
                   textInputAction: TextInputAction.next,
                 ),
+                const SizedBox(height: 8),
                 TextFormField(
                   initialValue:
                       widget.args.destinationName ?? widget.args.destination.toNiceString(),
@@ -126,7 +130,10 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                       return null;
                     }
                   },
-                  decoration: InputDecoration(labelText: l10n.routeDestination),
+                  decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.location_on),
+                      labelText: l10n.routeDestination,
+                  ),
                   onSaved: (value) => destinationString = value,
                   textInputAction: TextInputAction.done,
                 ),
@@ -334,6 +341,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
         lastError = e.toString();
         loading = false;
       });
+      throw e;
     });
   }
 }

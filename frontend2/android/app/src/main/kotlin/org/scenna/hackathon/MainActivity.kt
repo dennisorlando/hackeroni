@@ -1,4 +1,4 @@
-package org.mindshub.insigno
+package org.scenna.hackathon
 
 import io.flutter.embedding.android.FlutterActivity
 
