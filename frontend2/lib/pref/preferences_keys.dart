@@ -6,3 +6,6 @@ const String serverScheme = 'server_scheme';
 const String serverHost = 'server_host';
 const String serverPort = 'server_port';
 const String introductionDone = 'introduction_done';
+const String lastPlugType = 'last_plug_type';
+const String lastBatteryCapacity = 'last_battery_capacity';
+const String lastMaxCurrent = 'last_max_current';

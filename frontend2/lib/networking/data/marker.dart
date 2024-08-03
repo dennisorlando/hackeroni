@@ -1,6 +1,6 @@
-import 'package:insigno_frontend/networking/data/map_marker.dart';
-import 'package:insigno_frontend/networking/data/marker_type.dart';
-import 'package:insigno_frontend/networking/data/user.dart';
+import 'package:evplanner_frontend/networking/data/map_marker.dart';
+import 'package:evplanner_frontend/networking/data/marker_type.dart';
+import 'package:evplanner_frontend/networking/data/user.dart';
 
 /// holds more information than MapMarker
 class Marker extends MapMarker {

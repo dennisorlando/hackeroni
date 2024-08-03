@@ -1,9 +1,9 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:insigno_frontend/di/setup.dart';
-import 'package:insigno_frontend/networking/backend.dart';
-import 'package:insigno_frontend/util/image.dart';
+import 'package:evplanner_frontend/di/setup.dart';
+import 'package:evplanner_frontend/networking/backend.dart';
+import 'package:evplanner_frontend/util/image.dart';
 
 class IntroductionPage extends StatefulWidget {
   static const routeName = '/introductionPage';

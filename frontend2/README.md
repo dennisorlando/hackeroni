@@ -9,7 +9,7 @@ Flutter frontend for Insigno.
      alt="Get it on Google Play"
      height="80">](https://play.google.com/store/apps/details?id=org.mindshub.insigno)
 
-Or get the latest APK from the [Releases Section](https://github.com/MindsHub/insigno_frontend/releases/latest).
+Or get the latest APK from the [Releases Section](https://github.com/MindsHub/evplanner_frontend/releases/latest).
 
 ## Dependency injection
 

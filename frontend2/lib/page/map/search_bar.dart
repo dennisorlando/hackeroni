@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
-import 'package:insigno_frontend/networking/backend.dart';
-import 'package:insigno_frontend/networking/data/osm_nominatim_entry.dart';
+import 'package:evplanner_frontend/networking/backend.dart';
+import 'package:evplanner_frontend/networking/data/osm_nominatim_entry.dart';
 
 /// Flutter code sample for [SearchBar].
 
@@ -39,6 +39,14 @@ class _SearchBarAppState extends State<SearchBarApp> with GetItStateMixin<Search
           onChanged: (_) {
             controller.openView();
           },
+          textInputAction: TextInputAction.done,
+          onSubmitted: (value) {
+            get<Backend>().loadNominatimEntries(value, 1).then((data) {
+              if (data.isNotEmpty) {
+                widget.onSuggestionClicked(data[0]);
+              }
+            }, onError: (error) {});
+          },
           leading: const Icon(Icons.search),
           // trailing: <Widget>[
           //   Tooltip(
@@ -70,16 +78,18 @@ class _SearchBarAppState extends State<SearchBarApp> with GetItStateMixin<Search
         if (initialText != controller.text) {
           return lastSuggestions;
         }
-        
-        lastSuggestions = newSuggestions.map<ListTile>((item) => ListTile(
-              title: Text(item.displayName),
-              onTap: () {
-                setState(() {
-                  controller.closeView(item.displayName);
-                  widget.onSuggestionClicked(item);
-                });
-              },
-            )).toList();
+
+        lastSuggestions = newSuggestions
+            .map<ListTile>((item) => ListTile(
+                  title: Text(item.displayName),
+                  onTap: () {
+                    setState(() {
+                      controller.closeView(item.displayName);
+                      widget.onSuggestionClicked(item);
+                    });
+                  },
+                ))
+            .toList();
 
         return lastSuggestions;
         // return List<ListTile>.generate(entries.length, (int index) {

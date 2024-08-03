@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
-import 'package:insigno_frontend/networking/backend.dart';
-import 'package:insigno_frontend/networking/data/outlet_type.dart';
-import 'package:insigno_frontend/provider/location_provider.dart';
-import 'package:insigno_frontend/util/error_text.dart';
-import 'package:insigno_frontend/util/nullable.dart';
-import 'package:insigno_frontend/util/position.dart';
+import 'package:evplanner_frontend/networking/backend.dart';
+import 'package:evplanner_frontend/networking/data/outlet_type.dart';
+import 'package:evplanner_frontend/pref/preferences_keys.dart';
+import 'package:evplanner_frontend/provider/location_provider.dart';
+import 'package:evplanner_frontend/util/error_text.dart';
+import 'package:evplanner_frontend/util/nullable.dart';
+import 'package:evplanner_frontend/util/position.dart';
+import 'package:evplanner_frontend/util/preferences.dart';
+import 'package:evplanner_frontend/util/time.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../util/pair.dart';
 
@@ -33,6 +37,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
     with GetItStateMixin<RouteParametersPage> {
   final LatLng? source = null; // null means "current position"
   final formKey = GlobalKey<FormState>();
+  late final SharedPreferences prefs;
 
   String lastError = "";
   String? sourceString;
@@ -40,7 +45,9 @@ class _RouteParametersPageState extends State<RouteParametersPage>
   double currentBatteryCharge = 50;
   double wantedBatteryCharge = 100;
   int appointmentDurationInt = 0; // from 0 to 11
-  OutletType? selectedOutletType;
+  OutletType selectedOutletType = OutletType.any;
+  int maxCurrent = 0;
+  int batteryCapacity = 0;
   bool loading = false;
 
   static Duration appointmentIntToDuration(int theAppointmentDurationInt) {
@@ -71,33 +78,13 @@ class _RouteParametersPageState extends State<RouteParametersPage>
     return const Duration(hours: 12);
   }
 
-  static String prettyDuration(Duration duration) {
-    var components = <String>[];
-
-    var days = duration.inDays;
-    if (days != 0) {
-      components.add('${days}d');
-    }
-    var hours = duration.inHours % 24;
-    if (hours != 0) {
-      components.add('${hours}h');
-    }
-    var minutes = duration.inMinutes % 60;
-    if (minutes != 0) {
-      components.add('${minutes}m');
-    }
-
-    var seconds = duration.inSeconds % 60;
-    var centiseconds = (duration.inMilliseconds % 1000) ~/ 10;
-    if (components.isEmpty || seconds != 0 || centiseconds != 0) {
-      components.add('$seconds');
-      if (centiseconds != 0) {
-        components.add('.');
-        components.add(centiseconds.toString().padLeft(2, '0'));
-      }
-      components.add('s');
-    }
-    return components.join();
+  @override
+  void initState() {
+    super.initState();
+    prefs = get<SharedPreferences>();
+    final selectedOutletTypeStr = prefs.tryGetString(lastPlugType);
+    selectedOutletType = OutletType.values.firstWhere(
+            (v) => v.name == selectedOutletTypeStr, orElse: () => OutletType.any);
   }
 
   @override
@@ -185,6 +172,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                 ),
                 const SizedBox(height: 8),
                 DropdownMenu<OutletType>(
+                  initialSelection: selectedOutletType == OutletType.any ? null : selectedOutletType,
                   enableFilter: true,
                   requestFocusOnTap: true,
                   leadingIcon: const Icon(Icons.power),
@@ -195,7 +183,9 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                   ),
                   onSelected: (OutletType? outletType) {
                     setState(() {
-                      selectedOutletType = outletType;
+                      if (outletType != null) {
+                        selectedOutletType = outletType;
+                      }
                     });
                   },
                   dropdownMenuEntries: OutletType.values
@@ -206,6 +196,34 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                         ),
                       )
                       .toList(),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  initialValue: prefs.tryGetInt(lastMaxCurrent)?.toString(),
+                  validator: (value) {
+                    if ((value?.isEmpty ?? true) || int.tryParse(value ?? "") == null) {
+                      return l10n.insertNumber;
+                    } else {
+                      return null;
+                    }
+                  },
+                  decoration: InputDecoration(labelText: l10n.maxCurrent),
+                  onSaved: (value) => maxCurrent = int.parse(value!),
+                  textInputAction: TextInputAction.done,
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  initialValue: prefs.tryGetInt(lastBatteryCapacity)?.toString(),
+                  validator: (value) {
+                    if ((value?.isEmpty ?? true) || int.tryParse(value ?? "") == null) {
+                      return l10n.insertNumber;
+                    } else {
+                      return null;
+                    }
+                  },
+                  decoration: InputDecoration(labelText: l10n.batteryCapacity),
+                  onSaved: (value) => batteryCapacity = int.parse(value!),
+                  textInputAction: TextInputAction.done,
                 ),
                 const SizedBox(height: 16),
                 ErrorText(lastError == "" ? null : lastError, (s) => s, topPadding: 8),
@@ -264,37 +282,58 @@ class _RouteParametersPageState extends State<RouteParametersPage>
       loading = true;
     });
 
-    if (formKey.currentState?.validate() == true) {
-      formKey.currentState?.save();
-      final source = await resolveLocationOrError(sourceString, l10n, false);
-      if (source.first == null) {
-        setState(() {
-          lastError = source.second;
-          loading = false;
-        });
-        return;
-      }
+    if (formKey.currentState?.validate() != true) {
+      setState(() {
+        lastError = "";
+        loading = false;
+      });
+      return;
+    }
 
-      final destination = await resolveLocationOrError(destinationString, l10n, true);
-      if (destination.first == null) {
-        setState(() {
-          lastError = destination.second;
-          loading = false;
-        });
-        return;
-      }
+    formKey.currentState?.save();
+    final source = await resolveLocationOrError(sourceString, l10n, false);
+    if (source.first == null) {
+      setState(() {
+        lastError = source.second;
+        loading = false;
+      });
+      return;
+    }
 
-      print("source=${source.first}, destination=${destination.first}");
-      final routes = await get<Backend>().loadRoutes(
-          source.first!,
-          destination.first!,
-          appointmentIntToDuration(appointmentDurationInt),
-          currentBatteryCharge.round(),
-          wantedBatteryCharge.round(),
-          const Duration(hours: 10000));
+    final destination = await resolveLocationOrError(destinationString, l10n, true);
+    if (destination.first == null) {
+      setState(() {
+        lastError = destination.second;
+        loading = false;
+      });
+      return;
+    }
+
+    print("source=${source.first}, destination=${destination.first}");
+    get<Backend>()
+        .loadRoutes(
+      source.first!,
+      destination.first!,
+      appointmentIntToDuration(appointmentDurationInt),
+      currentBatteryCharge.round(),
+      wantedBatteryCharge.round(),
+      const Duration(hours: 10000),
+      selectedOutletType,
+      maxCurrent,
+      batteryCapacity,
+    )
+        .then((routes) {
       if (mounted) {
+        prefs.setString(lastPlugType, selectedOutletType.name);
+        prefs.setInt(lastMaxCurrent, maxCurrent);
+        prefs.setInt(lastBatteryCapacity, batteryCapacity);
         Navigator.pop(context, routes);
       }
-    }
+    }, onError: (e) {
+      setState(() {
+        lastError = e.toString();
+        loading = false;
+      });
+    });
   }
 }

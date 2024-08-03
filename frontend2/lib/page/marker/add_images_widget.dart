@@ -4,8 +4,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:insigno_frontend/util/nullable.dart';
-import 'package:insigno_frontend/util/pair.dart';
+import 'package:evplanner_frontend/util/nullable.dart';
+import 'package:evplanner_frontend/util/pair.dart';
 import 'package:os_detect/os_detect.dart' as Platform;
 
 class AddImagesWidget extends StatelessWidget {

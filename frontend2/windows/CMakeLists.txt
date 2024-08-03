@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(insigno_frontend LANGUAGES CXX)
+project(evplanner_frontend LANGUAGES CXX)
 
-set(BINARY_NAME "Insigno")
+set(BINARY_NAME "EVPlanner.rs")
 
 cmake_policy(SET CMP0063 NEW)
 

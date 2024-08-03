@@ -1,23 +1,23 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
-import 'package:insigno_frontend/networking/backend.dart';
-import 'package:insigno_frontend/networking/data/map_marker.dart';
-import 'package:insigno_frontend/networking/data/route.dart';
-import 'package:insigno_frontend/page/map/fast_markers_layer.dart';
-import 'package:insigno_frontend/page/map/map_controls_widget.dart';
-import 'package:insigno_frontend/page/map/route_bottom_sheet.dart';
-import 'package:insigno_frontend/page/map/search_bar.dart';
-import 'package:insigno_frontend/page/map/settings_controls_widget.dart';
-import 'package:insigno_frontend/page/marker/marker_page.dart';
-import 'package:insigno_frontend/page/marker/report_page.dart';
-import 'package:insigno_frontend/page/route_parameters/route_parameters_page.dart';
-import 'package:insigno_frontend/pref/preferences_keys.dart';
-import 'package:insigno_frontend/provider/location_provider.dart';
-import 'package:insigno_frontend/provider/map_marker_provider.dart';
+import 'package:evplanner_frontend/networking/backend.dart';
+import 'package:evplanner_frontend/networking/data/map_marker.dart';
+import 'package:evplanner_frontend/networking/data/route.dart';
+import 'package:evplanner_frontend/page/map/fast_markers_layer.dart';
+import 'package:evplanner_frontend/page/map/map_controls_widget.dart';
+import 'package:evplanner_frontend/page/map/route_bottom_sheet.dart';
+import 'package:evplanner_frontend/page/map/search_bar.dart';
+import 'package:evplanner_frontend/page/map/settings_controls_widget.dart';
+import 'package:evplanner_frontend/page/marker/report_page.dart';
+import 'package:evplanner_frontend/page/route_parameters/route_parameters_page.dart';
+import 'package:evplanner_frontend/pref/preferences_keys.dart';
+import 'package:evplanner_frontend/provider/location_provider.dart';
+import 'package:evplanner_frontend/provider/map_marker_provider.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,7 +28,7 @@ class MapPage extends StatefulWidget with GetItStatefulWidgetMixin {
   State<MapPage> createState() => _MapPageState();
 }
 
-const LatLng defaultInitialCoordinates = LatLng(45.75548, 11.00323);
+const LatLng defaultInitialCoordinates = LatLng(46.47855, 11.33203);
 const double defaultInitialZoom = 16.0;
 
 class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, WidgetsBindingObserver {
@@ -40,6 +40,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
   late double initialZoom;
   Map<RouteAlgorithm, RouteData>? routeData;
   RouteAlgorithm selectedRouteAlgorithm = RouteAlgorithm.balanced;
+  final Distance _distance = const Distance();
 
   @override
   void initState() {
@@ -126,6 +127,29 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                 // OSM supports at most the zoom value 19
                 maxZoom: 18.45,
                 onTap: (tapPosition, tapLatLng) {
+                  final data = routeData;
+                  if (data != null) {
+                    RouteAlgorithm? closestAlgorithm;
+                    double closestDistance = double.infinity;
+                    double cameraZoom = pow(2.0, mapController.camera.zoom) / 50.0;
+                    for (final e in data.entries) {
+                      for (final point in e.value.walkingPath + e.value.drivingPath) {
+                        final distance = _distance(point, tapLatLng);
+                        if (distance < cameraZoom && distance < closestDistance) {
+                          closestDistance = distance;
+                          closestAlgorithm = e.key;
+                        }
+                      }
+                    }
+
+                    if (closestAlgorithm != null) {
+                      setState(() {
+                        selectedRouteAlgorithm = closestAlgorithm!;
+                      });
+                      return;
+                    }
+                  }
+
                   final minMarker = mapMarkerProvider.getClosestMarker(tapLatLng);
                   if (minMarker == null) {
                     return;
@@ -145,53 +169,71 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                   openRouteParametersPage(tapLatLng);
                 }),
             children: [
-              TileLayer(
-                urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-              ),
-              MarkerLayer(
-                  markers: [position?.toLatLng()]
-                      .whereType<LatLng>()
-                      .map((pos) => Marker(
-                            rotate: true,
-                            point: pos,
-                            child: SvgPicture.asset("assets/icons/current_location.svg"),
-                          ))
-                      .toList()),
-              FastMarkersLayer(mapMarkerProvider.getVisibleMarkers()),
-              PolylineLayer(polylines: [
-                Polyline(
-                  points: const [
-                    LatLng(45.75548, 11.00323),
-                    LatLng(45.75560, 11.00323),
-                    LatLng(45.75548, 11.00310)
-                  ],
-                  color: Colors.pink,
-                  strokeWidth: 3.0,
-                )
-              ]),
-              const Align(
-                alignment: Alignment.bottomLeft,
-                child: Text(
-                  " © OpenStreetMap contributors",
-                  style: TextStyle(
-                      color: Color.fromARGB(255, 127, 127, 127)), // theme-independent grey
-                ),
-              ),
-              Align(
-                alignment: Alignment.topRight,
-                child: MapControlsWidget(mapController),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: SettingsControlsWidget(() => mapMarkerProvider.openMarkerFiltersDialog(
-                    context, mapController.camera.center)),
-              ),
-              Align(
-                alignment: Alignment.topCenter,
-                child: SearchBarApp(
-                    (item) => openRouteParametersPage(item.toLatLng(), item.displayName)),
-              ),
-            ],
+                  TileLayer(
+                    urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  ),
+                  MarkerLayer(
+                      markers: [position?.toLatLng()]
+                          .whereType<LatLng>()
+                          .map((pos) => Marker(
+                                rotate: true,
+                                point: pos,
+                                child: SvgPicture.asset("assets/icons/current_location.svg"),
+                              ))
+                          .toList()),
+                  FastMarkersLayer(mapMarkerProvider.getVisibleMarkers()),
+                  if (routeData != null)
+                    PolylineLayer(
+                      polylines: (routeData ?? {})
+                          .entries
+                          .sorted((e1, e2) => (e1.key == selectedRouteAlgorithm ? 1 : 0)
+                              .compareTo(e2.key == selectedRouteAlgorithm ? 1 : 0))
+                          .expand((e) => [
+                                Polyline(
+                                  points: e.value.drivingPath,
+                                  strokeWidth: (e.key == selectedRouteAlgorithm ? 6.0 : 4.0),
+                                  color: (e.key == selectedRouteAlgorithm
+                                      ? Colors.blue
+                                      : Colors.grey[700]!),
+                                  borderStrokeWidth: 1.0,
+                                  borderColor: Colors.white,
+                                ),
+                                Polyline(
+                                  points: e.value.walkingPath,
+                                  isDotted: true,
+                                  strokeWidth: (e.key == selectedRouteAlgorithm ? 6.0 : 4.0),
+                                  color: (e.key == selectedRouteAlgorithm
+                                      ? Colors.blue
+                                      : Colors.grey[700]!),
+                                  borderStrokeWidth: 1.0,
+                                  borderColor: Colors.white,
+                                ),
+                              ])
+                          .toList(),
+                    ),
+                  const Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Text(
+                      " © OpenStreetMap contributors",
+                      style: TextStyle(
+                          color: Color.fromARGB(255, 127, 127, 127)), // theme-independent grey
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: MapControlsWidget(mapController),
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: SettingsControlsWidget(() => mapMarkerProvider.openMarkerFiltersDialog(
+                        context, mapController.camera.center)),
+                  ),
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: SearchBarApp(
+                        (item) => openRouteParametersPage(item.toLatLng(), item.displayName)),
+                  ),
+                ],
           ),
           Align(
             alignment: Alignment.bottomCenter,
@@ -201,19 +243,6 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
         ],
       ),
     );
-  }
-
-  void openMarkerPage(MapMarker m, [String? errorAddingImages]) {
-    Navigator.pushNamed(
-      context,
-      MarkerPage.routeName,
-      arguments: MarkerPageArgs(m, errorAddingImages),
-    ).then((value) {
-      if (value is MapMarker) {
-        // the marker may have been resolved, or its data might have changed, so update it
-        setState(() => mapMarkerProvider.addOrReplace(value));
-      }
-    });
   }
 
   void openRouteParametersPage(LatLng destination, [String? destinationName]) {
@@ -227,15 +256,6 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
         setState(() {
           routeData = value;
         });
-      }
-    });
-  }
-
-  void openReportPage() {
-    Navigator.pushNamed(context, ReportPage.routeName).then((value) {
-      if (value is ReportedResult) {
-        setState(() => mapMarkerProvider.addOrReplace(value.newMapMarker));
-        openMarkerPage(value.newMapMarker, value.errorAddingImages);
       }
     });
   }

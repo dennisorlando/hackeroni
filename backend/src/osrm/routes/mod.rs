@@ -1,15 +1,16 @@
 pub mod osmr_route;
 
-use actix_web::web::{Data, Form};
+use actix_web::{error::ErrorInternalServerError, web::{Data, Form}};
+use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
 
-use crate::config::AppConfig;
+use crate::{config::AppConfig, db::{stations::PlugsInfo, DbConnection, DbPool}};
 
 use self::osmr_route::{OSRMRouteResult, RouteResult};
 
 use super::{request::PathRequest, OSRMError, PathResult};
 
-pub async fn get_routes(
+/* pub async fn get_routes(
     paths: &[PathResult],
     source: (f64, f64),
     destination: (f64, f64),
@@ -79,7 +80,7 @@ pub async fn get_routes(
     }
 
     Ok(results)
-}
+} */
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Routes {
@@ -100,8 +101,6 @@ pub struct RoutesBuilder {
 impl RoutesBuilder {
     pub fn new(
         paths: Vec<PathResult>,
-        source: (f64, f64),
-        destination: (f64, f64),
         req: Form<PathRequest>,
         osrm_url: String,
     ) -> Self {
@@ -117,10 +116,14 @@ impl RoutesBuilder {
         }
     }
 
-    pub async fn calculate_routes(&self) -> actix_web::Result<Routes> {
+    pub async fn calculate_routes(&self, pool: Data<DbPool>) -> actix_web::Result<Routes> {
+        let mut conn = pool
+            .get()
+            .map_err(|_| ErrorInternalServerError("can't get pool"))?;
+
         let mut results: Vec<RouteResult> = vec![];
         for path in self.paths.iter() {
-            let route = self.get_routes_for_path(&path).await?;
+            let route = self.get_routes_for_path(&path, &mut conn).await?;
             results.push(route);
         }
 
@@ -130,23 +133,38 @@ impl RoutesBuilder {
             .filter(|x| x.walking_duration < max_walking_time)
             .collect::<Vec<&RouteResult>>();
 
-        let mut scores = vec![];
-
+        let mut scores: Vec<(f64, f64, &RouteResult)> = vec![];
         for result in results.iter() {
             let walking_score = 1.0 - result.walking_duration as f64 / max_walking_time;
             let chargin_score = result.final_charge as f64
                 / self.req.charge_requested.unwrap_or(90.0) as f64;
 
-            let total_score = walking_score;
-            scores.push(total_score);
+            scores.push((walking_score, chargin_score, result));
         }
 
         let mut routes = Routes::default();
+        routes.least_walking_time = scores
+            .iter()
+            .max_by(|x, y| x.0.partial_cmp(&y.0).unwrap())
+            .map(|x| x.2.clone());
+
+        routes.least_driving_time = None;
+
+        routes.balanced = scores
+            .iter()
+            .max_by(|x, y| {
+                let x_score = x.0 * 0.5 + x.1 * 0.5;
+                let y_score = y.0 * 0.5 + y.1 * 0.5;
+                x_score.partial_cmp(&y_score).unwrap()
+            })
+            .map(|x| x.2.clone());
 
         Ok(routes)
     }
 
-    async fn get_routes_for_path(&self, path: &PathResult) -> actix_web::Result<RouteResult> {
+    async fn get_routes_for_path(&self, path: &PathResult, conn: &mut DbConnection) -> actix_web::Result<RouteResult> {
+        let plugs: Vec<PlugsInfo> = crate::db::stations::get_plugs(conn, &path.station).map_err(|_| actix_web::error::ErrorInternalServerError("plugs not found"))?;
+
         let driving_uri = format!(
             "{}/{},{};",
             self.driving_uri, self.req.source_lat, self.req.source_long
@@ -200,8 +218,14 @@ impl RoutesBuilder {
             .clone();
         let walking_duration = osrm_foot_route_result.routes.as_ref().unwrap()[0].duration;
 
-        // TODO: Calculate final charge
-        let final_charge = -1.0;
+
+        let max_power = plugs.iter().filter(|x| x.max_power.is_some()).map(|x| x.max_power.unwrap()).reduce(f64::max).unwrap_or(0.0);
+        let capacity = self.req.0.capacity;
+        let current_charge = self.req.0.charge_left.unwrap_or(0.0);
+        let full_charge_time = capacity / max_power * 60.0;
+        let charge_time = 2.0 * walking_duration + self.req.0.duration as f64;
+
+        let final_charge = current_charge + (charge_time / full_charge_time * 100.0);
 
         Ok(RouteResult {
             walking_duration,

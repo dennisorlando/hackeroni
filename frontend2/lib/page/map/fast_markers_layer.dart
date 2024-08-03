@@ -3,8 +3,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:insigno_frontend/networking/data/charging_station.dart';
-import 'package:insigno_frontend/networking/data/marker_type.dart';
+import 'package:evplanner_frontend/networking/data/charging_station.dart';
+import 'package:evplanner_frontend/networking/data/marker_type.dart';
 import 'package:latlong2/latlong.dart';
 
 const int atlasImageSize = 512;

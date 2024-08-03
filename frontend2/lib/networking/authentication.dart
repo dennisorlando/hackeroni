@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
-import 'package:insigno_frontend/di/setup.dart';
-import 'package:insigno_frontend/networking/error.dart';
-import 'package:insigno_frontend/networking/server_host_handler.dart';
-import 'package:insigno_frontend/pref/preferences_keys.dart';
-import 'package:insigno_frontend/provider/auth_user_provider.dart';
+import 'package:evplanner_frontend/di/setup.dart';
+import 'package:evplanner_frontend/networking/error.dart';
+import 'package:evplanner_frontend/networking/server_host_handler.dart';
+import 'package:evplanner_frontend/pref/preferences_keys.dart';
+import 'package:evplanner_frontend/provider/auth_user_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 @lazySingleton

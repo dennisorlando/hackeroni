@@ -7,6 +7,7 @@ pub struct RouteResult {
     pub walking_duration: f64,
     pub driving_duration: f64,
     pub final_charge: f64,
+    // pub cost: f64,
     pub walking_nodes: Vec<(f64, f64)>,
     pub driving_nodes: Vec<(f64, f64)>,
 }

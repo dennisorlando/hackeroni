@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
-import 'package:insigno_frontend/provider/location_info.dart';
+import 'package:evplanner_frontend/provider/location_info.dart';
 import 'package:os_detect/os_detect.dart' as Platform;
 
 @lazySingleton
@@ -26,8 +26,8 @@ class LocationProvider {
     if (Platform.isLinux) {
       // hardcoded for debugging purporses
       _handlePosition(Position(
-        longitude: 11.00323,
-        latitude: 45.75548,
+        longitude: 11.18682,
+        latitude: 46.67704,
         timestamp: DateTime.now(),
         accuracy: 0,
         altitude: 0,

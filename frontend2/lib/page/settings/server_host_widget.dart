@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
 import 'package:http/http.dart' as http;
-import 'package:insigno_frontend/networking/error.dart';
-import 'package:insigno_frontend/networking/server_host_handler.dart';
+import 'package:evplanner_frontend/networking/error.dart';
+import 'package:evplanner_frontend/networking/server_host_handler.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class ServerHostWidget extends StatefulWidget with GetItStatefulWidgetMixin {

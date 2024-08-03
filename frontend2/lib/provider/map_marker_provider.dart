@@ -1,11 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:insigno_frontend/networking/backend.dart';
-import 'package:insigno_frontend/networking/data/charging_station.dart';
-import 'package:insigno_frontend/networking/data/map_marker.dart';
-import 'package:insigno_frontend/networking/data/marker_type.dart';
-import 'package:insigno_frontend/page/map/marker_filters_dialog.dart';
+import 'package:evplanner_frontend/networking/backend.dart';
+import 'package:evplanner_frontend/networking/data/charging_station.dart';
+import 'package:evplanner_frontend/networking/data/map_marker.dart';
+import 'package:evplanner_frontend/networking/data/marker_type.dart';
+import 'package:evplanner_frontend/page/map/marker_filters_dialog.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapMarkerProvider {

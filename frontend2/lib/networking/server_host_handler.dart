@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:injectable/injectable.dart';
-import 'package:insigno_frontend/pref/preferences_keys.dart';
+import 'package:evplanner_frontend/pref/preferences_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 @lazySingleton
