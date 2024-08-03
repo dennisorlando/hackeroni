@@ -46,7 +46,19 @@ pub fn update_station_plugs(conn: &mut PgConnection, plugs: Vec<PlugsInfo>) -> R
             .on_conflict_do_nothing()
             .execute(conn)?;
     }
-
+    diesel::update(station_plugs).filter(
+        outlet_type_code.eq("OTHER")
+        .or(outlet_type_code.eq("UNKNOWN"))
+        .or(outlet_type_code.eq("700 bar small vehicles"))
+        .or(outlet_type_code.eq("Schuko"))
+        ).set(outlet_type_code.eq(None::<String>)).execute(conn)?;
+    diesel::update(station_plugs).filter(
+        outlet_type_code.eq("Type2Mennekes")
+        .or(outlet_type_code.eq("Type2 - 400Vac"))
+        ).set(outlet_type_code.eq("Type2_400")).execute(conn)?;
+    diesel::update(station_plugs).filter(
+        outlet_type_code.eq("Type2 - 230Vac")
+        ).set(outlet_type_code.eq("Type2_230")).execute(conn)?;
     Ok(())
 }
 pub fn get_all_plugs(conn: &mut PgConnection) -> Result<Vec<PlugsInfo>, DBError> {
@@ -56,4 +68,10 @@ pub fn get_all_plugs(conn: &mut PgConnection) -> Result<Vec<PlugsInfo>, DBError>
 pub fn get_all_stations(conn: &mut PgConnection) -> Result<Vec<StationInfo>, DBError> {
     use crate::db::schema::station_info::dsl::*;
     Ok(station_info.get_results(conn)?)
+}
+
+pub fn get_plugs(conn: &mut PgConnection, s: &StationInfo)->Result<Vec<PlugsInfo>, DBError>{
+    use crate::db::schema::station_plugs::dsl::*;
+    let res = station_plugs.filter(station_id.eq(s.id.clone())).get_results(conn)?;
+    Ok(res)
 }
