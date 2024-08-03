@@ -4,7 +4,7 @@ use crate::{
         stations::{get_all_stations, StationInfo},
         DbPool,
     },
-    odh::get_near_stations,
+    odh::{get_near_stations, ODHError},
 };
 use actix_web::{
     get, post,
@@ -27,6 +27,7 @@ pub mod routes;
 pub enum OSRMError {
     #[error("Reqwest error: {0}")]
     Reqwest(#[from] reqwest::Error),
+
     /*#[error("Build failed. Field {0} not provided")]
     Build(&'static str ),*/
 }
@@ -61,10 +62,17 @@ pub struct PathResult {
 pub async fn get_route(
     req: Form<PathRequest>,
     config: Data<AppConfig>,
+    pool: Data<DbPool>,
 ) -> actix_web::Result<impl Responder> {
     let destination = (req.destination_long, req.destination_lat);
-    let stations_orig =
-        get_near_stations(&config.odh_hub_url, destination, config.max_walking_meters).await?;
+    let config2 = config.clone();
+    let stations_orig = web::block(move ||{
+        let mut conn = pool.get()?;
+        let stations_orig =get_near_stations(&mut conn, destination, config2.max_walking_meters)?;
+        Ok::<Vec<StationInfo>, ODHError>(stations_orig)
+    }).await??;
+    
+    
     let stations = stations_orig
         .clone()
         .into_iter()

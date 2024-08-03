@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use diesel::{pg::Pg, r2d2, PgConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use log::info;
@@ -15,7 +13,7 @@ pub type DbConnection = r2d2::PooledConnection<r2d2::ConnectionManager<PgConnect
 #[derive(Error, Debug)]
 pub enum DBError {
     #[error("Cannot apply all migrations: {0}")]
-    MigrationError(#[from] Box<dyn Error + Send + Sync + 'static>),
+    MigrationError(String),
     #[error("While interacting with db: {0}")]
     DieselError(#[from] diesel::result::Error),
 }
@@ -39,6 +37,6 @@ pub fn run_migrations(connection: &mut impl MigrationHarness<Pg>) -> Result<(), 
             info!("Running migrations: {}", s)
         }
     }
-    connection.run_pending_migrations(MIGRATIONS)?;
+    connection.run_pending_migrations(MIGRATIONS).map_err(|e| DBError::MigrationError(e.to_string()))?;
     Ok(())
 }
