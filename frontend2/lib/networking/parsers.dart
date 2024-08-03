@@ -88,7 +88,7 @@ List<LatLng> pathFromJson(List<dynamic> e) {
 }
 
 RouteData routeDataFromJson(dynamic e) {
-  return RouteData(0, Duration(seconds: e["walking_duration"].toInt()),
+  return RouteData(e["final_charge"].round(), Duration(seconds: e["walking_duration"].toInt()),
       Duration(seconds: e["driving_duration"].toInt()), pathFromJson(e["walking_nodes"]),
       pathFromJson(e["driving_nodes"]));
 }
