@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 @lazySingleton
 class ServerHostHandler {
   static const _defaultScheme = "https";
-  static const _defaultHost = "insigno.mindshub.it";
+  static const _defaultHost = "api.evplanner.rs";
 
   final SharedPreferences _preferences;
   String _scheme;

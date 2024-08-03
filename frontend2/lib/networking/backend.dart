@@ -1,22 +1,27 @@
+import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 import "package:http/http.dart" as http;
 import "package:http_parser/http_parser.dart";
 import "package:injectable/injectable.dart";
 import "package:insigno_frontend/networking/authentication.dart";
 import "package:insigno_frontend/networking/data/authenticated_user.dart";
+import "package:insigno_frontend/networking/data/charging_station.dart";
 import "package:insigno_frontend/networking/data/image_verification.dart";
 import "package:insigno_frontend/networking/data/marker.dart";
 import "package:insigno_frontend/networking/data/marker_image.dart";
 import "package:insigno_frontend/networking/data/osm_nominatim_entry.dart";
 import "package:insigno_frontend/networking/data/pill.dart";
 import "package:insigno_frontend/networking/data/review_verdict.dart";
+import "package:insigno_frontend/networking/data/route.dart";
 import "package:insigno_frontend/networking/data/user.dart";
 import "package:insigno_frontend/networking/error.dart";
 import "package:insigno_frontend/networking/parsers.dart";
 import "package:insigno_frontend/networking/server_host_handler.dart";
+import "package:insigno_frontend/page/map/bottom_chip.dart";
 import "package:insigno_frontend/util/future.dart";
 import "package:insigno_frontend/util/nullable.dart";
 import "package:insigno_frontend/util/pair.dart";
+import "package:latlong2/latlong.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import 'package:path/path.dart' as path;
 
@@ -108,6 +113,22 @@ class Backend {
     return _postAuthenticated(path, fields: fields, files: files).mapParseJson();
   }
 
+  Future<http.Response> _post(String path,
+      {Map<String, String>? fields, List<http.MultipartFile>? files}) async {
+
+    final response = await _client.post(_serverHostHandler.getUri(path), body: fields);
+    if (response.statusCode == 401) {
+      // the authentication token is not valid anymore, so remove it and ask the user to re-login
+      //_auth.removeStoredCookie();
+    }
+    return await response.throwErrors();
+  }
+
+  Future<dynamic> _postJson(String path,
+      {Map<String, String>? fields, List<http.MultipartFile>? files}) {
+    return _post(path, fields: fields, files: files).mapParseJson();
+  }
+
   Future<void> deleteAccount() {
     return _postAuthenticated("/delete_account");
   }
@@ -119,6 +140,33 @@ class Backend {
   Future<List<OsmNominatimEntry>> loadNominatimEntries(String phrase, [int limit = 10]){
     return _getJsonWithPath("https://nominatim.openstreetmap.org/search?q=%22$phrase%22&format=jsonv2&limit=$limit")
         .map((entries) => entries.map<OsmNominatimEntry>(nominEntryFromJson).toList());
+  }
+
+  Future<List<ChargingStation>> loadChargingStations(double latitude, double longitude) async {
+    return _getJson("/get_all_stations", params: {
+      "lat": latitude.toString(),
+      "lon": longitude.toString(),
+    }).map((stations) => stations.map<ChargingStation>(chargingStationFromJson).toList());
+  }
+
+  Future<Map<RouteAlgorithm, RouteData>> loadRoutes(LatLng source, LatLng destination,
+      Duration duration, int chargeLeft, int chargeRequested, Duration maxWalkingTime) async {
+    return _postJson("/get_routes", fields: {
+      "source_lat": source.latitude.toString(),
+      "source_long": source.longitude.toString(),
+      "destination_lat": destination.latitude.toString(),
+      "destination_long": destination.longitude.toString(),
+      "duration": duration.inSeconds.toString(),
+      // "charge_left": chargeLeft.toString(),
+      // "charge_requested": chargeRequested.toString(),
+      // "max_walking_time": maxWalkingTime.inSeconds.toString(),
+    }).map((routes) {
+      Map<RouteAlgorithm, RouteData> routemap = {};
+      (routes.map<RouteData>(routeDataFromJson).toList() as List<RouteData>).forEachIndexed((i, route) {
+        routemap[RouteAlgorithm.values[i % RouteAlgorithm.values.length]] = route;
+      });
+      return routemap;
+    });
   }
 
   Future<List<MapMarker>> loadMapMarkers(

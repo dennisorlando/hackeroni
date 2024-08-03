@@ -239,6 +239,12 @@ class _RouteParametersPageState extends State<RouteParametersPage>
       }
 
       print("source=${source.first}, destination=${destination.first}");
+      final routes = await get<Backend>().loadRoutes(source.first!, destination.first!,
+          appointmentIntToDuration(appointmentDurationInt), currentBatteryCharge.round(),
+          wantedBatteryCharge.round(), const Duration(hours: 10000));
+      if (mounted) {
+        Navigator.pop(context, routes);
+      }
     }
   }
 }
