@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::osrm::hardcoded::ResponseStatus;
 
-
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RouteResult {
     pub walking_duration: f64,

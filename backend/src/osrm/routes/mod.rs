@@ -9,7 +9,6 @@ use self::osmr_route::{OSRMRouteResult, RouteResult};
 
 use super::{hardcoded::ResponseStatus, request::PathRequest, OSRMError, PathResult};
 
-
 pub async fn get_routes(
     paths: &[PathResult],
     source: (f64, f64),
@@ -75,6 +74,7 @@ pub async fn get_routes(
             driving_duration,
             walking_nodes,
             driving_nodes,
+            final_charge: -1.0,
         });
     }
 
@@ -117,26 +117,25 @@ impl RoutesBuilder {
         }
     }
 
-    pub async fn calculate_routes(
-        &self
-    ) -> actix_web::Result<Routes> {
+    pub async fn calculate_routes(&self) -> actix_web::Result<Routes> {
         let mut results: Vec<RouteResult> = vec![];
-        for path in self.paths {
-            let route = self.get_routes_for_path(path).await?;
+        for path in self.paths.iter() {
+            let route = self.get_routes_for_path(&path).await?;
             results.push(route);
         }
 
         let max_walking_time = self.req.preferences.max_walking_time.unwrap_or(600) as f64;
-        let results = results.iter()
+        let results = results
+            .iter()
             .filter(|x| x.walking_duration < max_walking_time)
             .collect::<Vec<&RouteResult>>();
 
         let mut scores = vec![];
 
-        for result in results.iter() { 
+        for result in results.iter() {
             let walking_score = 1.0 - result.walking_duration as f64 / max_walking_time;
-            let chargin_score = 1.0 - result.final_charge as f64 / self.req.preferences.charge_requested as f64;
-
+            let chargin_score = result.final_charge as f64
+                / self.req.preferences.charge_requested.unwrap_or(90) as f64;
 
             let total_score = walking_score;
             scores.push(total_score);
@@ -147,9 +146,9 @@ impl RoutesBuilder {
         Ok(routes)
     }
 
-    async fn get_routes_for_path(&self, path: PathResult) -> actix_web::Result<RouteResult> {
+    async fn get_routes_for_path(&self, path: &PathResult) -> actix_web::Result<RouteResult> {
         let driving_uri = format!(
-            "{},{};",
+            "{}/{},{};",
             self.driving_uri, self.req.source_lat, self.req.source_long
         );
 
@@ -178,7 +177,7 @@ impl RoutesBuilder {
         let driving_duration = osrm_driving_route_result.routes.as_ref().unwrap()[0].duration;
 
         let walking_uri = format!(
-            "{},{};",
+            "{}/{},{};",
             self.walking_uri, path.station.coordinate_lat, path.station.coordinate_long
         );
         let full_url = walking_uri

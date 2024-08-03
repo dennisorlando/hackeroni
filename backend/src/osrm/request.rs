@@ -88,6 +88,7 @@ impl PathRequest {
         source: (f64, f64),
         destination: (f64, f64),
         duration: u32,
+        charge_parameters: ChargeParameters,
         preferences: Preferences,
     ) -> Self {
         PathRequest {
@@ -96,6 +97,7 @@ impl PathRequest {
             destination_lat: destination.0,
             destination_long: destination.1,
             duration,
+            charge_parameters,
             preferences,
         }
     }

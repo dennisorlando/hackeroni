@@ -7,7 +7,10 @@ use serde::{
 use serde_json::Value;
 use thiserror::Error;
 
-use crate::db::{stations::{get_all_stations, StationInfo}, DBError, DbConnection};
+use crate::db::{
+    stations::{get_all_stations, StationInfo},
+    DBError, DbConnection,
+};
 
 pub struct ODHBuilder {
     url: String,
@@ -29,7 +32,7 @@ pub enum ODHError {
     #[error("Db Error: {0}")]
     DBError(#[from] DBError),
     #[error("r2d2 error")]
-    R2D2Error(#[from] r2d2::Error)
+    R2D2Error(#[from] r2d2::Error),
 }
 
 impl From<ODHError> for actix_web::Error {
