@@ -56,7 +56,8 @@ impl Preferences {
 #[derive(Debug, Deserialize, Serialize)]
 pub enum PlugType {
     Type1,
-    Type2,
+    Type2_230,
+    Type2_400,
     CCS,
     CHAdeMO,
 }
