@@ -29,7 +29,7 @@ class MapPage extends StatefulWidget with GetItStatefulWidgetMixin {
   State<MapPage> createState() => _MapPageState();
 }
 
-const LatLng defaultInitialCoordinates = LatLng(45.75548, 11.00323);
+const LatLng defaultInitialCoordinates = LatLng(46.47855, 11.33203);
 const double defaultInitialZoom = 16.0;
 
 class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, WidgetsBindingObserver {
@@ -234,21 +234,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                     child: SearchBarApp(
                         (item) => openRouteParametersPage(item.toLatLng(), item.displayName)),
                   ),
-                ] +
-                (routeData?.entries
-                        .map<Widget>((entry) => PolylineLayer(polylines: [
-                              Polyline(
-                                points: const [
-                                  LatLng(45.75548, 11.00323),
-                                  LatLng(45.75560, 11.00323),
-                                  LatLng(45.75548, 11.00310)
-                                ],
-                                color: Colors.pink,
-                                strokeWidth: 3.0,
-                              )
-                            ]))
-                        .toList() ??
-                    []),
+                ],
           ),
           Align(
             alignment: Alignment.bottomCenter,
