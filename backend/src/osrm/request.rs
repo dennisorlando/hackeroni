@@ -54,12 +54,31 @@ impl Preferences {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+pub enum PlugType {
+    Type1,
+    Type2_230,
+    Type2_400,
+    CCS,
+    CHAdeMO,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ChargeParameters {
+    pub capacity: f64,
+    pub max_current: f64,
+    pub plug: Option<PlugType>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PathRequest {
     pub source_lat: f64,
     pub source_long: f64,
     pub destination_lat: f64,
     pub destination_long: f64,
     pub duration: u32,
+
+    #[serde(flatten)]
+    pub charge_parameters: ChargeParameters,
 
     #[serde(flatten)]
     pub preferences: Preferences,
@@ -70,6 +89,7 @@ impl PathRequest {
         source: (f64, f64),
         destination: (f64, f64),
         duration: u32,
+        charge_parameters: ChargeParameters,
         preferences: Preferences,
     ) -> Self {
         PathRequest {
@@ -78,6 +98,7 @@ impl PathRequest {
             destination_lat: destination.0,
             destination_long: destination.1,
             duration,
+            charge_parameters,
             preferences,
         }
     }
