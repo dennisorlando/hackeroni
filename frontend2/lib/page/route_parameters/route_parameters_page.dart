@@ -3,12 +3,15 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
 import 'package:insigno_frontend/networking/backend.dart';
 import 'package:insigno_frontend/networking/data/outlet_type.dart';
+import 'package:insigno_frontend/pref/preferences_keys.dart';
 import 'package:insigno_frontend/provider/location_provider.dart';
 import 'package:insigno_frontend/util/error_text.dart';
 import 'package:insigno_frontend/util/nullable.dart';
 import 'package:insigno_frontend/util/position.dart';
+import 'package:insigno_frontend/util/preferences.dart';
 import 'package:insigno_frontend/util/time.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../util/pair.dart';
 
@@ -34,6 +37,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
     with GetItStateMixin<RouteParametersPage> {
   final LatLng? source = null; // null means "current position"
   final formKey = GlobalKey<FormState>();
+  late final SharedPreferences prefs;
 
   String lastError = "";
   String? sourceString;
@@ -72,6 +76,15 @@ class _RouteParametersPageState extends State<RouteParametersPage>
         return const Duration(hours: 6);
     }
     return const Duration(hours: 12);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    prefs = get<SharedPreferences>();
+    final selectedOutletTypeStr = prefs.tryGetString(lastPlugType);
+    selectedOutletType = OutletType.values.firstWhere(
+            (v) => v.name == selectedOutletTypeStr, orElse: () => OutletType.any);
   }
 
   @override
@@ -159,6 +172,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                 ),
                 const SizedBox(height: 8),
                 DropdownMenu<OutletType>(
+                  initialSelection: selectedOutletType == OutletType.any ? null : selectedOutletType,
                   enableFilter: true,
                   requestFocusOnTap: true,
                   leadingIcon: const Icon(Icons.power),
@@ -185,6 +199,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
+                  initialValue: prefs.tryGetInt(lastMaxCurrent)?.toString(),
                   validator: (value) {
                     if ((value?.isEmpty ?? true) || int.tryParse(value ?? "") == null) {
                       return l10n.insertNumber;
@@ -198,6 +213,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
+                  initialValue: prefs.tryGetInt(lastBatteryCapacity)?.toString(),
                   validator: (value) {
                     if ((value?.isEmpty ?? true) || int.tryParse(value ?? "") == null) {
                       return l10n.insertNumber;
@@ -308,6 +324,9 @@ class _RouteParametersPageState extends State<RouteParametersPage>
     )
         .then((routes) {
       if (mounted) {
+        prefs.setString(lastPlugType, selectedOutletType.name);
+        prefs.setInt(lastMaxCurrent, maxCurrent);
+        prefs.setInt(lastBatteryCapacity, batteryCapacity);
         Navigator.pop(context, routes);
       }
     }, onError: (e) {
