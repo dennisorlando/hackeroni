@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
+import 'package:insigno_frontend/util/time.dart';
 
 import '../../networking/data/route.dart';
 
@@ -80,15 +81,15 @@ class RouteBottomSheetState extends State<RouteBottomSheet> with GetItStateMixin
                 Expanded(
                   child: Column(children: [
                     Chip(
-                      avatar: Icon(Icons.battery_charging_full),
-                      label: Center(child: Text("Final Charge: ${data[selectedData]?.finalCharge ?? 0}")),
+                      avatar: const Icon(Icons.battery_charging_full),
+                      label: Center(child: Text("${selectedData?.finalCharge ?? 0}%", textScaler: const TextScaler.linear(1.2),),),
                     ),
                     const Padding(
                       padding: EdgeInsets.all(6),
                     ),
                     Chip(
-                      avatar: Icon(Icons.directions_walk),
-                      label: Center(child: Text("Walking Distance: ${data[selectedData]?.walkingDistance ?? 0}")),
+                      avatar: const Icon(Icons.directions_walk),
+                      label: Center(child: Text(prettyDuration(selectedData?.walkingDistance ?? Duration.zero), textScaler: const TextScaler.linear(1.2),),),
                     ),
                   ],),
                 ),
@@ -98,15 +99,15 @@ class RouteBottomSheetState extends State<RouteBottomSheet> with GetItStateMixin
                 Expanded(
                   child: Column(children: [
                     Chip(
-                      avatar: Icon(Icons.euro),
-                      label: Center(child: Text("Cost: ${data[selectedData]?.finalCharge ?? 0}€"),),
+                      avatar: const Icon(Icons.euro),
+                      label: Center(child: Text("${selectedData?.cost ?? 0}€", textScaler: const TextScaler.linear(1.2),),),
                     ),
                     const Padding(
                       padding: EdgeInsets.all(6),
                     ),
                     Chip(
-                      avatar: Icon(Icons.drive_eta),
-                      label: Center(child: Text("Final Charge: ${data[selectedData]?.drivingDistance ?? 0}")),
+                      avatar: const Icon(Icons.directions_car),
+                      label: Center(child: Text(prettyDuration(selectedData?.drivingDistance ?? Duration.zero), textScaler: const TextScaler.linear(1.2),),),
                     ),
                   ],),
                 ),
