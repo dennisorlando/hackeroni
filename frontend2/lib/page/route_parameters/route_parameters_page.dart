@@ -41,7 +41,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
   double currentBatteryCharge = 50;
   double wantedBatteryCharge = 100;
   int appointmentDurationInt = 0; // from 0 to 11
-  OutletType? selectedOutletType;
+  OutletType selectedOutletType = OutletType.any;
   bool loading = false;
 
   static Duration appointmentIntToDuration(int theAppointmentDurationInt) {
@@ -167,7 +167,9 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                   ),
                   onSelected: (OutletType? outletType) {
                     setState(() {
-                      selectedOutletType = outletType;
+                      if (outletType != null) {
+                        selectedOutletType = outletType;
+                      }
                     });
                   },
                   dropdownMenuEntries: OutletType.values
