@@ -41,6 +41,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
   late double initialZoom;
   Map<RouteAlgorithm, RouteData>? routeData;
   RouteAlgorithm selectedRouteAlgorithm = RouteAlgorithm.balanced;
+  final Distance _distance = const Distance();
 
   @override
   void initState() {
@@ -127,6 +128,29 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                 // OSM supports at most the zoom value 19
                 maxZoom: 18.45,
                 onTap: (tapPosition, tapLatLng) {
+                  final data = routeData;
+                  if (data != null) {
+                    RouteAlgorithm? closestAlgorithm;
+                    double closestDistance = double.infinity;
+                    double cameraZoom = pow(2.0, mapController.camera.zoom) / 50.0;
+                    for (final e in data.entries) {
+                      for (final point in e.value.walkingPath + e.value.drivingPath) {
+                        final distance = _distance(point, tapLatLng);
+                        if (distance < cameraZoom && distance < closestDistance) {
+                          closestDistance = distance;
+                          closestAlgorithm = e.key;
+                        }
+                      }
+                    }
+
+                    if (closestAlgorithm != null) {
+                      setState(() {
+                        selectedRouteAlgorithm = closestAlgorithm!;
+                      });
+                      return;
+                    }
+                  }
+
                   final minMarker = mapMarkerProvider.getClosestMarker(tapLatLng);
                   if (minMarker == null) {
                     return;
@@ -169,17 +193,19 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                                 Polyline(
                                   points: e.value.drivingPath,
                                   strokeWidth: (e.key == selectedRouteAlgorithm ? 6.0 : 4.0),
-                                  color:
-                                      (e.key == selectedRouteAlgorithm ? Colors.blue : Colors.grey[700]!),
-                                    borderStrokeWidth: 1.0,
+                                  color: (e.key == selectedRouteAlgorithm
+                                      ? Colors.blue
+                                      : Colors.grey[700]!),
+                                  borderStrokeWidth: 1.0,
                                   borderColor: Colors.white,
                                 ),
                                 Polyline(
                                   points: e.value.walkingPath,
                                   isDotted: true,
                                   strokeWidth: (e.key == selectedRouteAlgorithm ? 6.0 : 4.0),
-                                  color:
-                                      (e.key == selectedRouteAlgorithm ? Colors.blue : Colors.grey[700]!),
+                                  color: (e.key == selectedRouteAlgorithm
+                                      ? Colors.blue
+                                      : Colors.grey[700]!),
                                   borderStrokeWidth: 1.0,
                                   borderColor: Colors.white,
                                 ),
