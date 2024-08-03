@@ -25,12 +25,12 @@ enum RouteAlgorithm {
 
 class RouteData {
 
-  RouteData(this.finalCharge, this.walkingDistance, this.drivingDistance, this.walkingPath, this.drivingPath);
+  RouteData(this.finalCharge, this.walkingDistance, this.drivingDistance, this.cost, this.walkingPath, this.drivingPath);
 
   int finalCharge;
   Duration walkingDistance;
   Duration drivingDistance;
-  int cost = -1;
+  int cost;
 
   List<LatLng> walkingPath;
   List<LatLng> drivingPath;
