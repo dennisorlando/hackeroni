@@ -42,6 +42,8 @@ class _RouteParametersPageState extends State<RouteParametersPage>
   double wantedBatteryCharge = 100;
   int appointmentDurationInt = 0; // from 0 to 11
   OutletType selectedOutletType = OutletType.any;
+  int maxCurrent = 0;
+  int batteryCapacity = 0;
   bool loading = false;
 
   static Duration appointmentIntToDuration(int theAppointmentDurationInt) {
@@ -181,6 +183,32 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                       )
                       .toList(),
                 ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  validator: (value) {
+                    if ((value?.isEmpty ?? true) || int.tryParse(value ?? "") == null) {
+                      return l10n.insertNumber;
+                    } else {
+                      return null;
+                    }
+                  },
+                  decoration: InputDecoration(labelText: l10n.maxCurrent),
+                  onSaved: (value) => maxCurrent = int.parse(value!),
+                  textInputAction: TextInputAction.done,
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  validator: (value) {
+                    if ((value?.isEmpty ?? true) || int.tryParse(value ?? "") == null) {
+                      return l10n.insertNumber;
+                    } else {
+                      return null;
+                    }
+                  },
+                  decoration: InputDecoration(labelText: l10n.batteryCapacity),
+                  onSaved: (value) => batteryCapacity = int.parse(value!),
+                  textInputAction: TextInputAction.done,
+                ),
                 const SizedBox(height: 16),
                 ErrorText(lastError == "" ? null : lastError, (s) => s, topPadding: 8),
                 const SizedBox(height: 8),
@@ -238,37 +266,55 @@ class _RouteParametersPageState extends State<RouteParametersPage>
       loading = true;
     });
 
-    if (formKey.currentState?.validate() == true) {
-      formKey.currentState?.save();
-      final source = await resolveLocationOrError(sourceString, l10n, false);
-      if (source.first == null) {
-        setState(() {
-          lastError = source.second;
-          loading = false;
-        });
-        return;
-      }
+    if (formKey.currentState?.validate() != true) {
+      setState(() {
+        lastError = "";
+        loading = false;
+      });
+      return;
+    }
 
-      final destination = await resolveLocationOrError(destinationString, l10n, true);
-      if (destination.first == null) {
-        setState(() {
-          lastError = destination.second;
-          loading = false;
-        });
-        return;
-      }
+    formKey.currentState?.save();
+    final source = await resolveLocationOrError(sourceString, l10n, false);
+    if (source.first == null) {
+      setState(() {
+        lastError = source.second;
+        loading = false;
+      });
+      return;
+    }
 
-      print("source=${source.first}, destination=${destination.first}");
-      final routes = await get<Backend>().loadRoutes(
-          source.first!,
-          destination.first!,
-          appointmentIntToDuration(appointmentDurationInt),
-          currentBatteryCharge.round(),
-          wantedBatteryCharge.round(),
-          const Duration(hours: 10000));
+    final destination = await resolveLocationOrError(destinationString, l10n, true);
+    if (destination.first == null) {
+      setState(() {
+        lastError = destination.second;
+        loading = false;
+      });
+      return;
+    }
+
+    print("source=${source.first}, destination=${destination.first}");
+    get<Backend>()
+        .loadRoutes(
+      source.first!,
+      destination.first!,
+      appointmentIntToDuration(appointmentDurationInt),
+      currentBatteryCharge.round(),
+      wantedBatteryCharge.round(),
+      const Duration(hours: 10000),
+      selectedOutletType,
+      maxCurrent,
+      batteryCapacity,
+    )
+        .then((routes) {
       if (mounted) {
         Navigator.pop(context, routes);
       }
-    }
+    }, onError: (e) {
+      setState(() {
+        lastError = e.toString();
+        loading = false;
+      });
+    });
   }
 }
