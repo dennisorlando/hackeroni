@@ -80,7 +80,7 @@ pub async fn get_route(
     let query = OSRMRequest::new(
         stations,
         destination,
-        req.preferences.max_walking_time.unwrap_or(10),
+        req.max_walking_time.unwrap_or(10.0),
     )
     .build()?;
 
@@ -108,7 +108,7 @@ pub async fn get_route(
 
     let result = result
         .iter()
-        .filter(|&x| x.duration < req.preferences.max_walking_time.unwrap_or(600) as f64)
+        .filter(|&x| x.duration < req.max_walking_time.unwrap_or(600.0) as f64)
         .take(4)
         .cloned()
         .collect::<Vec<_>>();
