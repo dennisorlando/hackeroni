@@ -13,11 +13,11 @@ use actix_web::{
 };
 use log::error;
 use request::{OSRMRequest, OSRMResponse};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::f64;
 use thiserror::Error;
 
-use self::{hardcoded::ResponseStatus, request::PathRequest};
+use self::request::PathRequest;
 
 pub mod hardcoded;
 pub mod request;
