@@ -341,6 +341,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
         lastError = e.toString();
         loading = false;
       });
+      throw e;
     });
   }
 }
