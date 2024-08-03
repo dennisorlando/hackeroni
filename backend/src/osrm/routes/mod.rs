@@ -83,10 +83,10 @@ pub async fn get_routes(
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Routes {
-    pub least_walking_time: RouteResult,
-    pub least_driving_time: RouteResult,
-    pub balanced: RouteResult,
-    pub least_cost: RouteResult,
+    pub least_walking_time: Option<RouteResult>,
+    pub least_driving_time: Option<RouteResult>,
+    pub balanced: Option<RouteResult>,
+    pub least_cost: Option<RouteResult>,
 }
 
 pub struct RoutesBuilder {
@@ -121,14 +121,29 @@ impl RoutesBuilder {
         &self
     ) -> actix_web::Result<Routes> {
         let mut results: Vec<RouteResult> = vec![];
-
         for path in self.paths {
             let route = self.get_routes_for_path(path).await?;
             results.push(route);
         }
 
+        let max_walking_time = self.req.preferences.max_walking_time.unwrap_or(600) as f64;
+        let results = results.iter()
+            .filter(|x| x.walking_duration < max_walking_time)
+            .collect::<Vec<&RouteResult>>();
+
+        let mut scores = vec![];
+
+        for result in results.iter() { 
+            let walking_score = 1.0 - result.walking_duration as f64 / max_walking_time;
+            let chargin_score = 1.0 - result.final_charge as f64 / self.req.preferences.charge_requested as f64;
+
+
+            let total_score = walking_score;
+            scores.push(total_score);
+        }
 
         let mut routes = Routes::default();
+
         Ok(routes)
     }
 
@@ -185,9 +200,14 @@ impl RoutesBuilder {
             .coordinates
             .clone();
         let walking_duration = osrm_foot_route_result.routes.as_ref().unwrap()[0].duration;
+
+        // TODO: Calculate final charge
+        let final_charge = -1.0;
+
         Ok(RouteResult {
             walking_duration,
             driving_duration,
+            final_charge,
             walking_nodes,
             driving_nodes,
         })
