@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
 import 'package:insigno_frontend/networking/backend.dart';
 import 'package:insigno_frontend/networking/data/map_marker.dart';
+import 'package:insigno_frontend/networking/data/route.dart';
 import 'package:insigno_frontend/page/map/bottom_chip.dart';
 import 'package:insigno_frontend/page/map/fast_markers_layer.dart';
 import 'package:insigno_frontend/page/map/map_controls_widget.dart';
@@ -39,6 +40,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
 
   late LatLng initialCoordinates;
   late double initialZoom;
+  Map<RouteAlgorithm, RouteData>? routeData;
 
   @override
   void initState() {
@@ -187,7 +189,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: BottomChip(),
+            child: BottomChip(routeData, () => setState(() => routeData = null)),
           )
         ],
       ),
@@ -213,7 +215,12 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
       RouteParametersPage.routeName,
       arguments: RouteParametersPageArgs(destination, destinationName),
     ).then((value) {
-      // TODO open bottom sheet
+      print("YEEEE $value");
+      if (value is Map<RouteAlgorithm, RouteData>) {
+        setState(() {
+          routeData = value;
+        });
+      }
     });
   }
 

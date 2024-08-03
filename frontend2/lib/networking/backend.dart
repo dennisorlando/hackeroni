@@ -113,6 +113,22 @@ class Backend {
     return _postAuthenticated(path, fields: fields, files: files).mapParseJson();
   }
 
+  Future<http.Response> _post(String path,
+      {Map<String, String>? fields, List<http.MultipartFile>? files}) async {
+
+    final response = await _client.post(_serverHostHandler.getUri(path), body: fields);
+    if (response.statusCode == 401) {
+      // the authentication token is not valid anymore, so remove it and ask the user to re-login
+      //_auth.removeStoredCookie();
+    }
+    return await response.throwErrors();
+  }
+
+  Future<dynamic> _postJson(String path,
+      {Map<String, String>? fields, List<http.MultipartFile>? files}) {
+    return _post(path, fields: fields, files: files).mapParseJson();
+  }
+
   Future<void> deleteAccount() {
     return _postAuthenticated("/delete_account");
   }
@@ -135,15 +151,15 @@ class Backend {
 
   Future<Map<RouteAlgorithm, RouteData>> loadRoutes(LatLng source, LatLng destination,
       Duration duration, int chargeLeft, int chargeRequested, Duration maxWalkingTime) async {
-    return _getJson("/get_routes", params: {
-      "source_lat": source.latitude,
-      "source_long": source.longitude,
-      "destination_lat": destination.latitude,
-      "destination_long": destination.longitude,
-      "duration": duration.inSeconds,
-      "charge_left": chargeLeft,
-      "charge_requested": chargeRequested,
-      "max_walking_time": maxWalkingTime.inSeconds,
+    return _postJson("/get_routes", fields: {
+      "source_lat": source.latitude.toString(),
+      "source_long": source.longitude.toString(),
+      "destination_lat": destination.latitude.toString(),
+      "destination_long": destination.longitude.toString(),
+      "duration": duration.inSeconds.toString(),
+      // "charge_left": chargeLeft.toString(),
+      // "charge_requested": chargeRequested.toString(),
+      // "max_walking_time": maxWalkingTime.inSeconds.toString(),
     }).map((routes) {
       Map<RouteAlgorithm, RouteData> routemap = {};
       (routes.map<RouteData>(routeDataFromJson).toList() as List<RouteData>).forEachIndexed((i, route) {

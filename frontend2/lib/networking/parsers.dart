@@ -86,7 +86,7 @@ ChargingStation chargingStationFromJson(dynamic e) {
 
 List<LatLng> pathFromJson(List<dynamic> e) {
   return e.map((u) {
-    return LatLng(e[1], e[0]);
+    return LatLng(u[1], u[0]);
   }).toList();
 }
 

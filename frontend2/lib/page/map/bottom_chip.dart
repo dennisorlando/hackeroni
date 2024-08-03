@@ -4,7 +4,11 @@ import 'package:get_it_mixin/get_it_mixin.dart';
 import '../../networking/data/route.dart';
 
 class BottomChip extends StatefulWidget with GetItStatefulWidgetMixin {
-  BottomChip({super.key});
+  final Map<RouteAlgorithm, RouteData>? data;
+
+  final Function() close;
+
+  BottomChip(this.data, this.close, {super.key});
 
   @override
   State<StatefulWidget> createState() => BottomChipState();
@@ -13,23 +17,12 @@ class BottomChip extends StatefulWidget with GetItStatefulWidgetMixin {
 class BottomChipState extends State<BottomChip>
     with GetItStateMixin<BottomChip> {
 
-  void loadDataAndRefresh(Map<RouteAlgorithm, RouteData> newData) {
-    setState(() {
-      visible = true;
-      data = newData;
-    });
-  }
-
-  bool visible = false;
-
-  Map<RouteAlgorithm, RouteData> data = {};
-
   RouteAlgorithm selectedAlgorithm = RouteAlgorithm.lessWalking;
 
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: visible,
+      visible: widget.data != null,
       child: Card(
         elevation: 1,
         child: FractionallySizedBox(
@@ -67,9 +60,7 @@ class BottomChipState extends State<BottomChip>
                   ),
                   const Padding(padding: EdgeInsets.all(4)),
                   OutlinedButton(onPressed: () {
-                    setState(() {
-                      visible = false;
-                    });
+                    widget.close();
                   }, child: const Icon(Icons.close)),
                 ],
               ),
@@ -77,10 +68,10 @@ class BottomChipState extends State<BottomChip>
               Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    " • Final Charge: ${data[selectedAlgorithm]?.finalCharge}%\n"
-                        " • Walking Distance: ${_prettyDuration(data[selectedAlgorithm]?.walkingDistance ?? Duration.zero)}\n"
-                        " • Driving Distance: ${_prettyDuration(data[selectedAlgorithm]?.drivingDistance ?? Duration.zero)}\n"
-                        " • Cost: ${data[selectedAlgorithm]?.cost}€",
+                    " • Final Charge: ${widget.data?[selectedAlgorithm]?.finalCharge}%\n"
+                        " • Walking Distance: ${_prettyDuration(widget.data?[selectedAlgorithm]?.walkingDistance ?? Duration.zero)}\n"
+                        " • Driving Distance: ${_prettyDuration(widget.data?[selectedAlgorithm]?.drivingDistance ?? Duration.zero)}\n"
+                        " • Cost: ${widget.data?[selectedAlgorithm]?.cost}€",
                     textAlign: TextAlign.left,
                     style: const TextStyle(
                       fontSize: 20,
