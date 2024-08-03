@@ -10,7 +10,7 @@ use self::osmr_route::{OSRMRouteResult, RouteResult};
 
 use super::{hardcoded::ResponseStatus, request::PathRequest, OSRMError, PathResult};
 
-pub async fn get_routes(
+/* pub async fn get_routes(
     paths: &[PathResult],
     source: (f64, f64),
     destination: (f64, f64),
@@ -80,7 +80,7 @@ pub async fn get_routes(
     }
 
     Ok(results)
-}
+} */
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Routes {
@@ -101,8 +101,6 @@ pub struct RoutesBuilder {
 impl RoutesBuilder {
     pub fn new(
         paths: Vec<PathResult>,
-        source: (f64, f64),
-        destination: (f64, f64),
         req: Form<PathRequest>,
         osrm_url: String,
     ) -> Self {
@@ -135,17 +133,31 @@ impl RoutesBuilder {
             .filter(|x| x.walking_duration < max_walking_time)
             .collect::<Vec<&RouteResult>>();
 
-        let mut scores = vec![];
+        let mut scores: Vec<(f64, f64, &RouteResult)> = vec![];
         for result in results.iter() {
             let walking_score = 1.0 - result.walking_duration as f64 / max_walking_time;
             let chargin_score = result.final_charge as f64
                 / self.req.charge_requested.unwrap_or(90.0) as f64;
 
-            let total_score = walking_score;
-            scores.push(total_score);
+            scores.push((walking_score, chargin_score, result));
         }
 
         let mut routes = Routes::default();
+        routes.least_walking_time = scores
+            .iter()
+            .max_by(|x, y| x.0.partial_cmp(&y.0).unwrap())
+            .map(|x| x.2.clone());
+
+        routes.least_driving_time = None;
+
+        routes.balanced = scores
+            .iter()
+            .max_by(|x, y| {
+                let x_score = x.0 * 0.5 + x.1 * 0.5;
+                let y_score = y.0 * 0.5 + y.1 * 0.5;
+                x_score.partial_cmp(&y_score).unwrap()
+            })
+            .map(|x| x.2.clone());
 
         Ok(routes)
     }

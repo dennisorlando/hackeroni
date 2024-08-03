@@ -65,8 +65,9 @@ pub async fn get_route(
 ) -> actix_web::Result<impl Responder> {
     let destination = (req.destination_long, req.destination_lat);
     let config2 = config.clone();
+    let pool_clone = pool.clone();
     let stations_orig = web::block(move || {
-        let mut conn = pool.get()?;
+        let mut conn = pool_clone.get()?;
         let stations_orig = get_near_stations(&mut conn, destination, config2.max_walking_meters)?;
         Ok::<Vec<StationInfo>, ODHError>(stations_orig)
     })
@@ -104,22 +105,9 @@ pub async fn get_route(
             station,
         })
         .collect();
-    result.sort_by(|x, y| x.duration.partial_cmp(&y.duration).unwrap());
 
-    let result = result
-        .iter()
-        .filter(|&x| x.duration < req.max_walking_time.unwrap_or(600.0) as f64)
-        .take(4)
-        .cloned()
-        .collect::<Vec<_>>();
-
-    let result = routes::get_routes(
-        &result,
-        (req.source_long, req.source_lat),
-        destination,
-        config,
-    )
-    .await?;
+    let result_builder = routes::RoutesBuilder::new(result, req, config.osrm_url.clone());
+    let result = result_builder.calculate_routes(pool.clone()).await?;
 
     Ok(Json(result))
 }
