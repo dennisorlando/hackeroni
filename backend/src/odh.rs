@@ -7,7 +7,7 @@ use serde::{
 use serde_json::Value;
 use thiserror::Error;
 
-use crate::db::stations::StationInfo;
+use crate::db::{stations::{get_all_stations, StationInfo}, DBError, DbConnection};
 
 pub struct ODHBuilder {
     url: String,
@@ -26,6 +26,10 @@ pub enum ODHError {
     Build(&'static str),
     #[error("Error while parsing json: {0}")]
     JsonError(#[from] serde_json::Error),
+    #[error("Db Error: {0}")]
+    DBError(#[from] DBError),
+    #[error("r2d2 error")]
+    R2D2Error(#[from] r2d2::Error)
 }
 
 impl From<ODHError> for actix_web::Error {
@@ -149,21 +153,21 @@ fn distance_in_meters(p1: (f64, f64), p2: (f64, f64)) -> f64 {
     p1.haversine_distance(&p2)
 }
 
-pub async fn get_near_stations(
-    url: &str,
+pub fn get_near_stations(
+    conn: &mut DbConnection,
     p: (f64, f64),
     dist: f64,
 ) -> Result<Vec<StationInfo>, ODHError> {
-    let result: Vec<EChargingStation> = ODHBuilder::new(url.to_string()).run().await?;
+    let result: Vec<StationInfo> = get_all_stations(conn)?;
     let res = result
         .into_iter()
         .filter_map(|x| {
-            if distance_in_meters((x.scoordinate.x, x.scoordinate.y), p) < dist {
+            if distance_in_meters((x.coordinate_lat, x.coordinate_long), p) < dist {
                 Some(StationInfo {
-                    coordinate_lat: x.scoordinate.x,
-                    coordinate_long: x.scoordinate.y,
-                    id: x.scode,
-                    name: x.sname,
+                    coordinate_lat: x.coordinate_lat,
+                    coordinate_long: x.coordinate_long,
+                    id: x.id,
+                    name: x.name,
                 })
             } else {
                 None
