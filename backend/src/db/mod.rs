@@ -21,6 +21,7 @@ pub enum DBError {
 pub fn initialize_db_pool(url: String) -> DbPool {
     let manager = r2d2::ConnectionManager::<PgConnection>::new(url);
     r2d2::Pool::builder()
+        .max_size(10)
         .build(manager)
         .expect("database URL should be a valid url to an PGsql instance")
 }
