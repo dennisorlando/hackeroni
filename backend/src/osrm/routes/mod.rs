@@ -91,10 +91,7 @@ pub struct Routes {
 
 pub struct RoutesBuilder {
     paths: Vec<PathResult>,
-    source: (f64, f64),
-    destination: (f64, f64),
     req: Form<PathRequest>,
-    config: Data<AppConfig>,
     walking_uri: String,
     driving_uri: String,
     query_uri: String,
@@ -106,17 +103,14 @@ impl RoutesBuilder {
         source: (f64, f64),
         destination: (f64, f64),
         req: Form<PathRequest>,
-        config: Data<AppConfig>,
+        osrm_url: String,
     ) -> Self {
-        let walking_uri = format!("{}/route/v1/foot/", config.osrm_url);
-        let driving_uri = format!("{}/route/v1/driving/", config.osrm_url);
+        let walking_uri = format!("{}/route/v1/foot/", osrm_url);
+        let driving_uri = format!("{}/route/v1/driving/", osrm_url);
         let query_uri = "?overview=full&geometries=geojson".to_string();
         RoutesBuilder {
             paths,
-            source,
-            destination,
             req,
-            config,
             walking_uri,
             driving_uri,
             query_uri,
@@ -124,44 +118,78 @@ impl RoutesBuilder {
     }
 
     pub async fn calculate_routes(
-        paths: &[PathResult],
-        source: (f64, f64),
-        destination: (f64, f64),
-        req: Form<PathRequest>,
-        config: Data<AppConfig>,
+        &self
     ) -> actix_web::Result<Routes> {
+        let mut results: Vec<RouteResult> = vec![];
+
+        for path in self.paths {
+            let route = self.get_routes_for_path(path).await?;
+            results.push(route);
+        }
+
+
         let mut routes = Routes::default();
-
-
         Ok(routes)
     }
 
-    pub async fn lwt(&self) -> Option<RouteResult> {
-        let min_wt_path_res = self.paths.iter().min_by(|a, b| {
-            a.duration
-                .partial_cmp(&b.duration)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+    async fn get_routes_for_path(&self, path: PathResult) -> actix_web::Result<RouteResult> {
+        let driving_uri = format!(
+            "{},{};",
+            self.driving_uri, self.req.source_lat, self.req.source_long
+        );
 
-        if min_wt_path_res.is_none() {
-            return None;
+        let full_url = driving_uri.clone()
+            + &format!(
+                "{},{}",
+                path.station.coordinate_lat, path.station.coordinate_long
+            )
+            + self.query_uri.as_str();
+        let content = reqwest::get(full_url)
+            .await
+            .map_err(OSRMError::from)?
+            .text()
+            .await
+            .map_err(OSRMError::from)?;
+
+        let osrm_driving_route_result: OSRMRouteResult = serde_json::from_str(&content)?;
+
+        if osrm_driving_route_result.routes.is_none() {
+            return Ok(RouteResult::default());
         }
+        let driving_nodes = osrm_driving_route_result.routes.as_ref().unwrap()[0]
+            .geometry
+            .coordinates
+            .clone();
+        let driving_duration = osrm_driving_route_result.routes.as_ref().unwrap()[0].duration;
 
-        let min_wt_path = min_wt_path_res.unwrap();
+        let walking_uri = format!(
+            "{},{};",
+            self.walking_uri, path.station.coordinate_lat, path.station.coordinate_long
+        );
+        let full_url = walking_uri
+            + &format!("{},{}", self.req.destination_lat, self.req.destination_long)
+            + self.query_uri.as_str();
+        let content = reqwest::get(full_url)
+            .await
+            .map_err(OSRMError::from)?
+            .text()
+            .await
+            .map_err(OSRMError::from)?;
 
-
-        todo!()
-    }
-
-    pub async fn ldt(&self) -> RouteResult {
-        todo!()
-    }
-
-    pub async fn balanced(&self) -> RouteResult {
-        todo!()
-    }
-
-    pub async fn least_cost(&self) -> RouteResult {
-        todo!()
+        let osrm_foot_route_result: OSRMRouteResult = serde_json::from_str(&content)?;
+        if osrm_foot_route_result.routes.is_none() {
+            return Ok(RouteResult::default());
+        }
+        let walking_nodes = osrm_foot_route_result.routes.as_ref().unwrap()[0]
+            .geometry
+            .coordinates
+            .clone();
+        let walking_duration = osrm_foot_route_result.routes.as_ref().unwrap()[0].duration;
+        Ok(RouteResult {
+            walking_duration,
+            driving_duration,
+            walking_nodes,
+            driving_nodes,
+        })
     }
 }
