@@ -81,7 +81,7 @@ OsmNominatimEntry nominEntryFromJson(dynamic e) {
 }
 
 ChargingStation chargingStationFromJson(dynamic e) {
-  return ChargingStation(e["id"], e["coordinate"][1], e["coordinate"][0]);
+  return ChargingStation(e["id"], e["coordinate_long"], e["coordinate_lat"]);
 }
 
 List<LatLng> pathFromJson(List<dynamic> e) {
