@@ -37,6 +37,8 @@ pub fn run_migrations(connection: &mut impl MigrationHarness<Pg>) -> Result<(), 
             info!("Running migrations: {}", s)
         }
     }
-    connection.run_pending_migrations(MIGRATIONS).map_err(|e| DBError::MigrationError(e.to_string()))?;
+    connection
+        .run_pending_migrations(MIGRATIONS)
+        .map_err(|e| DBError::MigrationError(e.to_string()))?;
     Ok(())
 }

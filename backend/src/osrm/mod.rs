@@ -27,7 +27,6 @@ pub mod routes;
 pub enum OSRMError {
     #[error("Reqwest error: {0}")]
     Reqwest(#[from] reqwest::Error),
-
     /*#[error("Build failed. Field {0} not provided")]
     Build(&'static str ),*/
 }
@@ -66,13 +65,13 @@ pub async fn get_route(
 ) -> actix_web::Result<impl Responder> {
     let destination = (req.destination_long, req.destination_lat);
     let config2 = config.clone();
-    let stations_orig = web::block(move ||{
+    let stations_orig = web::block(move || {
         let mut conn = pool.get()?;
-        let stations_orig =get_near_stations(&mut conn, destination, config2.max_walking_meters)?;
+        let stations_orig = get_near_stations(&mut conn, destination, config2.max_walking_meters)?;
         Ok::<Vec<StationInfo>, ODHError>(stations_orig)
-    }).await??;
-    
-    
+    })
+    .await??;
+
     let stations = stations_orig
         .clone()
         .into_iter()
