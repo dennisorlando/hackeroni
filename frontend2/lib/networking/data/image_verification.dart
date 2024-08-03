@@ -1,4 +1,4 @@
-import 'package:insigno_frontend/networking/data/marker_type.dart';
+import 'package:evplanner_frontend/networking/data/marker_type.dart';
 
 class ImageVerification {
   final int imageId;

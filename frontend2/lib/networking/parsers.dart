@@ -1,13 +1,13 @@
 import 'package:collection/collection.dart';
-import 'package:insigno_frontend/networking/data/authenticated_user.dart';
-import 'package:insigno_frontend/networking/data/charging_station.dart';
-import 'package:insigno_frontend/networking/data/image_verification.dart';
-import 'package:insigno_frontend/networking/data/map_marker.dart';
-import 'package:insigno_frontend/networking/data/marker.dart';
-import 'package:insigno_frontend/networking/data/marker_image.dart';
-import 'package:insigno_frontend/networking/data/osm_nominatim_entry.dart';
-import 'package:insigno_frontend/networking/data/route.dart';
-import "package:insigno_frontend/util/nullable.dart";
+import 'package:evplanner_frontend/networking/data/authenticated_user.dart';
+import 'package:evplanner_frontend/networking/data/charging_station.dart';
+import 'package:evplanner_frontend/networking/data/image_verification.dart';
+import 'package:evplanner_frontend/networking/data/map_marker.dart';
+import 'package:evplanner_frontend/networking/data/marker.dart';
+import 'package:evplanner_frontend/networking/data/marker_image.dart';
+import 'package:evplanner_frontend/networking/data/osm_nominatim_entry.dart';
+import 'package:evplanner_frontend/networking/data/route.dart';
+import "package:evplanner_frontend/util/nullable.dart";
 import 'package:latlong2/latlong.dart';
 
 import 'data/marker_type.dart';

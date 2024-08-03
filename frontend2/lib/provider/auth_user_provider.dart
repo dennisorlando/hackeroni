@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:injectable/injectable.dart';
-import 'package:insigno_frontend/networking/backend.dart';
-import 'package:insigno_frontend/networking/data/authenticated_user.dart';
+import 'package:evplanner_frontend/networking/backend.dart';
+import 'package:evplanner_frontend/networking/data/authenticated_user.dart';
 
 @lazySingleton
 class AuthUserProvider {

@@ -1,6 +1,6 @@
 # Meta folder
 
-This folder contains files related to the insigno_frontend repository that do not really have something to do with the app itself, for example assets used in the README or logo projects.
+This folder contains files related to the evplanner_frontend repository that do not really have something to do with the app itself, for example assets used in the README or logo projects.
 
 ## The colors used for the logo
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:insigno_frontend/di/setup.dart';
-import 'package:insigno_frontend/networking/server_host_handler.dart';
+import 'package:evplanner_frontend/di/setup.dart';
+import 'package:evplanner_frontend/networking/server_host_handler.dart';
 
 Image imageFromNetwork({required int imageId, double? height, double? width, BoxFit? fit}) {
   return Image.network(

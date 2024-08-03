@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:insigno_frontend/app.dart';
-import 'package:insigno_frontend/di/setup.dart';
-import 'package:insigno_frontend/page/error_page.dart';
-import 'package:insigno_frontend/page/util/error_snackbar_widget.dart';
+import 'package:evplanner_frontend/app.dart';
+import 'package:evplanner_frontend/di/setup.dart';
+import 'package:evplanner_frontend/page/error_page.dart';
+import 'package:evplanner_frontend/page/util/error_snackbar_widget.dart';
 
 void main() async {
   final navigatorKey = GlobalKey<NavigatorState>();

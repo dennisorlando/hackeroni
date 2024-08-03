@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:injectable/injectable.dart';
-import 'package:insigno_frontend/networking/authentication.dart';
-import 'package:insigno_frontend/networking/backend.dart';
-import 'package:insigno_frontend/networking/data/image_verification.dart';
+import 'package:evplanner_frontend/networking/authentication.dart';
+import 'package:evplanner_frontend/networking/backend.dart';
+import 'package:evplanner_frontend/networking/data/image_verification.dart';
 
 @lazySingleton
 class VerifyTimeProvider {
