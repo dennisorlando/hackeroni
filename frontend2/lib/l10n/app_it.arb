@@ -142,5 +142,8 @@
   "leastWalking": "Minor cammino",
   "leastDriving": "Minor guida",
   "leastCost": "Minor costo",
-  "balanced": "Bilanciato"
+  "balanced": "Bilanciato",
+  "insertNumber": "Inserisci un numero valido",
+  "maxCurrent": "Corrente massima (A)",
+  "batteryCapacity": "Capacità batteria (kWh)"
 }

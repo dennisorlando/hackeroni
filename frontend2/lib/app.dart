@@ -46,7 +46,7 @@ class _InsignoAppState extends State<InsignoApp> {
       scaffoldMessengerKey: widget.scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       navigatorKey: widget.navigatorKey,
-      title: "Insigno",
+      title: "EVPlanner.rs",
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(

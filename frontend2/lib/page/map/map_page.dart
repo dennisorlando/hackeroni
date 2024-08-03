@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/svg.dart';
@@ -28,7 +29,7 @@ class MapPage extends StatefulWidget with GetItStatefulWidgetMixin {
   State<MapPage> createState() => _MapPageState();
 }
 
-const LatLng defaultInitialCoordinates = LatLng(45.75548, 11.00323);
+const LatLng defaultInitialCoordinates = LatLng(46.47855, 11.33203);
 const double defaultInitialZoom = 16.0;
 
 class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, WidgetsBindingObserver {
@@ -40,6 +41,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
   late double initialZoom;
   Map<RouteAlgorithm, RouteData>? routeData;
   RouteAlgorithm selectedRouteAlgorithm = RouteAlgorithm.balanced;
+  final Distance _distance = const Distance();
 
   @override
   void initState() {
@@ -126,6 +128,29 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                 // OSM supports at most the zoom value 19
                 maxZoom: 18.45,
                 onTap: (tapPosition, tapLatLng) {
+                  final data = routeData;
+                  if (data != null) {
+                    RouteAlgorithm? closestAlgorithm;
+                    double closestDistance = double.infinity;
+                    double cameraZoom = pow(2.0, mapController.camera.zoom) / 50.0;
+                    for (final e in data.entries) {
+                      for (final point in e.value.walkingPath + e.value.drivingPath) {
+                        final distance = _distance(point, tapLatLng);
+                        if (distance < cameraZoom && distance < closestDistance) {
+                          closestDistance = distance;
+                          closestAlgorithm = e.key;
+                        }
+                      }
+                    }
+
+                    if (closestAlgorithm != null) {
+                      setState(() {
+                        selectedRouteAlgorithm = closestAlgorithm!;
+                      });
+                      return;
+                    }
+                  }
+
                   final minMarker = mapMarkerProvider.getClosestMarker(tapLatLng);
                   if (minMarker == null) {
                     return;
@@ -145,53 +170,71 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                   openRouteParametersPage(tapLatLng);
                 }),
             children: [
-              TileLayer(
-                urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-              ),
-              MarkerLayer(
-                  markers: [position?.toLatLng()]
-                      .whereType<LatLng>()
-                      .map((pos) => Marker(
-                            rotate: true,
-                            point: pos,
-                            child: SvgPicture.asset("assets/icons/current_location.svg"),
-                          ))
-                      .toList()),
-              FastMarkersLayer(mapMarkerProvider.getVisibleMarkers()),
-              PolylineLayer(polylines: [
-                Polyline(
-                  points: const [
-                    LatLng(45.75548, 11.00323),
-                    LatLng(45.75560, 11.00323),
-                    LatLng(45.75548, 11.00310)
-                  ],
-                  color: Colors.pink,
-                  strokeWidth: 3.0,
-                )
-              ]),
-              const Align(
-                alignment: Alignment.bottomLeft,
-                child: Text(
-                  " © OpenStreetMap contributors",
-                  style: TextStyle(
-                      color: Color.fromARGB(255, 127, 127, 127)), // theme-independent grey
-                ),
-              ),
-              Align(
-                alignment: Alignment.topRight,
-                child: MapControlsWidget(mapController),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: SettingsControlsWidget(() => mapMarkerProvider.openMarkerFiltersDialog(
-                    context, mapController.camera.center)),
-              ),
-              Align(
-                alignment: Alignment.topCenter,
-                child: SearchBarApp(
-                    (item) => openRouteParametersPage(item.toLatLng(), item.displayName)),
-              ),
-            ],
+                  TileLayer(
+                    urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  ),
+                  MarkerLayer(
+                      markers: [position?.toLatLng()]
+                          .whereType<LatLng>()
+                          .map((pos) => Marker(
+                                rotate: true,
+                                point: pos,
+                                child: SvgPicture.asset("assets/icons/current_location.svg"),
+                              ))
+                          .toList()),
+                  FastMarkersLayer(mapMarkerProvider.getVisibleMarkers()),
+                  if (routeData != null)
+                    PolylineLayer(
+                      polylines: (routeData ?? {})
+                          .entries
+                          .sorted((e1, e2) => (e1.key == selectedRouteAlgorithm ? 1 : 0)
+                              .compareTo(e2.key == selectedRouteAlgorithm ? 1 : 0))
+                          .expand((e) => [
+                                Polyline(
+                                  points: e.value.drivingPath,
+                                  strokeWidth: (e.key == selectedRouteAlgorithm ? 6.0 : 4.0),
+                                  color: (e.key == selectedRouteAlgorithm
+                                      ? Colors.blue
+                                      : Colors.grey[700]!),
+                                  borderStrokeWidth: 1.0,
+                                  borderColor: Colors.white,
+                                ),
+                                Polyline(
+                                  points: e.value.walkingPath,
+                                  isDotted: true,
+                                  strokeWidth: (e.key == selectedRouteAlgorithm ? 6.0 : 4.0),
+                                  color: (e.key == selectedRouteAlgorithm
+                                      ? Colors.blue
+                                      : Colors.grey[700]!),
+                                  borderStrokeWidth: 1.0,
+                                  borderColor: Colors.white,
+                                ),
+                              ])
+                          .toList(),
+                    ),
+                  const Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Text(
+                      " © OpenStreetMap contributors",
+                      style: TextStyle(
+                          color: Color.fromARGB(255, 127, 127, 127)), // theme-independent grey
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: MapControlsWidget(mapController),
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: SettingsControlsWidget(() => mapMarkerProvider.openMarkerFiltersDialog(
+                        context, mapController.camera.center)),
+                  ),
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: SearchBarApp(
+                        (item) => openRouteParametersPage(item.toLatLng(), item.displayName)),
+                  ),
+                ],
           ),
           Align(
             alignment: Alignment.bottomCenter,

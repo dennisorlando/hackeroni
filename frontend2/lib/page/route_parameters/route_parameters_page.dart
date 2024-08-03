@@ -7,6 +7,7 @@ import 'package:insigno_frontend/provider/location_provider.dart';
 import 'package:insigno_frontend/util/error_text.dart';
 import 'package:insigno_frontend/util/nullable.dart';
 import 'package:insigno_frontend/util/position.dart';
+import 'package:insigno_frontend/util/time.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../util/pair.dart';
@@ -40,7 +41,9 @@ class _RouteParametersPageState extends State<RouteParametersPage>
   double currentBatteryCharge = 50;
   double wantedBatteryCharge = 100;
   int appointmentDurationInt = 0; // from 0 to 11
-  OutletType? selectedOutletType;
+  OutletType selectedOutletType = OutletType.any;
+  int maxCurrent = 0;
+  int batteryCapacity = 0;
   bool loading = false;
 
   static Duration appointmentIntToDuration(int theAppointmentDurationInt) {
@@ -69,35 +72,6 @@ class _RouteParametersPageState extends State<RouteParametersPage>
         return const Duration(hours: 6);
     }
     return const Duration(hours: 12);
-  }
-
-  static String prettyDuration(Duration duration) {
-    var components = <String>[];
-
-    var days = duration.inDays;
-    if (days != 0) {
-      components.add('${days}d');
-    }
-    var hours = duration.inHours % 24;
-    if (hours != 0) {
-      components.add('${hours}h');
-    }
-    var minutes = duration.inMinutes % 60;
-    if (minutes != 0) {
-      components.add('${minutes}m');
-    }
-
-    var seconds = duration.inSeconds % 60;
-    var centiseconds = (duration.inMilliseconds % 1000) ~/ 10;
-    if (components.isEmpty || seconds != 0 || centiseconds != 0) {
-      components.add('$seconds');
-      if (centiseconds != 0) {
-        components.add('.');
-        components.add(centiseconds.toString().padLeft(2, '0'));
-      }
-      components.add('s');
-    }
-    return components.join();
   }
 
   @override
@@ -195,7 +169,9 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                   ),
                   onSelected: (OutletType? outletType) {
                     setState(() {
-                      selectedOutletType = outletType;
+                      if (outletType != null) {
+                        selectedOutletType = outletType;
+                      }
                     });
                   },
                   dropdownMenuEntries: OutletType.values
@@ -206,6 +182,32 @@ class _RouteParametersPageState extends State<RouteParametersPage>
                         ),
                       )
                       .toList(),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  validator: (value) {
+                    if ((value?.isEmpty ?? true) || int.tryParse(value ?? "") == null) {
+                      return l10n.insertNumber;
+                    } else {
+                      return null;
+                    }
+                  },
+                  decoration: InputDecoration(labelText: l10n.maxCurrent),
+                  onSaved: (value) => maxCurrent = int.parse(value!),
+                  textInputAction: TextInputAction.done,
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  validator: (value) {
+                    if ((value?.isEmpty ?? true) || int.tryParse(value ?? "") == null) {
+                      return l10n.insertNumber;
+                    } else {
+                      return null;
+                    }
+                  },
+                  decoration: InputDecoration(labelText: l10n.batteryCapacity),
+                  onSaved: (value) => batteryCapacity = int.parse(value!),
+                  textInputAction: TextInputAction.done,
                 ),
                 const SizedBox(height: 16),
                 ErrorText(lastError == "" ? null : lastError, (s) => s, topPadding: 8),
@@ -264,37 +266,55 @@ class _RouteParametersPageState extends State<RouteParametersPage>
       loading = true;
     });
 
-    if (formKey.currentState?.validate() == true) {
-      formKey.currentState?.save();
-      final source = await resolveLocationOrError(sourceString, l10n, false);
-      if (source.first == null) {
-        setState(() {
-          lastError = source.second;
-          loading = false;
-        });
-        return;
-      }
+    if (formKey.currentState?.validate() != true) {
+      setState(() {
+        lastError = "";
+        loading = false;
+      });
+      return;
+    }
 
-      final destination = await resolveLocationOrError(destinationString, l10n, true);
-      if (destination.first == null) {
-        setState(() {
-          lastError = destination.second;
-          loading = false;
-        });
-        return;
-      }
+    formKey.currentState?.save();
+    final source = await resolveLocationOrError(sourceString, l10n, false);
+    if (source.first == null) {
+      setState(() {
+        lastError = source.second;
+        loading = false;
+      });
+      return;
+    }
 
-      print("source=${source.first}, destination=${destination.first}");
-      final routes = await get<Backend>().loadRoutes(
-          source.first!,
-          destination.first!,
-          appointmentIntToDuration(appointmentDurationInt),
-          currentBatteryCharge.round(),
-          wantedBatteryCharge.round(),
-          const Duration(hours: 10000));
+    final destination = await resolveLocationOrError(destinationString, l10n, true);
+    if (destination.first == null) {
+      setState(() {
+        lastError = destination.second;
+        loading = false;
+      });
+      return;
+    }
+
+    print("source=${source.first}, destination=${destination.first}");
+    get<Backend>()
+        .loadRoutes(
+      source.first!,
+      destination.first!,
+      appointmentIntToDuration(appointmentDurationInt),
+      currentBatteryCharge.round(),
+      wantedBatteryCharge.round(),
+      const Duration(hours: 10000),
+      selectedOutletType,
+      maxCurrent,
+      batteryCapacity,
+    )
+        .then((routes) {
       if (mounted) {
         Navigator.pop(context, routes);
       }
-    }
+    }, onError: (e) {
+      setState(() {
+        lastError = e.toString();
+        loading = false;
+      });
+    });
   }
 }

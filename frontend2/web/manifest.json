@@ -1,11 +1,11 @@
 {
-    "name": "Insigno",
-    "short_name": "Insigno",
+    "name": "EVPlanner.rs",
+    "short_name": "EVPlanner.rs",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Insigno app",
+    "description": "EVPlanner.rs app",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

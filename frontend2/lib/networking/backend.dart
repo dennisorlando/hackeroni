@@ -10,6 +10,7 @@ import "package:insigno_frontend/networking/data/image_verification.dart";
 import "package:insigno_frontend/networking/data/marker.dart";
 import "package:insigno_frontend/networking/data/marker_image.dart";
 import "package:insigno_frontend/networking/data/osm_nominatim_entry.dart";
+import "package:insigno_frontend/networking/data/outlet_type.dart";
 import "package:insigno_frontend/networking/data/pill.dart";
 import "package:insigno_frontend/networking/data/review_verdict.dart";
 import "package:insigno_frontend/networking/data/route.dart";
@@ -149,16 +150,22 @@ class Backend {
   }
 
   Future<Map<RouteAlgorithm, RouteData>> loadRoutes(LatLng source, LatLng destination,
-      Duration duration, int chargeLeft, int chargeRequested, Duration maxWalkingTime) async {
+      Duration duration, int chargeLeft, int chargeRequested, Duration maxWalkingTime,
+      OutletType plugType, int maxCurrent, int batteryCapacity) async {
+    print("${source.latitude.toString()} - ${"0.0"}");
     return _postJson("/get_routes", fields: {
       "source_lat": source.latitude.toString(),
       "source_long": source.longitude.toString(),
       "destination_lat": destination.latitude.toString(),
       "destination_long": destination.longitude.toString(),
       "duration": duration.inSeconds.toString(),
-      // "charge_left": chargeLeft.toString(),
-      // "charge_requested": chargeRequested.toString(),
-      // "max_walking_time": maxWalkingTime.inSeconds.toString(),
+      "charge_left": chargeLeft.toString(),
+      "charge_requested": chargeRequested.toString(),
+      "max_walking_time": maxWalkingTime.inSeconds.toString(),
+      "capacity": batteryCapacity.toString(),
+      "max_current": maxCurrent.toString(),
+      if (plugType != OutletType.any) "plug_type": plugType.name,
+      // "plug_type"
     }).map((routes) {
       Map<RouteAlgorithm, RouteData> routemap = {};
       (routes.map<RouteData>(routeDataFromJson).toList() as List<RouteData>).forEachIndexed((i, route) {
