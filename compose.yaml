@@ -33,4 +33,3 @@ services:
   #  image: "redis:alpine"
 volumes:
   db-vol:
-    external: true

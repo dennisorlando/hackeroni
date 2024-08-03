@@ -1,5 +1,7 @@
 pub mod osmr_route;
 
+use std::cmp::min;
+
 use actix_web::{error::ErrorInternalServerError, web::{Data, Form}};
 use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
@@ -155,8 +157,8 @@ impl RoutesBuilder {
         let full_charge_time = capacity / max_power * 60.0;
         let charge_time = 2.0 * walking_duration + self.req.0.duration as f64;
 
-        let cost = capacity * (charge_time / full_charge_time) * 0.82;
-        let final_charge = current_charge + (charge_time / full_charge_time * 100.0);
+        let final_charge = min(current_charge as i32 + (charge_time / full_charge_time * 100.0) as i32, 100.0 as i32) as f64;
+        let cost = capacity * (final_charge - current_charge) / 100.0 * 0.82;
         //println!("{} {} {} {} {} {} {}", max_power, capacity, current_charge, full_charge_time, charge_time, final_charge, walking_duration);
 
         Ok(RouteResult {
