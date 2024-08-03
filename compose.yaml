@@ -1,0 +1,36 @@
+services:
+  server:
+  # -v ./.env:/app/.env -it
+    build: ./backend
+    volumes:
+      - type: bind
+        source: ./.env
+        target: /app/.env
+    ports:
+      - "8080:8080"
+  # sudo docker rm -f local_pg && sudo docker run  --name local_pg -e POSTGRES_PASSWORD=test  -e POSTGRES_DB=hackeroni -p 5432:5432 -d postgres
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=hackeroni
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - db-vol:/var/lib/postgresql/data
+  #docker run -t -i -p 5000:5000 -v "${PWD}:/data" osrm/osrm-backend osrm-routed --algorithm mld /data/berlin-latest.osrm
+  osrm:
+    image: osrm/osrm-backend
+    volumes:
+      - type: bind
+        source: ./osrm
+        target: /data
+    ports:
+      - "5000:5000"
+    command: osrm-routed --algorithm mld /data/italy-latest.osrm
+  #redis:
+  #  image: "redis:alpine"
+volumes:
+  db-vol:
+    external: true

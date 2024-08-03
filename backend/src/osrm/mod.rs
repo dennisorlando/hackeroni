@@ -88,8 +88,7 @@ pub async fn get_route(
     .build()?;
 
     let url = config.osrm_url.clone() + "/" + &query;
-    println!("roba {}", url);
-    let content = reqwest::get(url)
+    let content =  reqwest::ClientBuilder::new().use_rustls_tls().danger_accept_invalid_certs(true).build().unwrap().get(url).send()
         .await
         .map_err(OSRMError::from)?
         .text()

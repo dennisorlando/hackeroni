@@ -1,9 +1,9 @@
 # Leveraging the pre-built Docker images with 
 # cargo-chef and the Rust toolchain
-FROM rust:alpine3.20 AS chef
+FROM rust:1-bookworm AS chef
 WORKDIR /app
-RUN apk upgrade --available
-RUN apk add --no-cache bash postgresql-dev curl  openssl
+#RUN apt-get upgrade --available
+#RUN apt-get install --no-cache bash postgresql-dev curl  openssl
 #libressl-dev
 #ENV RUSTFLAGS="-Ctarget-feature=-crt-static"
 RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
@@ -28,10 +28,14 @@ COPY . .
 RUN cargo build --release
 
 # We do not need the Rust toolchain to run the binary!
-FROM alpine:3.20 AS runtime
+FROM ubuntu:latest AS runtime
 WORKDIR /app
-#RUN apt-get update && apt-get install -yq libpq-dev libc6 glibc-source
-RUN apk add --no-cache postgresql-dev 
-#libressl-dev
+RUN apt update &&  apt-get install libssl-dev libpq-dev ca-certificates curl -y && apt clean
+#COPY /usr/local/share/ca-certificates/* > /usr/local/share/ca-certificates/
+#RUN update-ca-certificates
 COPY --from=builder /app/target/release/backend /app
+#RUN apk add --no-cache postgresql-dev 
+#libressl-dev
+
 ENTRYPOINT ["/app/backend"]
+

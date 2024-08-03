@@ -131,8 +131,7 @@ impl RoutesBuilder {
         let full_url = walking_uri
             + &format!("{},{}", self.req.destination_long, self.req.destination_lat)
             + self.query_uri.as_str();
-        println!("full_url2 {full_url}");
-        let content = reqwest::get(full_url)
+            let content = reqwest::ClientBuilder::new().use_rustls_tls().danger_accept_invalid_certs(true).build().unwrap().get(full_url).send()
             .await
             .map_err(OSRMError::from)?
             .text()
