@@ -5,20 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
-import 'package:insigno_frontend/networking/backend.dart';
-import 'package:insigno_frontend/networking/data/map_marker.dart';
-import 'package:insigno_frontend/networking/data/route.dart';
-import 'package:insigno_frontend/page/map/fast_markers_layer.dart';
-import 'package:insigno_frontend/page/map/map_controls_widget.dart';
-import 'package:insigno_frontend/page/map/route_bottom_sheet.dart';
-import 'package:insigno_frontend/page/map/search_bar.dart';
-import 'package:insigno_frontend/page/map/settings_controls_widget.dart';
-import 'package:insigno_frontend/page/marker/marker_page.dart';
-import 'package:insigno_frontend/page/marker/report_page.dart';
-import 'package:insigno_frontend/page/route_parameters/route_parameters_page.dart';
-import 'package:insigno_frontend/pref/preferences_keys.dart';
-import 'package:insigno_frontend/provider/location_provider.dart';
-import 'package:insigno_frontend/provider/map_marker_provider.dart';
+import 'package:evplanner_frontend/networking/backend.dart';
+import 'package:evplanner_frontend/networking/data/map_marker.dart';
+import 'package:evplanner_frontend/networking/data/route.dart';
+import 'package:evplanner_frontend/page/map/fast_markers_layer.dart';
+import 'package:evplanner_frontend/page/map/map_controls_widget.dart';
+import 'package:evplanner_frontend/page/map/route_bottom_sheet.dart';
+import 'package:evplanner_frontend/page/map/search_bar.dart';
+import 'package:evplanner_frontend/page/map/settings_controls_widget.dart';
+import 'package:evplanner_frontend/page/marker/report_page.dart';
+import 'package:evplanner_frontend/page/route_parameters/route_parameters_page.dart';
+import 'package:evplanner_frontend/pref/preferences_keys.dart';
+import 'package:evplanner_frontend/provider/location_provider.dart';
+import 'package:evplanner_frontend/provider/map_marker_provider.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -246,19 +245,6 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
     );
   }
 
-  void openMarkerPage(MapMarker m, [String? errorAddingImages]) {
-    Navigator.pushNamed(
-      context,
-      MarkerPage.routeName,
-      arguments: MarkerPageArgs(m, errorAddingImages),
-    ).then((value) {
-      if (value is MapMarker) {
-        // the marker may have been resolved, or its data might have changed, so update it
-        setState(() => mapMarkerProvider.addOrReplace(value));
-      }
-    });
-  }
-
   void openRouteParametersPage(LatLng destination, [String? destinationName]) {
     Navigator.pushNamed(
       context,
@@ -270,15 +256,6 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
         setState(() {
           routeData = value;
         });
-      }
-    });
-  }
-
-  void openReportPage() {
-    Navigator.pushNamed(context, ReportPage.routeName).then((value) {
-      if (value is ReportedResult) {
-        setState(() => mapMarkerProvider.addOrReplace(value.newMapMarker));
-        openMarkerPage(value.newMapMarker, value.errorAddingImages);
       }
     });
   }

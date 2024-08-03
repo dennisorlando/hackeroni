@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
-import 'package:insigno_frontend/networking/backend.dart';
-import 'package:insigno_frontend/networking/data/outlet_type.dart';
-import 'package:insigno_frontend/pref/preferences_keys.dart';
-import 'package:insigno_frontend/provider/location_provider.dart';
-import 'package:insigno_frontend/util/error_text.dart';
-import 'package:insigno_frontend/util/nullable.dart';
-import 'package:insigno_frontend/util/position.dart';
-import 'package:insigno_frontend/util/preferences.dart';
-import 'package:insigno_frontend/util/time.dart';
+import 'package:evplanner_frontend/networking/backend.dart';
+import 'package:evplanner_frontend/networking/data/outlet_type.dart';
+import 'package:evplanner_frontend/pref/preferences_keys.dart';
+import 'package:evplanner_frontend/provider/location_provider.dart';
+import 'package:evplanner_frontend/util/error_text.dart';
+import 'package:evplanner_frontend/util/nullable.dart';
+import 'package:evplanner_frontend/util/position.dart';
+import 'package:evplanner_frontend/util/preferences.dart';
+import 'package:evplanner_frontend/util/time.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

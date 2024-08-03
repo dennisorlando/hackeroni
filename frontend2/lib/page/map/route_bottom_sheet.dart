@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
-import 'package:insigno_frontend/util/time.dart';
+import 'package:evplanner_frontend/util/time.dart';
 
 import '../../networking/data/route.dart';
 

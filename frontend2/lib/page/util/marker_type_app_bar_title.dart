@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:insigno_frontend/networking/data/marker_type.dart';
+import 'package:evplanner_frontend/networking/data/marker_type.dart';
 
 class MarkerTypeAppBarTitle extends StatelessWidget {
   final MarkerType markerType;

@@ -2,14 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
-import 'package:insigno_frontend/networking/authentication.dart';
-import 'package:insigno_frontend/networking/backend.dart';
-import 'package:insigno_frontend/page/introduction_page.dart';
-import 'package:insigno_frontend/page/settings/about_card_widget.dart';
-import 'package:insigno_frontend/page/settings/server_host_widget.dart';
-import 'package:insigno_frontend/page/settings/switch_widget.dart';
-import 'package:insigno_frontend/page/util/accept_to_review_dialog.dart';
-import 'package:insigno_frontend/provider/verify_time_provider.dart';
+import 'package:evplanner_frontend/networking/authentication.dart';
+import 'package:evplanner_frontend/networking/backend.dart';
+import 'package:evplanner_frontend/page/introduction_page.dart';
+import 'package:evplanner_frontend/page/settings/about_card_widget.dart';
+import 'package:evplanner_frontend/page/settings/server_host_widget.dart';
+import 'package:evplanner_frontend/page/settings/switch_widget.dart';
+import 'package:evplanner_frontend/page/util/accept_to_review_dialog.dart';
+import 'package:evplanner_frontend/provider/verify_time_provider.dart';
 
 class SettingsPage extends StatefulWidget with GetItStatefulWidgetMixin {
   static const routeName = "/settingsPage";
@@ -49,7 +49,7 @@ class _SettingsPageState extends State<SettingsPage> with GetItStateMixin<Settin
               child: AboutCardWidget(
                 description: l10n.insignoDescription,
                 svgAssetPath: "assets/icons/insigno_logo.svg",
-                urlString: "https://github.com/MindsHub/insigno_frontend.git",
+                urlString: "https://github.com/MindsHub/evplanner_frontend.git",
               ),
             ),
             const SizedBox(height: 8),

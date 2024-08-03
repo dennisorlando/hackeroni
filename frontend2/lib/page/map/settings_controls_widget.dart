@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:insigno_frontend/page/settings/settings_page.dart';
+import 'package:evplanner_frontend/page/settings/settings_page.dart';
 
 class SettingsControlsWidget extends StatelessWidget {
   final VoidCallback onFilterPressed;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
-import 'package:insigno_frontend/networking/backend.dart';
-import 'package:insigno_frontend/networking/data/osm_nominatim_entry.dart';
+import 'package:evplanner_frontend/networking/backend.dart';
+import 'package:evplanner_frontend/networking/data/osm_nominatim_entry.dart';
 
 /// Flutter code sample for [SearchBar].
 
