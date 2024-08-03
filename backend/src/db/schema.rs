@@ -31,8 +31,4 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
-    station_info,
-    station_plugs,
-    users,
-);
+diesel::allow_tables_to_appear_in_same_query!(station_info, station_plugs, users,);

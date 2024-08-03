@@ -34,5 +34,3 @@ pub fn get_user_by_name(conn: &mut PgConnection, username: &str) -> Result<UserM
 
     Ok(user)
 }
-
-

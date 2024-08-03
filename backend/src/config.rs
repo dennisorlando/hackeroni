@@ -26,7 +26,7 @@ pub fn load_config() -> AppConfig {
         pepper: mandatory("PEPPER", |x| x),
         database_url: mandatory("DATABASE_URL", |x| x),
         osrm_url: mandatory("OSRM_URL", |x| x),
-        max_walking_meters: mandatory("MAX_WALKING_METERS", |x| x.parse::<f64>().unwrap() ),
-        odh_hub_url:  mandatory("ODH_HUB_URL", |x| x ),
+        max_walking_meters: mandatory("MAX_WALKING_METERS", |x| x.parse::<f64>().unwrap()),
+        odh_hub_url: mandatory("ODH_HUB_URL", |x| x),
     }
 }

@@ -6,8 +6,8 @@ use log::info;
 use thiserror::Error;
 
 pub mod schema;
-pub mod user;
 pub mod stations;
+pub mod user;
 
 pub type DbPool = r2d2::Pool<r2d2::ConnectionManager<PgConnection>>;
 pub type DbConnection = r2d2::PooledConnection<r2d2::ConnectionManager<PgConnection>>;
@@ -17,7 +17,7 @@ pub enum DBError {
     #[error("Cannot apply all migrations: {0}")]
     MigrationError(#[from] Box<dyn Error + Send + Sync + 'static>),
     #[error("While interacting with db: {0}")]
-    DieselError(#[from] diesel::result::Error)    ,
+    DieselError(#[from] diesel::result::Error),
 }
 
 pub fn initialize_db_pool(url: String) -> DbPool {

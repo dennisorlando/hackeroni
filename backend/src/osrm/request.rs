@@ -14,21 +14,21 @@ pub enum Service {
     },
 
     /// Computes the duration of the fastest route between all pairs of supplied coordinates.
-    /// Returns the durations or distances or both between the coordinate pairs. 
+    /// Returns the durations or distances or both between the coordinate pairs.
     /// Note that the distances are not the shortest distance between two coordinates, but rather the distances of the fastest routes.
-    /// Duration is in seconds and distances is in meters. 
+    /// Duration is in seconds and distances is in meters.
     Table {
-        sources: Option<Vec<u32>>, 
+        sources: Option<Vec<u32>>,
         destinations: Option<Vec<u32>>,
         fallback_speed: Option<f64>,
-    }
+    },
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum Profile {
     Car,
     Bike,
-    Foot
+    Foot,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -40,7 +40,11 @@ pub struct Preferences {
 }
 
 impl Preferences {
-    pub fn new(charge_left: Option<u32>, charge_requested: Option<u32>, max_walking_distance: Option<u32>) -> Self {
+    pub fn new(
+        charge_left: Option<u32>,
+        charge_requested: Option<u32>,
+        max_walking_distance: Option<u32>,
+    ) -> Self {
         Preferences {
             charge_left,
             charge_requested,
@@ -62,7 +66,12 @@ pub struct PathRequest {
 }
 
 impl PathRequest {
-    pub fn new(source: (f64, f64), destination: (f64, f64), duration: u32, preferences: Preferences) -> Self {
+    pub fn new(
+        source: (f64, f64),
+        destination: (f64, f64),
+        duration: u32,
+        preferences: Preferences,
+    ) -> Self {
         PathRequest {
             source_lat: source.0,
             source_long: source.1,
@@ -90,7 +99,7 @@ impl OSRMRequest {
         }
     }
 
-    pub fn build(&self) -> Result<String, Box<dyn Error>> {    
+    pub fn build(&self) -> Result<String, Box<dyn Error>> {
         if self.stations.is_empty() {
             return Err("No stations provided".into());
         }
@@ -122,7 +131,7 @@ pub struct OSRMResponse {
     pub sources: Vec<serde_json::Value>,
     pub durations: Vec<Vec<f64>>,
     pub destinations: Vec<serde_json::Value>,
-    pub code: ResponseStatus,  
+    pub code: ResponseStatus,
     pub distances: Vec<Vec<f64>>,
 }
 
@@ -229,4 +238,3 @@ fn osrm_response() {
         println!("{:?}", s);
     }
 }
-
