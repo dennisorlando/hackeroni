@@ -6,18 +6,18 @@ import '../../networking/data/route.dart';
 
 class RouteBottomSheet extends StatefulWidget with GetItStatefulWidgetMixin {
   final Map<RouteAlgorithm, RouteData>? data;
-
   final Function() close;
+  final RouteAlgorithm selectedRouteAlgorithm;
+  final Function(RouteAlgorithm p1) setSelectedRouteAlgorithm;
 
-  RouteBottomSheet(this.data, this.close, {super.key});
+  RouteBottomSheet(this.data, this.close,
+      this.selectedRouteAlgorithm, this.setSelectedRouteAlgorithm, {super.key});
 
   @override
   State<StatefulWidget> createState() => RouteBottomSheetState();
 }
 
 class RouteBottomSheetState extends State<RouteBottomSheet> with GetItStateMixin<RouteBottomSheet> {
-  RouteAlgorithm selectedAlgorithm = RouteAlgorithm.balanced;
-
   @override
   Widget build(BuildContext context) {
     final Map<RouteAlgorithm, RouteData>? data = widget.data;
@@ -25,6 +25,7 @@ class RouteBottomSheetState extends State<RouteBottomSheet> with GetItStateMixin
       return const SizedBox.shrink();
     }
     final l10n = AppLocalizations.of(context)!;
+    final selectedData = data[widget.selectedRouteAlgorithm];
 
     return Card(
       elevation: 1,
@@ -43,9 +44,9 @@ class RouteBottomSheetState extends State<RouteBottomSheet> with GetItStateMixin
                       mainAxisSize: MainAxisSize.min,
                       children: data.keys
                           .map(
-                            (key) => (key != selectedAlgorithm)
+                            (key) => (key != widget.selectedRouteAlgorithm)
                                 ? IconButton(
-                                    onPressed: () => setState(() => selectedAlgorithm = key),
+                                    onPressed: () => widget.setSelectedRouteAlgorithm(key),
                                     icon: Icon(key.icon),
                                   )
                                 : ElevatedButton.icon(
@@ -73,10 +74,10 @@ class RouteBottomSheetState extends State<RouteBottomSheet> with GetItStateMixin
             Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  " • Final Charge: ${data[selectedAlgorithm]?.finalCharge}%\n"
-                  " • Walking Distance: ${_prettyDuration(data[selectedAlgorithm]?.walkingDistance ?? Duration.zero)}\n"
-                  " • Driving Distance: ${_prettyDuration(data[selectedAlgorithm]?.drivingDistance ?? Duration.zero)}\n"
-                  " • Cost: ${data[selectedAlgorithm]?.cost}€",
+                  " • Final Charge: ${selectedData?.finalCharge}%\n"
+                  " • Walking Distance: ${_prettyDuration(selectedData?.walkingDistance ?? Duration.zero)}\n"
+                  " • Driving Distance: ${_prettyDuration(selectedData?.drivingDistance ?? Duration.zero)}\n"
+                  " • Cost: ${selectedData?.cost}€",
                   textAlign: TextAlign.left,
                   style: const TextStyle(
                     fontSize: 20,

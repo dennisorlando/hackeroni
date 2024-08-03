@@ -39,6 +39,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
   late LatLng initialCoordinates;
   late double initialZoom;
   Map<RouteAlgorithm, RouteData>? routeData;
+  RouteAlgorithm selectedRouteAlgorithm = RouteAlgorithm.balanced;
 
   @override
   void initState() {
@@ -194,7 +195,8 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: RouteBottomSheet(routeData, () => setState(() => routeData = null)),
+            child: RouteBottomSheet(routeData, () => setState(() => routeData = null),
+                selectedRouteAlgorithm, (value) => setState(() => selectedRouteAlgorithm = value)),
           ),
         ],
       ),

@@ -4,9 +4,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum RouteAlgorithm {
   balanced(Icons.balance),
-  lessWalking(Icons.directions_walk),
-  moreCharging(Icons.power),
-  lessDriving(Icons.directions_car),
+  leastWalking(Icons.directions_walk),
+  leastDriving(Icons.directions_car),
+  leastCost(Icons.euro),
   ;
 
   const RouteAlgorithm(this.icon);
@@ -15,9 +15,9 @@ enum RouteAlgorithm {
 
   String label(AppLocalizations l10n) {
     switch (this) {
-      case RouteAlgorithm.lessWalking: return l10n.lessWalking;
-      case RouteAlgorithm.moreCharging: return l10n.moreCharging;
-      case RouteAlgorithm.lessDriving: return l10n.lessDriving;
+      case RouteAlgorithm.leastWalking: return l10n.leastWalking;
+      case RouteAlgorithm.leastDriving: return l10n.leastDriving;
+      case RouteAlgorithm.leastCost: return l10n.leastCost;
       case RouteAlgorithm.balanced: return l10n.balanced;
     }
   }
