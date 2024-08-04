@@ -8,9 +8,10 @@ use serde_json::Value;
 use thiserror::Error;
 
 use crate::db::{
-    stations::{get_all_stations, StationInfo},
+    stations::StationInfo,
     DBError, DbConnection,
 };
+use crate::db::stations::read_all_stations;
 
 pub struct ODHBuilder {
     url: String,
@@ -162,7 +163,7 @@ pub fn get_near_stations(
     p: (f64, f64),
     dist: f64,
 ) -> Result<Vec<StationInfo>, ODHError> {
-    let result: Vec<StationInfo> = get_all_stations(conn)?;
+    let result: Vec<StationInfo> = read_all_stations(conn)?;
     let res = result
         .into_iter()
         .filter_map(|x| {

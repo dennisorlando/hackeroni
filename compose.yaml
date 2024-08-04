@@ -21,7 +21,8 @@ services:
       - db-vol:/var/lib/postgresql/data
   #docker run -t -i -p 5000:5000 -v "${PWD}:/data" osrm/osrm-backend osrm-routed --algorithm mld /data/berlin-latest.osrm
   osrm:
-    image: osrm/osrm-backend
+    build: ./osrm
+    #image: osrm/osrm-backend
     volumes:
       - type: bind
         source: ./osrm
@@ -29,8 +30,22 @@ services:
     ports:
       - "5000:5000"
     command: osrm-routed --algorithm mld /data/italy-latest.osrm
-  #redis:
-  #  image: "redis:alpine"
+  # nominatim docker run -it \
+  #-e PBF_PATH=https://download.geofabrik.de/europe/monaco-latest.osm.pbf \
+  #-e REPLICATION_URL=https://download.geofabrik.de/europe/monaco-updates/ \
+  #-p 8080:8080 \
+  #--name nominatim \
+  #mediagis/nominatim:4.4
+  nominatim:
+    image: mediagis/nominatim:4.4
+    ports:
+      - "8000:8080"
+    #volumes:
+    #- type: bind
+    #  source: ./osrm
+    #  target: /data
+    environment:
+      - PBF_URL=https://download.geofabrik.de/europe/italy-latest.osm.pbf
 volumes:
   db-vol:
     external: true

@@ -357,6 +357,7 @@ dependencies = [
  "futures",
  "geo",
  "log",
+ "pq-sys",
  "r2d2",
  "reqwest",
  "serde",
@@ -1339,6 +1340,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
 
 [[package]]
+name = "openssl-sys"
+version = "0.9.103"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f9e8deee91df40a943c71b917e5874b951d32a802526c85721ce3b776c929d6"
+dependencies = [
+ "cc",
+ "libc",
+ "pkg-config",
+ "vcpkg",
+]
+
+[[package]]
 name = "parking_lot"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1431,11 +1444,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "pq-src"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c075bc9a5659bdda3d22261b53cd398e749daff239254071186a78a2bf7d62e9"
+dependencies = [
+ "cc",
+ "openssl-sys",
+]
+
+[[package]]
 name = "pq-sys"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a24ff9e4cf6945c988f0db7005d87747bf72864965c3529d259ad155ac41d584"
 dependencies = [
+ "pq-src",
  "vcpkg",
 ]
 

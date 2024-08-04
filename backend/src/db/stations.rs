@@ -65,7 +65,7 @@ pub fn get_all_plugs(conn: &mut PgConnection) -> Result<Vec<PlugsInfo>, DBError>
     use crate::db::schema::station_plugs::dsl::*;
     Ok(station_plugs.get_results(conn)?)
 }
-pub fn get_all_stations(conn: &mut PgConnection) -> Result<Vec<StationInfo>, DBError> {
+pub fn read_all_stations(conn: &mut PgConnection) -> Result<Vec<StationInfo>, DBError> {
     use crate::db::schema::station_info::dsl::*;
     Ok(station_info.get_results(conn)?)
 }

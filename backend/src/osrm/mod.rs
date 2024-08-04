@@ -1,7 +1,7 @@
 use crate::{
     config::AppConfig,
     db::{
-        stations::{get_all_stations, StationInfo},
+        stations::{read_all_stations, StationInfo},
         DbPool,
     },
     odh::{get_near_stations, ODHError},
@@ -39,10 +39,10 @@ impl From<OSRMError> for actix_web::Error {
 }
 
 #[get("/get_all_stations")]
-pub async fn fuck_all_stations(pool: Data<DbPool>) -> actix_web::Result<impl Responder> {
+pub async fn get_all_stations(pool: Data<DbPool>) -> actix_web::Result<impl Responder> {
     let stations = web::block(move || {
         let mut conn = pool.get().unwrap();
-        get_all_stations(&mut conn)
+        read_all_stations(&mut conn)
     })
     .await?
     .unwrap();
@@ -114,5 +114,5 @@ pub async fn get_route(
 
 pub fn init_osrm(cfg: &mut web::ServiceConfig) {
     cfg.service(get_route);
-    cfg.service(fuck_all_stations);
+    cfg.service(get_all_stations);
 }
