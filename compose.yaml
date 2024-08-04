@@ -48,4 +48,3 @@ services:
       - PBF_URL=https://download.geofabrik.de/europe/italy-latest.osm.pbf
 volumes:
   db-vol:
-    external: true

@@ -163,7 +163,7 @@ class Backend {
       "max_walking_time": maxWalkingTime.inSeconds.toString(),
       "capacity": batteryCapacity.toString(),
       "max_current": maxCurrent.toString(),
-      if (plugType != OutletType.any) "plug_type": plugType.name,
+      if (plugType != OutletType.any) "plug": plugType.rustId,
     }).map((routes) {
       print("ROUTS $routes");
       Map<RouteAlgorithm, RouteData> routemap = {};

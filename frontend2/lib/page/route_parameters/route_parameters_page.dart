@@ -44,7 +44,7 @@ class _RouteParametersPageState extends State<RouteParametersPage>
   String? destinationString;
   double currentBatteryCharge = 50;
   double wantedBatteryCharge = 100;
-  int appointmentDurationInt = 0; // from 0 to 11
+  int appointmentDurationInt = 7; // from 0 to 11
   OutletType selectedOutletType = OutletType.any;
   int maxCurrent = 0;
   int batteryCapacity = 0;

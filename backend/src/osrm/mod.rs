@@ -63,6 +63,8 @@ pub async fn get_route(
     config: Data<AppConfig>,
     pool: Data<DbPool>,
 ) -> actix_web::Result<impl Responder> {
+    println!("{req:?}");
+
     let destination = (req.destination_long, req.destination_lat);
     let config2 = config.clone();
     let pool_clone = pool.clone();

@@ -1,5 +1,7 @@
 pub mod osmr_route;
 
+use std::cmp::min;
+
 use actix_web::{error::ErrorInternalServerError, web::{Data, Form}};
 use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
@@ -58,7 +60,7 @@ impl RoutesBuilder {
         let max_walking_time = self.req.max_walking_time.unwrap_or(600.0);
         let results = results
             .iter()
-            .filter(|x| x.walking_duration < max_walking_time)
+            .filter(|x| x.walking_duration <= max_walking_time)
             .collect::<Vec<&RouteResult>>();
 
         let mut scores: Vec<(f64, f64, &RouteResult)> = vec![];
@@ -73,10 +75,10 @@ impl RoutesBuilder {
         let mut routes = Routes::default();
         routes.least_walking_time = scores
             .iter()
-            .min_by(|x, y| x.0.partial_cmp(&y.0).unwrap())
+            .max_by(|x, y| x.0.partial_cmp(&y.0).unwrap())
             .map(|x| x.2.clone());
 
-        routes.least_driving_time = scores.iter().min_by(|x, y| x.1.partial_cmp(&y.1).unwrap()).map(|x| x.2.clone());
+        routes.least_driving_time = scores.iter().min_by(|x, y| x.2.driving_duration.partial_cmp(&y.2.driving_duration).unwrap()).map(|x| x.2.clone());
 
         routes.balanced = scores
             .iter()
@@ -149,18 +151,21 @@ impl RoutesBuilder {
         let walking_duration = osrm_foot_route_result.routes.as_ref().unwrap()[0].duration;
 
 
-        let max_power = plugs.iter().filter_map(|x| x.max_power).reduce(f64::max).unwrap_or(0.0);
+        let max_power = plugs.iter().filter_map(|x| x.max_power).reduce(f64::max).unwrap_or(22.0);
         let capacity = self.req.0.capacity;
         let current_charge = self.req.0.charge_left.unwrap_or(0.0);
         let full_charge_time = capacity / max_power * 60.0;
         let charge_time = 2.0 * walking_duration + self.req.0.duration as f64;
 
-        let final_charge = current_charge + (charge_time / full_charge_time * 100.0);
+        let final_charge = min(current_charge as i32 + (charge_time / full_charge_time * 100.0) as i32, 100.0 as i32) as f64;
+        let cost = capacity * (final_charge - current_charge) / 100.0 * 0.82;
+        //println!("{} {} {} {} {} {} {}", max_power, capacity, current_charge, full_charge_time, charge_time, final_charge, walking_duration);
 
         Ok(RouteResult {
             walking_duration,
             driving_duration,
             final_charge,
+            cost,
             walking_nodes,
             driving_nodes,
         })
