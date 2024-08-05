@@ -1,3 +1,4 @@
+import 'package:evplanner_frontend/page/complete_task/complete_task_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:evplanner_frontend/networking/data/map_marker.dart';
@@ -62,7 +63,8 @@ class _InsignoAppState extends State<InsignoApp> {
           SettingsPage.routeName: (ctx) => SettingsPage(),
           IntroductionPage.routeName: (ctx) =>
               IntroductionPage(onDone: (context) => Navigator.pop(context)),
-          RouteParametersPage.routeName: (ctx) => RouteParametersPage(settings.arguments as RouteParametersPageArgs)
+          RouteParametersPage.routeName: (ctx) => RouteParametersPage(settings.arguments as RouteParametersPageArgs),
+          CompleteTaskPage.routeName: (ctx) => CompleteTaskPage(settings.arguments as CompleteTaskPageArgs),
         };
         WidgetBuilder builder = routes[settings.name]!;
         return MaterialPageRoute(builder: (ctx) => builder(ctx));

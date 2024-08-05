@@ -48,6 +48,7 @@ dependencies:
   flutter_svg_provider: ^1.0.7
   material_symbols_icons: ^4.2713.0
   dots_indicator: ^3.0.0
+  googleapis: ^13.2.0
 
   # core functionality
   geolocator: ^10.1.0 # used to load location

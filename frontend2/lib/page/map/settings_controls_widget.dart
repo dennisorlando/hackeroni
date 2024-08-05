@@ -14,7 +14,7 @@ class SettingsControlsWidget extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(
         left: 8 + MediaQuery.of(context).padding.left,
-        top: 64 + MediaQuery.of(context).padding.top,
+        top: 8 + MediaQuery.of(context).padding.top,
       ),
       child: Column(
         children: [
@@ -27,17 +27,6 @@ class SettingsControlsWidget extends StatelessWidget {
               tooltip: l10n.settings,
               mini: true,
               child: const Icon(Icons.settings),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: FloatingActionButton(
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              heroTag: "filter",
-              onPressed: onFilterPressed,
-              tooltip: l10n.filterMarkers,
-              mini: true,
-              child: const Icon(Icons.filter_alt),
             ),
           ),
         ],

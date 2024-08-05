@@ -1,25 +1,25 @@
 import 'dart:math';
 
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get_it_mixin/get_it_mixin.dart';
-import 'package:evplanner_frontend/networking/backend.dart';
-import 'package:evplanner_frontend/networking/data/map_marker.dart';
 import 'package:evplanner_frontend/networking/data/route.dart';
+import 'package:evplanner_frontend/page/complete_task/complete_task_page.dart';
+import 'package:evplanner_frontend/page/map/animated_message_box.dart';
 import 'package:evplanner_frontend/page/map/fast_markers_layer.dart';
 import 'package:evplanner_frontend/page/map/map_controls_widget.dart';
 import 'package:evplanner_frontend/page/map/route_bottom_sheet.dart';
-import 'package:evplanner_frontend/page/map/search_bar.dart';
 import 'package:evplanner_frontend/page/map/settings_controls_widget.dart';
-import 'package:evplanner_frontend/page/marker/report_page.dart';
 import 'package:evplanner_frontend/page/route_parameters/route_parameters_page.dart';
 import 'package:evplanner_frontend/pref/preferences_keys.dart';
 import 'package:evplanner_frontend/provider/location_provider.dart';
 import 'package:evplanner_frontend/provider/map_marker_provider.dart';
+import 'package:evplanner_frontend/util/preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get_it_mixin/get_it_mixin.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../networking/backend.dart';
 
 class MapPage extends StatefulWidget with GetItStatefulWidgetMixin {
   MapPage({super.key});
@@ -31,7 +31,8 @@ class MapPage extends StatefulWidget with GetItStatefulWidgetMixin {
 const LatLng defaultInitialCoordinates = LatLng(46.47855, 11.33203);
 const double defaultInitialZoom = 16.0;
 
-class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, WidgetsBindingObserver {
+class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, WidgetsBindingObserver,
+    SingleTickerProviderStateMixin<MapPage> {
   late final SharedPreferences prefs;
   late final MapMarkerProvider mapMarkerProvider;
   final MapController mapController = MapController();
@@ -41,6 +42,16 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
   Map<RouteAlgorithm, RouteData>? routeData;
   RouteAlgorithm selectedRouteAlgorithm = RouteAlgorithm.balanced;
   final Distance _distance = const Distance();
+  late final AnimationController pillAnim;
+
+  List<LatLng> targets = const [
+    LatLng(46.67724, 11.18660),
+    LatLng(46.67724, 11.18560),
+    LatLng(46.67724, 11.18460),
+    LatLng(46.67724, 11.18360),
+    LatLng(46.67724, 11.18260),
+  ];
+  int i = 0;
 
   @override
   void initState() {
@@ -48,7 +59,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
     WidgetsBinding.instance.addObserver(this); // needed to keep track of app lifecycle
 
     mapMarkerProvider = MapMarkerProvider(get<Backend>(), () => setState(() {}));
-    mapMarkerProvider.connectToMapEventStream(mapController.mapEventStream);
+    //mapMarkerProvider.connectToMapEventStream(mapController.mapEventStream);
 
     prefs = get<SharedPreferences>();
     initialCoordinates = LatLng(
@@ -56,8 +67,14 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
       prefs.getDouble(lastMapLongitude) ?? defaultInitialCoordinates.longitude,
     );
     initialZoom = prefs.getDouble(lastMapZoom) ?? defaultInitialZoom;
+    i = prefs.tryGetInt("target") ?? 0;
+    if (i >= targets.length - 1) {
+      i = 0;
+    }
 
-    mapMarkerProvider.loadMarkers(initialCoordinates);
+    pillAnim = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    pillAnim.forward();
+    //mapMarkerProvider.loadMarkers(initialCoordinates);
   }
 
   @override
@@ -112,6 +129,8 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
       }
     }*/
 
+    print("distance: ${_distance(position?.toLatLng() ?? initialCoordinates, targets[i])}");
+    final theme = Theme.of(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -169,71 +188,77 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                   openRouteParametersPage(tapLatLng);
                 }),
             children: [
-                  TileLayer(
-                    urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  ),
-                  MarkerLayer(
-                      markers: [position?.toLatLng()]
-                          .whereType<LatLng>()
-                          .map((pos) => Marker(
-                                rotate: true,
-                                point: pos,
-                                child: SvgPicture.asset("assets/icons/current_location.svg"),
-                              ))
-                          .toList()),
-                  FastMarkersLayer(mapMarkerProvider.getVisibleMarkers()),
-                  if (routeData != null)
-                    PolylineLayer(
-                      polylines: (routeData ?? {})
-                          .entries
-                          .sorted((e1, e2) => (e1.key == selectedRouteAlgorithm ? 1 : 0)
-                              .compareTo(e2.key == selectedRouteAlgorithm ? 1 : 0))
-                          .expand((e) => [
-                                Polyline(
-                                  points: e.value.drivingPath,
-                                  strokeWidth: (e.key == selectedRouteAlgorithm ? 6.0 : 4.0),
-                                  color: (e.key == selectedRouteAlgorithm
-                                      ? Colors.blue
-                                      : Colors.grey[700]!),
-                                  borderStrokeWidth: 1.0,
-                                  borderColor: Colors.white,
-                                ),
-                                Polyline(
-                                  points: e.value.walkingPath,
-                                  isDotted: true,
-                                  strokeWidth: (e.key == selectedRouteAlgorithm ? 6.0 : 4.0),
-                                  color: (e.key == selectedRouteAlgorithm
-                                      ? Colors.blue
-                                      : Colors.grey[700]!),
-                                  borderStrokeWidth: 1.0,
-                                  borderColor: Colors.white,
-                                ),
-                              ])
-                          .toList(),
-                    ),
-                  const Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Text(
-                      " © OpenStreetMap contributors",
-                      style: TextStyle(
-                          color: Color.fromARGB(255, 127, 127, 127)), // theme-independent grey
+              TileLayer(
+                urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+              ),
+              MarkerLayer(
+                markers: [position?.toLatLng()]
+                        .whereType<LatLng>()
+                        .map<Marker>(
+                          (pos) => Marker(
+                            rotate: true,
+                            point: pos,
+                            child: SvgPicture.asset("assets/icons/current_location.svg"),
+                          ),
+                        )
+                        .toList() +
+                    <Marker>[
+                      Marker(
+                        rotate: true,
+                        point: targets[i],
+                        child: const Icon(Icons.place_outlined, color: Colors.white, size: 40),
+                      ),
+                      Marker(
+                        rotate: true,
+                        point: targets[i],
+                        child: const Icon(Icons.place, color: Colors.red, size: 40),
+                      ),
+                    ],
+              ),
+              if (i < targets.length - 1 &&
+                  position != null) // && _distance(position.toLatLng()!, targetPos) < 50)
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        openCompleteTaskPage();
+                      },
+                      child: const Icon(Icons.photo_camera),
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: MapControlsWidget(mapController),
-                  ),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: SettingsControlsWidget(() => mapMarkerProvider.openMarkerFiltersDialog(
-                        context, mapController.camera.center)),
-                  ),
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: SearchBarApp(
-                        (item) => openRouteParametersPage(item.toLatLng(), item.displayName)),
-                  ),
-                ],
+                ),
+              if (i >= targets.length - 1)
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: AnimatedMessageBox(
+                        animation: pillAnim,
+                        message: 'Hai finito il gioco!',
+                        containerColor: theme.colorScheme.secondaryContainer,
+                        onContainerColor: theme.colorScheme.onSecondaryContainer,
+                      )),
+                ),
+              const Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  " © OpenStreetMap contributors",
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 127, 127, 127)), // theme-independent grey
+                ),
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: MapControlsWidget(mapController),
+              ),
+              Align(
+                alignment: Alignment.topLeft,
+                child: SettingsControlsWidget(() => mapMarkerProvider.openMarkerFiltersDialog(
+                    context, mapController.camera.center)),
+              ),
+            ],
           ),
           Align(
             alignment: Alignment.bottomCenter,
@@ -246,9 +271,11 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
   }
 
   void openRouteParametersPage(LatLng destination, [String? destinationName]) {
-    showModalBottomSheet(context: context, builder: (BuildContext context) {
-      return RouteParametersPage(RouteParametersPageArgs(destination, destinationName));
-    }).then((value) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return RouteParametersPage(RouteParametersPageArgs(destination, destinationName));
+        }).then((value) {
       print("YEEEE $value");
       if (value is Map<RouteAlgorithm, RouteData>) {
         setState(() {
@@ -257,4 +284,22 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
       }
     });
   }
+
+  void openCompleteTaskPage() {
+    Navigator.pushNamed(
+      context,
+      CompleteTaskPage.routeName,
+      arguments: CompleteTaskPageArgs(targets[i]),
+    ).then((event) {
+      setState(() {
+        print("Event $event");
+        if (event is bool && event == true) {
+          i += 1;
+          prefs.setInt("target", i);
+        }
+      });
+    });
+  }
+
+  void gotoNextTarget() {}
 }

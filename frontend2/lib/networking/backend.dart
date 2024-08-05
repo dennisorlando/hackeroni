@@ -81,16 +81,16 @@ class Backend {
 
   Future<http.StreamedResponse> _postAuthenticated(String path,
       {Map<String, String>? fields, List<http.MultipartFile>? files}) async {
-    final String? cookie = _auth.maybeCookie();
-    if (cookie == null) {
-      throw UnauthorizedException(401, "Cookie is null");
-    }
+    // final String? cookie = _auth.maybeCookie();
+    // if (cookie == null) {
+    //   throw UnauthorizedException(401, "Cookie is null");
+    // }
 
     final request = http.MultipartRequest(
       "POST",
       _serverHostHandler.getUri(path),
     );
-    request.headers["Cookie"] = cookie;
+    // request.headers["Cookie"] = cookie;
 
     if (fields != null) {
       request.fields.addAll(fields);
@@ -205,6 +205,16 @@ class Backend {
     await _postAuthenticated("/map/image/add", fields: {
       "refers_to_id": markerId.toString(),
     }, files: [
+      http.MultipartFile.fromBytes(
+        "image",
+        image,
+        contentType: mimeType?.map(MediaType.parse) ?? MediaType("image", ""),
+      ),
+    ]);
+  }
+
+  Future<void> addMarkerImage2(Uint8List image, String? mimeType) async {
+    await _postAuthenticated("/map/image/add", fields: {}, files: [
       http.MultipartFile.fromBytes(
         "image",
         image,

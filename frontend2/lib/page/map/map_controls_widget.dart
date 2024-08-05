@@ -41,7 +41,7 @@ class _MapControlsWidgetState extends State<MapControlsWidget>
 
     return Padding(
       // the right padding is handled by children to allow the AnimatedBuilder shadow to expand
-      padding: EdgeInsets.only(top: 64 + mediaQuery.padding.top),
+      padding: EdgeInsets.only(top: 8 + mediaQuery.padding.top),
       child: Column(
         children: [
           AnimatedBuilder(
