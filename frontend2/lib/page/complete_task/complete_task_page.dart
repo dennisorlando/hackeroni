@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:evplanner_frontend/networking/backend.dart';
 import 'package:evplanner_frontend/networking/data/marker_type.dart';
+import 'package:evplanner_frontend/page/map/target.dart';
 import 'package:evplanner_frontend/page/marker/add_images_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -13,18 +14,12 @@ import '../../util/pair.dart';
 class CompleteTaskPage extends StatefulWidget with GetItStatefulWidgetMixin {
   static const routeName = '/completeTaskPage';
 
-  final CompleteTaskPageArgs args;
+  final Target target;
 
-  CompleteTaskPage(this.args, {super.key});
+  CompleteTaskPage(this.target, {super.key});
 
   @override
   State<CompleteTaskPage> createState() => _CompleteTaskPageState();
-}
-
-class CompleteTaskPageArgs {
-  final LatLng target;
-
-  CompleteTaskPageArgs(this.target);
 }
 
 class _CompleteTaskPageState extends State<CompleteTaskPage>
@@ -61,7 +56,7 @@ class _CompleteTaskPageState extends State<CompleteTaskPage>
               const SizedBox(height: 16),
               TextButton(
                 onPressed: (images.isEmpty ? null : sendData),
-                child: const Text("Carica su Drive"),
+                child: const Text("Carica"),
               )
             ],
           ),
@@ -70,10 +65,12 @@ class _CompleteTaskPageState extends State<CompleteTaskPage>
     );
   }
 
-  void sendData() {
+  void sendData() async {
     for (final image in images) {
-      get<Backend>().addMarkerImage2(image.first, image.second);
+      await get<Backend>().addMarkerImage2(image.first, image.second, widget.target);
     }
-    Navigator.pop(context, true);
+    if (mounted) {
+      Navigator.pop(context, true);
+    }
   }
 }

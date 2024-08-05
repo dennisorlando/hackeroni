@@ -6,7 +6,7 @@ import 'package:evplanner_frontend/page/map/animated_message_box.dart';
 import 'package:evplanner_frontend/page/map/fast_markers_layer.dart';
 import 'package:evplanner_frontend/page/map/map_controls_widget.dart';
 import 'package:evplanner_frontend/page/map/route_bottom_sheet.dart';
-import 'package:evplanner_frontend/page/map/settings_controls_widget.dart';
+import 'package:evplanner_frontend/page/map/target.dart';
 import 'package:evplanner_frontend/page/route_parameters/route_parameters_page.dart';
 import 'package:evplanner_frontend/pref/preferences_keys.dart';
 import 'package:evplanner_frontend/provider/location_provider.dart';
@@ -44,13 +44,15 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
   final Distance _distance = const Distance();
   late final AnimationController pillAnim;
 
-  List<LatLng> targets = const [
-    LatLng(46.67724, 11.18660),
-    LatLng(46.67724, 11.18560),
-    LatLng(46.67724, 11.18460),
-    LatLng(46.67724, 11.18360),
-    LatLng(46.67724, 11.18260),
-  ];
+  List<Target> targets = [
+    Target(46.497926,11.3520789,"Quanto spendo se compro un “Super Pancake 4 strati”, uno “yogurt medio” e un “tè alla pesca”?"),
+    Target(46.498533,11.3505176,"Mandare una foto di una persona insieme alla squadra che indossa un indumento dello stesso colore della squadra (SOLO: scarpe, pantaloni, maglietta/giacca/camicia… e cappelli. Quindi NO: occhiali, braccialetti, orecchini…)."),
+    Target(46.4969738,11.3575586,"Quante statue di rane ci sono sulla fontana?"),
+    Target(46.5008364,11.3456767,"Scattare la foto a 4 tipi di uccelli differenti."),
+    Target(46.5005661,11.3444129,"Inserire nome e data incise sulla statua del vecchietto sulla panchina."),
+    Target(46.4996905,11.352489,"Scattare una foto della squadra davanti alla fontana con almeno tre componenti con i capelli completamente bagnati."),
+    Target(46.4982305,11.3546793,"Fare una videointervista ad uno sconosciuto dove gli si chiede: nome, cognome, età (solo se è un uomo), videogioco preferito e se preferisce console o pc (se risponde console allora gli si chiede quale). Inviare la foto tutti insieme."),
+  ].toList(growable: true);
   int i = 0;
 
   @override
@@ -61,7 +63,22 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
     mapMarkerProvider = MapMarkerProvider(get<Backend>(), () => setState(() {}));
     //mapMarkerProvider.connectToMapEventStream(mapController.mapEventStream);
 
+    print("random seed ${Random().nextInt(1<<16)}");
     prefs = get<SharedPreferences>();
+    if (prefs.tryGetInt("seed") == null) {
+      prefs.setInt("seed", Random().nextInt(1<<16));
+    }
+    final seed = prefs.tryGetInt("seed")!;
+    print("used seed: $seed");
+    final rng = Random(seed);
+    rng.nextInt(2);
+    targets.shuffle(rng);
+    targets.add(Target(46.4970306,11.3517777,"Hai finito il gioco!"));
+    for (final target in targets) {
+      target.seed = seed;
+    }
+    print("used seed: $targets");
+
     initialCoordinates = LatLng(
       prefs.getDouble(lastMapLatitude) ?? defaultInitialCoordinates.latitude,
       prefs.getDouble(lastMapLongitude) ?? defaultInitialCoordinates.longitude,
@@ -129,7 +146,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
       }
     }*/
 
-    print("distance: ${_distance(position?.toLatLng() ?? initialCoordinates, targets[i])}");
+    print("distance: ${_distance(position?.toLatLng() ?? initialCoordinates, targets[i].toLatLng())}");
     final theme = Theme.of(context);
     return Scaffold(
       body: Stack(
@@ -205,18 +222,18 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                     <Marker>[
                       Marker(
                         rotate: true,
-                        point: targets[i],
+                        point: targets[i].toLatLng(),
                         child: const Icon(Icons.place_outlined, color: Colors.white, size: 40),
                       ),
                       Marker(
                         rotate: true,
-                        point: targets[i],
+                        point: targets[i].toLatLng(),
                         child: const Icon(Icons.place, color: Colors.red, size: 40),
                       ),
                     ],
               ),
               if (i < targets.length - 1 &&
-                  position != null) // && _distance(position.toLatLng()!, targetPos) < 50)
+                  position != null) //&& _distance(position.toLatLng()!, targets[i].toLatLng()) < 50)
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
@@ -229,16 +246,16 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                     ),
                   ),
                 ),
-              if (i >= targets.length - 1)
                 Align(
-                  alignment: Alignment.bottomCenter,
+                  alignment: Alignment.topCenter,
                   child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: AnimatedMessageBox(
                         animation: pillAnim,
-                        message: 'Hai finito il gioco!',
+                        message: targets[i].task,
                         containerColor: theme.colorScheme.secondaryContainer,
                         onContainerColor: theme.colorScheme.onSecondaryContainer,
+                        maxLines: 100,
                       )),
                 ),
               const Align(
@@ -250,13 +267,8 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                 ),
               ),
               Align(
-                alignment: Alignment.topRight,
+                alignment: Alignment.bottomLeft,
                 child: MapControlsWidget(mapController),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: SettingsControlsWidget(() => mapMarkerProvider.openMarkerFiltersDialog(
-                    context, mapController.camera.center)),
               ),
             ],
           ),
@@ -289,7 +301,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
     Navigator.pushNamed(
       context,
       CompleteTaskPage.routeName,
-      arguments: CompleteTaskPageArgs(targets[i]),
+      arguments: targets[i],
     ).then((event) {
       setState(() {
         print("Event $event");

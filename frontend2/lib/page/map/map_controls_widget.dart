@@ -1,3 +1,4 @@
+import 'package:evplanner_frontend/page/settings/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -41,8 +42,9 @@ class _MapControlsWidgetState extends State<MapControlsWidget>
 
     return Padding(
       // the right padding is handled by children to allow the AnimatedBuilder shadow to expand
-      padding: EdgeInsets.only(top: 8 + mediaQuery.padding.top),
+      padding: EdgeInsets.only(top: 8 + mediaQuery.padding.bottom),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           AnimatedBuilder(
             animation: repositionAnim,
@@ -58,10 +60,10 @@ class _MapControlsWidgetState extends State<MapControlsWidget>
               scale: repositionAnim,
               child: Padding(
                 padding: EdgeInsets.only(
-                  left: 8,
+                  left: 8 + mediaQuery.padding.right,
                   top: 8,
-                  right: 8 + mediaQuery.padding.right,
-                  bottom: 16,
+                  right: 8,
+                  bottom: 8,
                 ),
                 child: FloatingActionButton(
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -74,6 +76,17 @@ class _MapControlsWidgetState extends State<MapControlsWidget>
                   child: const Icon(Icons.filter_tilt_shift),
                 ),
               ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 8),
+            child: FloatingActionButton(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              heroTag: "settings",
+              onPressed: () => Navigator.pushNamed(context, SettingsPage.routeName),
+              tooltip: l10n.settings,
+              mini: true,
+              child: const Icon(Icons.settings),
             ),
           ),
         ],

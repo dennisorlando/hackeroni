@@ -1,4 +1,5 @@
 import "package:collection/collection.dart";
+import "package:evplanner_frontend/page/map/target.dart";
 import "package:flutter/foundation.dart";
 import "package:http/http.dart" as http;
 import "package:http_parser/http_parser.dart";
@@ -213,8 +214,11 @@ class Backend {
     ]);
   }
 
-  Future<void> addMarkerImage2(Uint8List image, String? mimeType) async {
-    await _postAuthenticated("/map/image/add", fields: {}, files: [
+  Future<void> addMarkerImage2(Uint8List image, String? mimeType, Target target) async {
+    await _postAuthenticated("/map/image/add", fields: {
+      "filename": "${target.seed}_${target.lat.toString().replaceAll(".", "_")}_${
+          target.long.toString().replaceAll(".", "_")}_"
+    }, files: [
       http.MultipartFile.fromBytes(
         "image",
         image,
