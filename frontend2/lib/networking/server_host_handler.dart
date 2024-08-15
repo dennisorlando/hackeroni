@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 @lazySingleton
 class ServerHostHandler {
   static const _defaultScheme = "https";
-  static const _defaultHost = "api.evplanner.rs";
+  static const _defaultHost = "87f3-84-18-145-57.ngrok-free.app";
 
   final SharedPreferences _preferences;
   String _scheme;

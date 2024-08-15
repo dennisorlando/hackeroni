@@ -73,6 +73,8 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
     final rng = Random(seed);
     rng.nextInt(2);
     targets.shuffle(rng);
+    targets.removeLast();
+    targets.removeLast();
     targets.add(Target(46.4970306,11.3517777,"Hai finito il gioco!"));
     for (final target in targets) {
       target.seed = seed;
@@ -128,6 +130,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
     final position = watchStream((LocationProvider location) => location.getLocationStream(),
             get<LocationProvider>().lastLocationInfo())
         .data;
+    final poslatlng = position?.toLatLng();
 
     // Uncomment to test the rendering performance with lots of markers
     /*markers = <MapMarker>[];
@@ -233,7 +236,7 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
                     ],
               ),
               if (i < targets.length - 1 &&
-                  position != null) //&& _distance(position.toLatLng()!, targets[i].toLatLng()) < 50)
+                  poslatlng != null && _distance(poslatlng, targets[i].toLatLng()) < 50)
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
