@@ -1,5 +1,7 @@
 pub mod osmr_route;
 
+use std::cmp::min;
+
 use actix_web::{error::ErrorInternalServerError, web::{Data, Form}};
 use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
@@ -9,78 +11,6 @@ use crate::{config::AppConfig, db::{stations::PlugsInfo, DbConnection, DbPool}};
 use self::osmr_route::{OSRMRouteResult, RouteResult};
 
 use super::{request::PathRequest, OSRMError, PathResult};
-
-/* pub async fn get_routes(
-    paths: &[PathResult],
-    source: (f64, f64),
-    destination: (f64, f64),
-    config: Data<AppConfig>,
-) -> actix_web::Result<Vec<RouteResult>> {
-    let mut results = vec![];
-    let driving_uri = format!(
-        "{}/route/v1/driving/{},{};",
-        config.osrm_url, source.0, source.1
-    );
-
-    for path in paths {
-        let full_url = driving_uri.clone()
-            + &format!(
-                "{},{}",
-                path.station.coordinate_lat, path.station.coordinate_long
-            )
-            + "?overview=full&geometries=geojson";
-        let content = reqwest::get(full_url)
-            .await
-            .map_err(OSRMError::from)?
-            .text()
-            .await
-            .map_err(OSRMError::from)?;
-
-        let osrm_driving_route_result: OSRMRouteResult = serde_json::from_str(&content)?;
-
-        if osrm_driving_route_result.routes.is_none() {
-            continue;
-        }
-        let driving_nodes = osrm_driving_route_result.routes.as_ref().unwrap()[0]
-            .geometry
-            .coordinates
-            .clone();
-        let driving_duration = osrm_driving_route_result.routes.as_ref().unwrap()[0].duration;
-
-        let walking_uri = format!(
-            "{}/route/v1/foot/{},{};",
-            config.osrm_url, path.station.coordinate_lat, path.station.coordinate_long
-        );
-        let full_url = walking_uri
-            + &format!("{},{}", destination.0, destination.1)
-            + "?overview=full&geometries=geojson";
-        let content = reqwest::get(full_url)
-            .await
-            .map_err(OSRMError::from)?
-            .text()
-            .await
-            .map_err(OSRMError::from)?;
-
-        let osrm_foot_route_result: OSRMRouteResult = serde_json::from_str(&content)?;
-        if osrm_foot_route_result.routes.is_none() {
-            continue;
-        }
-        let walking_nodes = osrm_foot_route_result.routes.as_ref().unwrap()[0]
-            .geometry
-            .coordinates
-            .clone();
-        let walking_duration = osrm_foot_route_result.routes.as_ref().unwrap()[0].duration;
-        results.push(RouteResult {
-            walking_duration,
-            driving_duration,
-            walking_nodes,
-            driving_nodes,
-            final_charge: -1.0,
-        });
-    }
-
-    Ok(results)
-} */
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Routes {
@@ -104,8 +34,8 @@ impl RoutesBuilder {
         req: Form<PathRequest>,
         osrm_url: String,
     ) -> Self {
-        let walking_uri = format!("{}/route/v1/foot/", osrm_url);
-        let driving_uri = format!("{}/route/v1/driving/", osrm_url);
+        let walking_uri = format!("{}/route/v1/foot", osrm_url);
+        let driving_uri = format!("{}/route/v1/driving", osrm_url);
         let query_uri = "?overview=full&geometries=geojson".to_string();
         RoutesBuilder {
             paths,
@@ -123,21 +53,21 @@ impl RoutesBuilder {
 
         let mut results: Vec<RouteResult> = vec![];
         for path in self.paths.iter() {
-            let route = self.get_routes_for_path(&path, &mut conn).await?;
+            let route = self.get_routes_for_path(path, &mut conn).await?;
             results.push(route);
         }
 
-        let max_walking_time = self.req.max_walking_time.unwrap_or(600.0) as f64;
+        let max_walking_time = self.req.max_walking_time.unwrap_or(600.0);
         let results = results
             .iter()
-            .filter(|x| x.walking_duration < max_walking_time)
+            .filter(|x| x.walking_duration <= max_walking_time)
             .collect::<Vec<&RouteResult>>();
 
         let mut scores: Vec<(f64, f64, &RouteResult)> = vec![];
         for result in results.iter() {
-            let walking_score = 1.0 - result.walking_duration as f64 / max_walking_time;
-            let chargin_score = result.final_charge as f64
-                / self.req.charge_requested.unwrap_or(90.0) as f64;
+            let walking_score = 1.0 - result.walking_duration / max_walking_time;
+            let chargin_score = result.final_charge
+                / self.req.charge_requested.unwrap_or(90.0);
 
             scores.push((walking_score, chargin_score, result));
         }
@@ -148,7 +78,7 @@ impl RoutesBuilder {
             .max_by(|x, y| x.0.partial_cmp(&y.0).unwrap())
             .map(|x| x.2.clone());
 
-        routes.least_driving_time = None;
+        routes.least_driving_time = scores.iter().min_by(|x, y| x.2.driving_duration.partial_cmp(&y.2.driving_duration).unwrap()).map(|x| x.2.clone());
 
         routes.balanced = scores
             .iter()
@@ -169,6 +99,7 @@ impl RoutesBuilder {
             "{}/{},{};",
             self.driving_uri, self.req.source_lat, self.req.source_long
         );
+        println!("driving_uri {driving_uri}");
 
         let full_url = driving_uri.clone()
             + &format!(
@@ -176,6 +107,7 @@ impl RoutesBuilder {
                 path.station.coordinate_lat, path.station.coordinate_long
             )
             + self.query_uri.as_str();
+        println!("full_url {full_url}");
         let content = reqwest::get(full_url)
             .await
             .map_err(OSRMError::from)?
@@ -199,9 +131,9 @@ impl RoutesBuilder {
             self.walking_uri, path.station.coordinate_lat, path.station.coordinate_long
         );
         let full_url = walking_uri
-            + &format!("{},{}", self.req.destination_lat, self.req.destination_long)
+            + &format!("{},{}", self.req.destination_long, self.req.destination_lat)
             + self.query_uri.as_str();
-        let content = reqwest::get(full_url)
+            let content = reqwest::ClientBuilder::new().use_rustls_tls().danger_accept_invalid_certs(true).build().unwrap().get(full_url).send()
             .await
             .map_err(OSRMError::from)?
             .text()
@@ -219,18 +151,21 @@ impl RoutesBuilder {
         let walking_duration = osrm_foot_route_result.routes.as_ref().unwrap()[0].duration;
 
 
-        let max_power = plugs.iter().filter(|x| x.max_power.is_some()).map(|x| x.max_power.unwrap()).reduce(f64::max).unwrap_or(0.0);
+        let max_power = plugs.iter().filter_map(|x| x.max_power).reduce(f64::max).unwrap_or(22.0);
         let capacity = self.req.0.capacity;
         let current_charge = self.req.0.charge_left.unwrap_or(0.0);
         let full_charge_time = capacity / max_power * 60.0;
         let charge_time = 2.0 * walking_duration + self.req.0.duration as f64;
 
-        let final_charge = current_charge + (charge_time / full_charge_time * 100.0);
+        let final_charge = min(current_charge as i32 + (charge_time / full_charge_time * 100.0) as i32, 100.0 as i32) as f64;
+        let cost = capacity * (final_charge - current_charge) / 100.0 * 0.82;
+        //println!("{} {} {} {} {} {} {}", max_power, capacity, current_charge, full_charge_time, charge_time, final_charge, walking_duration);
 
         Ok(RouteResult {
             walking_duration,
             driving_duration,
             final_charge,
+            cost,
             walking_nodes,
             driving_nodes,
         })

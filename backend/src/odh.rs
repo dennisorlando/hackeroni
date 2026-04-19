@@ -8,9 +8,10 @@ use serde_json::Value;
 use thiserror::Error;
 
 use crate::db::{
-    stations::{get_all_stations, StationInfo},
+    stations::StationInfo,
     DBError, DbConnection,
 };
+use crate::db::stations::read_all_stations;
 
 pub struct ODHBuilder {
     url: String,
@@ -138,7 +139,8 @@ impl ODHBuilder {
         let url = self.url + "/v2/flat/" + T::get_uri() + "?limit=-1";
 
         print!("{}", url);
-        let content = reqwest::get(url).await?.text().await?;
+        let content = reqwest::ClientBuilder::new().use_rustls_tls().danger_accept_invalid_certs(true).build().unwrap().get(url).send()
+        .await?.text().await?;
         let x: Value = serde_json::from_str(&content)?;
         let t = x
             .get("data")
@@ -161,7 +163,7 @@ pub fn get_near_stations(
     p: (f64, f64),
     dist: f64,
 ) -> Result<Vec<StationInfo>, ODHError> {
-    let result: Vec<StationInfo> = get_all_stations(conn)?;
+    let result: Vec<StationInfo> = read_all_stations(conn)?;
     let res = result
         .into_iter()
         .filter_map(|x| {

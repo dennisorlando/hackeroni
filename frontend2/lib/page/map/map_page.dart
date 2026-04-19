@@ -246,11 +246,9 @@ class _MapPageState extends State<MapPage> with GetItStateMixin<MapPage>, Widget
   }
 
   void openRouteParametersPage(LatLng destination, [String? destinationName]) {
-    Navigator.pushNamed(
-      context,
-      RouteParametersPage.routeName,
-      arguments: RouteParametersPageArgs(destination, destinationName),
-    ).then((value) {
+    showModalBottomSheet(context: context, builder: (BuildContext context) {
+      return RouteParametersPage(RouteParametersPageArgs(destination, destinationName));
+    }).then((value) {
       print("YEEEE $value");
       if (value is Map<RouteAlgorithm, RouteData>) {
         setState(() {
